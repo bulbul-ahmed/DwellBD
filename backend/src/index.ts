@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
+import { prisma } from './models'
 
 // Load environment variables
 dotenv.config()
@@ -36,12 +37,25 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  })
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`
+
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: 'connected',
+    })
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      message: 'Database connection failed'
+    })
+  }
 })
 
 // API routes will be added here
@@ -75,7 +89,17 @@ app.use('*', (req, res) => {
   })
 })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 BDFlatHub API server running on port ${PORT}`)
   console.log(`📊 Health check: http://localhost:${PORT}/health`)
+})
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nShutting down gracefully...')
+  await prisma.$disconnect()
+  server.close(() => {
+    console.log('Server closed')
+    process.exit(0)
+  })
 })
