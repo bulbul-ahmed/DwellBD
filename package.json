@@ -1,0 +1,35 @@
+{
+  "name": "bd-flat-platform",
+  "version": "1.0.0",
+  "description": "BDFlatHub - Bangladesh Flat Rent/Sell Platform",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "setup": "npm run install:all"
+  },
+  "keywords": [
+    "flat",
+    "rent",
+    "sell",
+    "bangladesh",
+    "dhaka",
+    "real-estate",
+    "property",
+    "airbnb-clone"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "prettier": "^3.0.0"
+  }
+}

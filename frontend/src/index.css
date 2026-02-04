@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles */
+*:focus {
+  outline: 2px solid #FF385C;
+  outline-offset: 2px;
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    to right,
+    #f0f0f0 0%,
+    #f8f8f8 20%,
+    #f0f0f0 40%,
+    #f0f0f0 100%
+  );
+  background-size: 1000px 100%;
+}
+
+/* Custom animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Image lazy loading */
+img.lazy {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img.lazy.loaded {
+  opacity: 1;
+}
+
+/* Prevent text selection on drag */
+.dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* Focus visible for better accessibility */
+input:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid #FF385C;
+  outline-offset: 2px;
+}
+
+/* Mobile optimized tap targets */
+.button {
+  min-height: 44px;
+  min-width: 44px;
+}

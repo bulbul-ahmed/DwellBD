@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  firstName String
+  lastName  String
+  avatar    String?
+  role      Role     @default(TENANT)
+  isVerified Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  properties     Property[]
+  inquiriesSent  Inquiry[] @relation("InquirySender")
+  inquiriesReceived Inquiry[] @relation("InquiryReceiver")
+  favorites      Favorite[]
+  reviews        Review[]
+  propertyViews  PropertyView[]
+
+  @@map("users")
+}
+
+model Property {
+  id              String      @id @default(cuid())
+  title           String
+  description     String?
+  propertyType    PropertyType
+  listingType     ListingType @default(RENT)
+
+  // Location
+  address         String      @db.Text
+  area            String
+  city            String      @default("Dhaka")
+  latitude        Decimal?    @db.Decimal(10, 8)
+  longitude       Decimal?    @db.Decimal(11, 8)
+
+  // Property details
+  bedrooms        Int?
+  bathrooms       Int?
+  floorNumber     Int?
+  totalFloors     Int?
+  squareFeet      Int?
+  furnished       Furnished?  @default(NONE)
+
+  // Pricing
+  rentAmount      Decimal     @db.Decimal(10, 2)
+  rentPeriod      RentPeriod  @default(MONTHLY)
+  securityDeposit Decimal?    @db.Decimal(10, 2)
+  advancePayment  Int         @default(3) // months
+
+  // Amenities
+  amenities       Json        // Array of amenity strings
+
+  // Availability
+  isAvailable     Boolean     @default(true)
+  availableFrom   DateTime?
+
+  // Media
+  coverImage      String?
+  images          Json        // Array of image URLs
+  videoUrl        String?
+
+  // Status
+  status          PropertyStatus @default(PENDING)
+  isVerified      Boolean     @default(false)
+
+  // Relations
+  ownerId         String
+  owner           User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  inquiries       Inquiry[]
+  reviews         Review[]
+  favorites       Favorite[]
+  propertyViews   PropertyView[]
+
+  // Timestamps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  expiresAt       DateTime?
+
+  @@map("properties")
+}
+
+model Inquiry {
+  id        String           @id @default(cuid())
+  message   String           @db.Text
+  status    InquiryStatus    @default(PENDING)
+
+  // Relations
+  propertyId String
+  property   Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  senderId  String
+  sender    User             @relation("InquirySender", fields: [senderId], references: [id])
+
+  receiverId String
+  receiver   User             @relation("InquiryReceiver", fields: [receiverId], references: [id])
+
+  createdAt DateTime         @default(now())
+
+  @@map("inquiries")
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  // Relations
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@map("favorites")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      @db.SmallInt // 1-5
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@map("reviews")
+}
+
+model PropertyView {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("property_views")
+}
+
+// Enums
+enum Role {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+enum PropertyType {
+  BACHELOR
+  FAMILY
+  HOSTEL
+  SUBLET
+  OFFICE
+}
+
+enum ListingType {
+  RENT
+  SELL
+}
+
+enum Furnished {
+  NONE
+  PARTIAL
+  FULL
+}
+
+enum RentPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum PropertyStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  RENTED
+  SOLD
+}
+
+enum InquiryStatus {
+  PENDING
+  REPLIED
+  CLOSED
+}
