@@ -4,16 +4,16 @@
 
 ### Sprint 1: Foundation & Setup
 
-**Task #1: Setup development environment and project structure**
+**Task #1: Setup development environment and project structure** ✅
 
-- [ ] Initialize Git repository with proper `.gitignore`
-- [ ] Set up frontend (React + TypeScript + Vite)
-- [ ] Set up backend (Node.js + Express + TypeScript)
-- [ ] Configure ESLint and Prettier for both frontend/backend
-- [ ] Set up Tailwind CSS with Airbnb-inspired design system
-- [ ] Create folder structure for components, pages, API routes
-- [ ] Configure environment variables management
-- [ ] Set up development and production environment files
+- [x] Initialize Git repository with proper `.gitignore`
+- [x] Set up frontend (React + TypeScript + Vite)
+- [x] Set up backend (Node.js + Express + TypeScript)
+- [x] Configure ESLint and Prettier for both frontend/backend
+- [x] Set up Tailwind CSS with Airbnb-inspired design system
+- [x] Create folder structure for components, pages, API routes
+- [x] Configure environment variables management
+- [x] Set up development and production environment files
 
 **Task #2: Core UI Components & Design System**
 
@@ -26,15 +26,15 @@
 - [x] Set up responsive breakpoints (mobile-first)
 - [x] Implement dark mode support (optional for MVP)
 
-**Task #3: Database Schema & Backend Setup**
+**Task #3: Database Schema & Backend Setup** ✅
 
-- [ ] Set up PostgreSQL database
-- [ ] Configure Prisma ORM
-- [ ] Create database schema for users, properties, inquiries
-- [ ] Set up database migrations
-- [ ] Configure JWT authentication
-- [ ] Implement role-based access control
-- [ ] Set up file upload configuration (AWS S3)
+- [x] Set up PostgreSQL database
+- [x] Configure Prisma ORM
+- [x] Create database schema for users, properties, inquiries
+- [x] Set up database migrations
+- [x] Configure JWT authentication
+- [x] Implement role-based access control
+- [x] Set up file upload configuration (AWS S3)
 
 **Task #4: Authentication System**
 
