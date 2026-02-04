@@ -29,24 +29,24 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="border-t border-gray-200 bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center mb-4">
+            <div className="mb-4 flex items-center">
               <span className="text-2xl font-bold text-primary-600">BDFlatHub</span>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
-              Bangladesh's most trusted platform for finding and renting properties.
-              Your perfect home is just a click away.
+            <p className="mb-4 text-sm text-gray-600">
+              Bangladesh's most trusted platform for finding and renting properties. Your perfect
+              home is just a click away.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
-                  className="text-gray-400 hover:text-primary-600 transition-colors"
+                  className="text-gray-400 transition-colors hover:text-primary-600"
                   aria-label={social.name}
                 >
                   <social.icon className="h-5 w-5" />
@@ -58,7 +58,7 @@ const Footer = () => {
           {/* Links */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-900">
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </h3>
               <ul className="space-y-2">
@@ -66,7 +66,7 @@ const Footer = () => {
                   <li key={link.name}>
                     <a
                       href={link.href}
-                      className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
+                      className="text-sm text-gray-600 transition-colors hover:text-gray-900"
                     >
                       {link.name}
                     </a>
@@ -78,40 +78,34 @@ const Footer = () => {
         </div>
 
         {/* Contact Info */}
-        <div className="mt-8 pt-8 border-t border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="mt-8 border-t border-gray-200 pt-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="flex items-center space-x-3">
               <MapPin className="h-5 w-5 text-primary-600" />
-              <span className="text-sm text-gray-600">
-                Dhaka, Bangladesh
-              </span>
+              <span className="text-sm text-gray-600">Dhaka, Bangladesh</span>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-primary-600" />
-              <span className="text-sm text-gray-600">
-                +880 1700 000 000
-              </span>
+              <span className="text-sm text-gray-600">+880 1700 000 000</span>
             </div>
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-primary-600" />
-              <span className="text-sm text-gray-600">
-                hello@bdflathub.com
-              </span>
+              <span className="text-sm text-gray-600">hello@bdflathub.com</span>
             </div>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="mt-8 border-t border-gray-200 pt-8">
+          <div className="flex flex-col items-center justify-between md:flex-row">
             <p className="text-sm text-gray-600">
               © {new Date().getFullYear()} BDFlatHub. All rights reserved.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <div className="mt-4 flex space-x-6 md:mt-0">
+              <a href="#" className="text-sm text-gray-600 transition-colors hover:text-gray-900">
                 Currency
               </a>
-              <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="#" className="text-sm text-gray-600 transition-colors hover:text-gray-900">
                 Language (BAN/ENG)
               </a>
             </div>

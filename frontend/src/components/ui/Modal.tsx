@@ -31,20 +31,16 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
         <div className="flex min-h-screen items-center justify-center p-4">
           <div
             ref={ref}
-            className={`${sizeClasses[size]} bg-white rounded-lg shadow-xl transform transition-all w-full max-h-[90vh] overflow-hidden flex flex-col ${className}`}
+            className={`${sizeClasses[size]} flex max-h-[90vh] w-full transform flex-col overflow-hidden rounded-lg bg-white shadow-xl transition-all ${className}`}
             {...props}
           >
             {/* Header */}
             {(title || true) && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                {title && (
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {title}
-                  </h3>
-                )}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                {title && <h3 className="text-lg font-semibold text-gray-900">{title}</h3>}
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  className="p-1 text-gray-400 transition-colors hover:text-gray-600"
                   aria-label="Close"
                 >
                   <X className="h-6 w-6" />
@@ -53,12 +49,10 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
             )}
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              {children}
-            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
 
             {/* Footer */}
-            <div className="flex justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div className="flex justify-end space-x-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
               {/* Footer buttons can be added here */}
             </div>
           </div>

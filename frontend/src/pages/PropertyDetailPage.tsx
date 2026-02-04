@@ -102,13 +102,18 @@ const PropertyDetailPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Property Header */}
-      <div className="sticky top-16 z-40 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="sticky top-16 z-40 border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              <button className="rounded-lg p-2 hover:bg-gray-100">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
               <h1 className="text-xl font-semibold">Property Details</h1>
@@ -116,20 +121,20 @@ const PropertyDetailPage = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsFavorited(!isFavorited)}
-                className={`p-2 rounded-lg ${isFavorited ? 'text-red-500 bg-red-50' : 'text-gray-600 hover:bg-gray-100'}`}
+                className={`rounded-lg p-2 ${isFavorited ? 'bg-red-50 text-red-500' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                <Heart className="w-5 h-5" />
+                <Heart className="h-5 w-5" />
               </button>
-              <button className="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                <Share2 className="w-5 h-5" />
+              <button className="rounded-lg p-2 text-gray-600 hover:bg-gray-100">
+                <Share2 className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Property Gallery */}
           <div className="lg:col-span-2">
             {/* Main Image */}
@@ -137,10 +142,10 @@ const PropertyDetailPage = () => {
               <img
                 src={property.images[0]}
                 alt={property.title}
-                className="w-full h-[400px] object-cover rounded-lg"
+                className="h-[400px] w-full rounded-lg object-cover"
               />
               {property.isVerified && (
-                <span className="absolute top-4 left-4 bg-green-600 text-white text-xs font-medium px-2 py-1 rounded">
+                <span className="absolute left-4 top-4 rounded bg-green-600 px-2 py-1 text-xs font-medium text-white">
                   Verified
                 </span>
               )}
@@ -153,7 +158,7 @@ const PropertyDetailPage = () => {
                   key={index}
                   src={image}
                   alt={`Property image ${index + 2}`}
-                  className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                  className="h-24 w-full cursor-pointer rounded-lg object-cover transition-opacity hover:opacity-80"
                 />
               ))}
             </div>
@@ -162,25 +167,31 @@ const PropertyDetailPage = () => {
             <div className="mt-8 space-y-6">
               {/* Title and Price */}
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  {property.title}
-                </h2>
+                <h2 className="mb-2 text-3xl font-bold text-gray-900">{property.title}</h2>
                 <div className="flex items-baseline space-x-2">
                   <span className="text-2xl font-semibold text-primary-600">
                     {formatPrice(property.rentAmount)}
                   </span>
-                  <span className="text-gray-600">
-                    /month
-                  </span>
+                  <span className="text-gray-600">/month</span>
                 </div>
               </div>
 
               {/* Property Info */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div className="flex items-center space-x-2">
-                  <div className="bg-gray-100 p-2 rounded-lg">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  <div className="rounded-lg bg-gray-100 p-2">
+                    <svg
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -189,9 +200,19 @@ const PropertyDetailPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="bg-gray-100 p-2 rounded-lg">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  <div className="rounded-lg bg-gray-100 p-2">
+                    <svg
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -200,20 +221,42 @@ const PropertyDetailPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="bg-gray-100 p-2 rounded-lg">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                  <div className="rounded-lg bg-gray-100 p-2">
+                    <svg
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+                      />
                     </svg>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Floor</p>
-                    <p className="font-medium">{property.floorNumber}/{property.totalFloors}</p>
+                    <p className="font-medium">
+                      {property.floorNumber}/{property.totalFloors}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="bg-gray-100 p-2 rounded-lg">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" />
+                  <div className="rounded-lg bg-gray-100 p-2">
+                    <svg
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -225,22 +268,32 @@ const PropertyDetailPage = () => {
 
               {/* Description */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {property.description}
-                </p>
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">Description</h3>
+                <p className="leading-relaxed text-gray-600">{property.description}</p>
               </div>
 
               {/* Amenities */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Amenities</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">Amenities</h3>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                   {property.amenities.map((amenity) => (
                     <div key={amenity} className="flex items-center space-x-2">
-                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      <svg
+                        className="h-5 w-5 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
-                      <span className="text-gray-700">{amenityLabels[amenity as keyof typeof amenityLabels] || amenity}</span>
+                      <span className="text-gray-700">
+                        {amenityLabels[amenity as keyof typeof amenityLabels] || amenity}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -248,12 +301,14 @@ const PropertyDetailPage = () => {
 
               {/* Location */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Location</h3>
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">Location</h3>
                 <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                  <MapPin className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600" />
                   <div>
                     <p className="font-medium text-gray-900">{property.address}</p>
-                    <p className="text-gray-600">{property.area}, {property.city}</p>
+                    <p className="text-gray-600">
+                      {property.area}, {property.city}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -263,13 +318,13 @@ const PropertyDetailPage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             {/* Contact Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-24">
+            <div className="sticky top-24 rounded-lg border border-gray-200 bg-white p-6">
               {/* Owner Info */}
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="mb-4 flex items-center space-x-3">
                 <img
                   src={property.owner.avatar}
                   alt={property.owner.name}
-                  className="w-12 h-12 rounded-full"
+                  className="h-12 w-12 rounded-full"
                 />
                 <div>
                   <h3 className="font-medium text-gray-900">Contact Owner</h3>
@@ -278,19 +333,19 @@ const PropertyDetailPage = () => {
               </div>
 
               {/* Contact Options */}
-              <div className="space-y-3 mb-6">
+              <div className="mb-6 space-y-3">
                 <a
                   href={`tel:${property.owner.phone}`}
-                  className="flex items-center space-x-3 w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex w-full items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
                 >
-                  <Phone className="w-5 h-5 text-gray-600" />
+                  <Phone className="h-5 w-5 text-gray-600" />
                   <span className="text-gray-700">Call</span>
                 </a>
                 <a
                   href={`mailto:${property.owner.email}`}
-                  className="flex items-center space-x-3 w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex w-full items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
                 >
-                  <Mail className="w-5 h-5 text-gray-600" />
+                  <Mail className="h-5 w-5 text-gray-600" />
                   <span className="text-gray-700">Email</span>
                 </a>
               </div>
@@ -305,8 +360,8 @@ const PropertyDetailPage = () => {
               </Button>
 
               {/* Price Details */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-3">Price Details</h4>
+              <div className="mt-6 border-t border-gray-200 pt-6">
+                <h4 className="mb-3 font-medium text-gray-900">Price Details</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Monthly Rent</span>
@@ -324,25 +379,30 @@ const PropertyDetailPage = () => {
               </div>
 
               {/* Stats */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 border-t border-gray-200 pt-6">
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <Star className="h-4 w-4 fill-current text-yellow-400" />
                     <span className="text-sm font-medium">{property.stats.averageRating}</span>
-                    <span className="text-sm text-gray-600">({property.stats.favorites} favorites)</span>
+                    <span className="text-sm text-gray-600">
+                      ({property.stats.favorites} favorites)
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-600">
-                    {property.stats.views} views
-                  </div>
+                  <div className="text-sm text-gray-600">{property.stats.views} views</div>
                 </div>
               </div>
 
               {/* Availability */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 border-t border-gray-200 pt-6">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-green-600" />
+                  <Calendar className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-gray-700">
-                    Available from {new Date(property.availableFrom).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    Available from{' '}
+                    {new Date(property.availableFrom).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
                   </span>
                 </div>
               </div>
@@ -353,22 +413,16 @@ const PropertyDetailPage = () => {
 
       {/* Contact Modal */}
       {showContactModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold mb-4">Contact Owner</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
+            <h3 className="mb-4 text-lg font-semibold">Contact Owner</h3>
             <div className="space-y-4">
-              <Input
-                label="Your Name"
-                placeholder="Enter your name"
-              />
-              <Input
-                label="Phone Number"
-                placeholder="Enter your phone number"
-              />
+              <Input label="Your Name" placeholder="Enter your name" />
+              <Input label="Phone Number" placeholder="Enter your phone number" />
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Message</label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary-600"
                   rows={4}
                   placeholder="Write your message here..."
                   value={contactMessage}

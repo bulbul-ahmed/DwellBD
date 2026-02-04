@@ -3,11 +3,13 @@
 ## Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 npm run setup
 ```
 
 ### 2. Set Environment Variables
+
 ```bash
 # Copy environment files
 cp frontend/.env.example frontend/.env
@@ -17,6 +19,7 @@ cp backend/.env.example backend/.env
 ```
 
 ### 3. Setup Database
+
 ```bash
 # Navigate to backend
 cd backend
@@ -32,18 +35,21 @@ npm run generate
 ```
 
 ### 4. Start Development Servers
+
 ```bash
 # From root directory
 npm run dev
 ```
 
 This will start:
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:3001
 
 ## Development Workflow
 
 ### Frontend Development
+
 ```bash
 cd frontend
 npm run dev      # Start development server
@@ -52,6 +58,7 @@ npm run lint     # Run linter
 ```
 
 ### Backend Development
+
 ```bash
 cd backend
 npm run dev      # Start development server with nodemon
@@ -61,6 +68,7 @@ npm run studio   # Open Prisma Studio
 ```
 
 ### Run Both Services
+
 ```bash
 # From root directory
 npm run dev      # Start both frontend and backend
@@ -98,6 +106,7 @@ bd-flat-platform/
 ## Key Technologies
 
 ### Frontend
+
 - React 18 with TypeScript
 - Vite for fast development
 - Tailwind CSS for styling
@@ -106,6 +115,7 @@ bd-flat-platform/
 - Zustand for state management
 
 ### Backend
+
 - Node.js with Express
 - TypeScript for type safety
 - Prisma ORM for database
@@ -116,12 +126,14 @@ bd-flat-platform/
 ## Environment Variables
 
 ### Frontend (.env)
+
 ```env
 VITE_API_URL=http://localhost:3001/api
 VITE_FRONTEND_URL=http://localhost:3000
 ```
 
 ### Backend (.env)
+
 ```env
 PORT=3001
 NODE_ENV=development
@@ -142,6 +154,7 @@ AWS_S3_BUCKET=bdflathub-prod
 ## Performance Optimization
 
 The project is optimized for:
+
 - Fast loading with Vite
 - Image optimization with lazy loading
 - Efficient data fetching with React Query

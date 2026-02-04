@@ -5,7 +5,7 @@ import {
   getCurrentUser,
   verifyEmail,
   refreshAccessToken,
-  logout
+  logout,
 } from '../controllers/authController'
 import { authenticateToken } from '../middleware/auth'
 

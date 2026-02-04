@@ -19,8 +19,16 @@ const popularSearches = [
 ]
 
 const areas = [
-  'Dhanmondi', 'Gulshan', 'Banani', 'Uttara', 'Mirpur',
-  'Mohammadpur', 'Pallabi', 'Adabor', 'Shyamoli', 'Badda'
+  'Dhanmondi',
+  'Gulshan',
+  'Banani',
+  'Uttara',
+  'Mirpur',
+  'Mohammadpur',
+  'Pallabi',
+  'Adabor',
+  'Shyamoli',
+  'Badda',
 ]
 
 export default function SearchBar({ className }: SearchBarProps) {
@@ -65,10 +73,10 @@ export default function SearchBar({ className }: SearchBarProps) {
   }
 
   return (
-    <div className={cn('relative w-full max-w-3xl mx-auto', className)}>
+    <div className={cn('relative mx-auto w-full max-w-3xl', className)}>
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
           <Input
             type="text"
             placeholder="Search by location, property type..."
@@ -87,7 +95,7 @@ export default function SearchBar({ className }: SearchBarProps) {
                 setSelectedArea('')
                 setShowSuggestions(false)
               }}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
             >
               <X className="h-5 w-5" />
             </button>
@@ -98,11 +106,11 @@ export default function SearchBar({ className }: SearchBarProps) {
         {showSuggestions && (query || selectedArea) && (
           <div
             ref={suggestionsRef}
-            className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto"
+            className="absolute top-full z-50 mt-2 max-h-96 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
           >
             {/* Area Selector */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center space-x-2 mb-3">
+            <div className="border-b border-gray-200 p-4">
+              <div className="mb-3 flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-gray-600" />
                 <h3 className="font-medium text-gray-900">Select Area</h3>
               </div>
@@ -112,9 +120,9 @@ export default function SearchBar({ className }: SearchBarProps) {
                     key={area}
                     onClick={() => handleAreaSelect(area)}
                     className={cn(
-                      'px-3 py-1.5 text-sm rounded-full border transition-colors',
+                      'rounded-full border px-3 py-1.5 text-sm transition-colors',
                       selectedArea === area
-                        ? 'bg-primary-100 border-primary-600 text-primary-700'
+                        ? 'border-primary-600 bg-primary-100 text-primary-700'
                         : 'border-gray-300 text-gray-700 hover:bg-gray-100'
                     )}
                   >
@@ -126,7 +134,7 @@ export default function SearchBar({ className }: SearchBarProps) {
 
             {/* Popular Searches */}
             <div className="p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Popular Searches</h3>
+              <h3 className="mb-3 font-medium text-gray-900">Popular Searches</h3>
               <div className="space-y-2">
                 {popularSearches.map((search, index) => (
                   <button
@@ -136,7 +144,7 @@ export default function SearchBar({ className }: SearchBarProps) {
                       setQuery(search)
                       setShowSuggestions(false)
                     }}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                    className="w-full rounded px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-100"
                   >
                     {search}
                   </button>

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { verifyToken, JWTPayload } from '../utils/jwt'
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare global {
   namespace Express {
     interface Request {
@@ -16,7 +17,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   if (!token) {
     res.status(401).json({
       error: 'Unauthorized',
-      message: 'No authentication token provided'
+      message: 'No authentication token provided',
     })
     return
   }
@@ -25,7 +26,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   if (!payload) {
     res.status(403).json({
       error: 'Forbidden',
-      message: 'Invalid or expired token'
+      message: 'Invalid or expired token',
     })
     return
   }
@@ -39,7 +40,7 @@ export function requireRole(...roles: string[]) {
     if (!req.user) {
       res.status(401).json({
         error: 'Unauthorized',
-        message: 'Authentication required'
+        message: 'Authentication required',
       })
       return
     }
@@ -47,7 +48,7 @@ export function requireRole(...roles: string[]) {
     if (!roles.includes(req.user.role)) {
       res.status(403).json({
         error: 'Forbidden',
-        message: `Required role: ${roles.join(' or ')}`
+        message: `Required role: ${roles.join(' or ')}`,
       })
       return
     }

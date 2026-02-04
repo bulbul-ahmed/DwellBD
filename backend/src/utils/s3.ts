@@ -14,10 +14,7 @@ if (process.env.AWS_SECRET_ACCESS_KEY) {
 
 const s3 = new AWS.S3(s3Config)
 
-export async function uploadFileToS3(
-  file: Express.Multer.File,
-  folder: string
-): Promise<string> {
+export async function uploadFileToS3(file: Express.Multer.File, folder: string): Promise<string> {
   const key = `${folder}/${Date.now()}-${file.originalname}`
 
   const params = {

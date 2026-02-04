@@ -5,6 +5,7 @@
 ### Sprint 1: Foundation & Setup
 
 **Task #1: Setup development environment and project structure**
+
 - [ ] Initialize Git repository with proper `.gitignore`
 - [ ] Set up frontend (React + TypeScript + Vite)
 - [ ] Set up backend (Node.js + Express + TypeScript)
@@ -15,6 +16,7 @@
 - [ ] Set up development and production environment files
 
 **Task #2: Core UI Components & Design System**
+
 - [x] Create Airbnb-inspired color palette (3 colors max)
 - [x] Design and implement responsive navigation header
 - [x] Create property card component (Airbnb style)
@@ -25,6 +27,7 @@
 - [x] Implement dark mode support (optional for MVP)
 
 **Task #3: Database Schema & Backend Setup**
+
 - [ ] Set up PostgreSQL database
 - [ ] Configure Prisma ORM
 - [ ] Create database schema for users, properties, inquiries
@@ -34,6 +37,7 @@
 - [ ] Set up file upload configuration (AWS S3)
 
 **Task #4: Authentication System**
+
 - [ ] Implement user registration endpoint
 - [ ] Create login endpoint with JWT
 - [ ] Build phone OTP verification
@@ -48,6 +52,7 @@
 ### Sprint 2: Core Features
 
 **Task #5: Property Management Backend**
+
 - [ ] Create property listing endpoint
 - [ ] Implement property CRUD operations
 - [ ] Add image upload to S3
@@ -58,6 +63,7 @@
 - [ ] Implement property verification status
 
 **Task #6: Search & Filter System**
+
 - [ ] Build search bar with instant results
 - [ ] Implement area filter dropdown
 - [ ] Create price range slider
@@ -68,6 +74,7 @@
 - [ ] Implement search history (local storage)
 
 **Task #7: Property Display Components**
+
 - [ ] Build property detail page with image gallery
 - [ ] Create responsive property grid/list views
 - [ ] Implement infinite scroll for performance
@@ -78,6 +85,7 @@
 - [ ] Implement share property feature
 
 **Task #8: User Dashboard**
+
 - [ ] Create user profile page
 - [ ] Build my favorites page
 - [ ] Create my inquiries page
@@ -91,6 +99,7 @@
 ### Sprint 3: Admin & Polish
 
 **Task #9: Admin Panel**
+
 - [ ] Create admin authentication
 - [ ] Build admin dashboard overview
 - [ ] Create pending approvals page
@@ -100,6 +109,7 @@
 - [ ] Create report management system
 
 **Task #10: Performance Optimization**
+
 - [ ] Implement image lazy loading
 - [ ] Add service worker for caching
 - [ ] Optimize bundle size
@@ -110,6 +120,7 @@
 - [ ] Optimize font loading
 
 **Task #11: Mobile Responsiveness**
+
 - [ ] Test all components on mobile devices
 - [ ] Optimize touch interactions
 - [ ] Implement mobile navigation menu
@@ -119,6 +130,7 @@
 - [ ] Ensure all features work on mobile
 
 **Task #12: Security & Testing**
+
 - [ ] Implement input validation
 - [ ] Add rate limiting
 - [ ] Create unit tests for critical features
@@ -132,6 +144,7 @@
 ### Sprint 4: Launch Prep
 
 **Task #13: Content & Seed Data**
+
 - [ ] Create Dhaka areas database
 - [ ] Add 50+ sample properties
 - [ ] Upload sample property images
@@ -141,6 +154,7 @@
 - [ ] Add area descriptions and landmarks
 
 **Task #14: Deployment**
+
 - [ ] Set up production database
 - [ ] Deploy frontend to Vercel
 - [ ] Deploy backend to Railway/AWS
@@ -151,6 +165,7 @@
 - [ ] Configure monitoring
 
 **Task #15: Final Polish**
+
 - [ ] Optimize all page load times
 - [ ] Add micro-interactions and animations
 - [ ] Implement error boundaries
@@ -165,6 +180,7 @@
 ## Phase 2: Enhanced Features (Post-MVP)
 
 **Task #16: User Experience**
+
 - [ ] Implement review and rating system
 - [ ] Add user profiles with photos
 - [ ] Create saved searches
@@ -173,6 +189,7 @@
 - [ ] Create mobile app
 
 **Task #17: Business Features**
+
 - [ ] Implement payment gateway
 - [ ] Add premium listings
 - [ ] Create owner analytics
@@ -184,6 +201,7 @@
 ## Key Metrics to Track
 
 ### Performance
+
 - [ ] First Contentful Paint < 1.5s
 - [ ] Largest Contentful Paint < 2.5s
 - [ ] Time to Interactive < 3.5s
@@ -191,6 +209,7 @@
 - [ ] Mobile-friendly score > 90
 
 ### User Experience
+
 - [ ] Pages scroll smoothly
 - [ ] All interactive elements respond within 100ms
 - [ ] Images load progressively
@@ -198,6 +217,7 @@
 - [ ] Navigation works with one hand
 
 ### Airbnb Design Elements
+
 - [ ] Clean, minimal interface
 - [ ] High-quality property photos
 - [ ] Clear pricing display
@@ -208,6 +228,7 @@
 ---
 
 ## Notes
+
 - All components must be mobile-first
 - Keep code DRY and maintainable
 - Follow Airbnb's design principles

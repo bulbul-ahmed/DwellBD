@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { prisma } from './models'
 import authRoutes from './routes/authRoutes'
+import propertyRoutes from './routes/propertyRoutes'
 
 // Load environment variables
 dotenv.config()
@@ -15,18 +16,20 @@ const PORT = process.env.PORT || 3001
 
 // Security middleware
 app.use(helmet())
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+)
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: {
-    error: 'Too many requests from this IP, please try again after 15 minutes'
-  }
+    error: 'Too many requests from this IP, please try again after 15 minutes',
+  },
 })
 app.use('/api/', limiter)
 
@@ -54,13 +57,14 @@ app.get('/health', async (req, res) => {
       status: 'error',
       timestamp: new Date().toISOString(),
       database: 'disconnected',
-      message: 'Database connection failed'
+      message: 'Database connection failed',
     })
   }
 })
 
 // API routes
 app.use('/api/auth', authRoutes)
+app.use('/api/properties', propertyRoutes)
 
 // API documentation
 app.get('/api', (req, res) => {
@@ -77,18 +81,26 @@ app.get('/api', (req, res) => {
         refreshToken: 'POST /api/auth/refresh',
         logout: 'POST /api/auth/logout',
       },
-      properties: '/api/properties',
-      users: '/api/users',
-    }
+      properties: {
+        search: 'GET /api/properties/search?area=...&minPrice=...&maxPrice=...&propertyType=...',
+        getOne: 'GET /api/properties/:id',
+        getStats: 'GET /api/properties/:id/stats',
+        create: 'POST /api/properties (protected, OWNER only)',
+        myProperties: 'GET /api/properties/user/my-properties (protected)',
+        update: 'PATCH /api/properties/:id (protected, OWNER only)',
+        delete: 'DELETE /api/properties/:id (protected, OWNER only)',
+        uploadImages: 'POST /api/properties/upload/images (protected)',
+      },
+    },
   })
 })
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err.stack)
   res.status(500).json({
     error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
   })
 })
 
@@ -96,7 +108,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Not Found',
-    message: `Route ${req.originalUrl} not found`
+    message: `Route ${req.originalUrl} not found`,
   })
 })
 

@@ -54,26 +54,28 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${className}`}>
+    <div
+      className={`overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-200 hover:shadow-md ${className}`}
+    >
       {/* Image */}
       <div className="relative">
         <Link to={`/properties/${property.id}`}>
           <img
             src={property.images[0] || '/placeholder-property.jpg'}
             alt={property.title}
-            className="w-full h-64 object-cover cursor-pointer"
+            className="h-64 w-full cursor-pointer object-cover"
             loading="lazy"
           />
         </Link>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex space-x-2">
+        <div className="absolute left-3 top-3 flex space-x-2">
           {property.isVerified && (
-            <span className="bg-green-600 text-white text-xs font-medium px-2 py-1 rounded">
+            <span className="rounded bg-green-600 px-2 py-1 text-xs font-medium text-white">
               Verified
             </span>
           )}
-          <span className="bg-primary-600 text-white text-xs font-medium px-2 py-1 rounded">
+          <span className="rounded bg-primary-600 px-2 py-1 text-xs font-medium text-white">
             {propertyTypeLabel[property.propertyType]}
           </span>
         </div>
@@ -81,11 +83,11 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
         {/* Favorite Button */}
         <button
           onClick={handleFavorite}
-          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+          className="absolute right-3 top-3 rounded-full bg-white p-2 shadow-md transition-all duration-200 hover:shadow-lg"
           aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart
-            className={`h-5 w-5 ${isFavorited ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+            className={`h-5 w-5 ${isFavorited ? 'fill-current text-red-500' : 'text-gray-400'}`}
           />
         </button>
       </div>
@@ -93,42 +95,40 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
       {/* Content */}
       <div className="p-4">
         {/* Location */}
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <MapPin className="h-4 w-4 mr-1" />
+        <div className="mb-2 flex items-center text-sm text-gray-600">
+          <MapPin className="mr-1 h-4 w-4" />
           <span>{property.area}, Dhaka</span>
         </div>
 
         {/* Title */}
         <Link to={`/properties/${property.id}`} className="block">
-          <h3 className="font-semibold text-gray-900 mb-2 hover:text-primary-600 transition-colors line-clamp-2">
+          <h3 className="mb-2 line-clamp-2 font-semibold text-gray-900 transition-colors hover:text-primary-600">
             {property.title}
           </h3>
         </Link>
 
         {/* Description */}
         {property.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {property.description}
-          </p>
+          <p className="mb-3 line-clamp-2 text-sm text-gray-600">{property.description}</p>
         )}
 
         {/* Amenities */}
-        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+        <div className="mb-3 flex items-center space-x-4 text-sm text-gray-600">
           {property.bedrooms && (
             <div className="flex items-center">
-              <Bed className="h-4 w-4 mr-1" />
+              <Bed className="mr-1 h-4 w-4" />
               <span>{property.bedrooms}</span>
             </div>
           )}
           {property.bathrooms && (
             <div className="flex items-center">
-              <Bath className="h-4 w-4 mr-1" />
+              <Bath className="mr-1 h-4 w-4" />
               <span>{property.bathrooms}</span>
             </div>
           )}
           {property.squareFeet && (
             <div className="flex items-center">
-              <Square className="h-4 w-4 mr-1" />
+              <Square className="mr-1 h-4 w-4" />
               <span>{property.squareFeet} sqft</span>
             </div>
           )}
@@ -138,13 +138,15 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
         <div className="mb-3">
           <div className="text-lg font-semibold text-primary-600">
             {formatPrice(property.rentAmount)}
-            {property.listingType === 'RENT' && <span className="text-sm font-normal text-gray-600"> /month</span>}
+            {property.listingType === 'RENT' && (
+              <span className="text-sm font-normal text-gray-600"> /month</span>
+            )}
           </div>
         </div>
 
         {/* Date */}
-        <div className="flex items-center text-xs text-gray-500 mb-3">
-          <Calendar className="h-3 w-3 mr-1" />
+        <div className="mb-3 flex items-center text-xs text-gray-500">
+          <Calendar className="mr-1 h-3 w-3" />
           <span>Listed {formatDate(property.createdAt)}</span>
         </div>
 

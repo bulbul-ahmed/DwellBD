@@ -24,7 +24,7 @@ export function useSearch<T>(options: UseSearchOptions = {}) {
 
     try {
       // Simulate API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       // Mock results - replace with actual search logic
       const mockResults: T[] = []

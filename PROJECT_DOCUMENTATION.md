@@ -1,6 +1,7 @@
 # BDFlatHub - Project Documentation
 
 ## Table of Contents
+
 1. [Project Overview](#1-project-overview)
 2. [Technical Architecture](#2-technical-architecture)
 3. [Features Breakdown](#3-features-breakdown)
@@ -15,9 +16,11 @@
 ## 1. Project Overview
 
 ### Vision
+
 To become Bangladesh's most trusted and user-friendly platform for rental properties and real estate transactions, starting with Dhaka and expanding to all major cities.
 
 ### Mission
+
 - To bridge the gap between property owners and tenants through a transparent, easy-to-use platform
 - To simplify the process of finding, listing, and renting properties in Bangladesh
 - To provide accurate, verified property information with real-time availability
@@ -26,22 +29,24 @@ To become Bangladesh's most trusted and user-friendly platform for rental proper
 ### Target Audience
 
 **Primary Users:**
+
 - **Tenants**: Students, working professionals, families looking for rental accommodations
 - **Property Owners**: Individuals, real estate agents, property management companies
 - **Administrators**: Platform moderators for content verification and user management
 
 **User Personas:**
 
-| Persona | Description | Pain Points | Needs |
-|---------|-------------|-------------|-------|
-| Student | University student looking for bachelor accommodation/hostel | Limited budget, need reliable info, safety concerns | Affordable options, verified listings, location proximity |
-| Working Professional | Employed individual seeking 1-2 BHK flats | Time-constrained, wants quality, transparency | Quick search, detailed photos, direct owner contact |
-| Family | Family looking for 2-3 BHK flats | Space requirements, safety, amenities | Spacious flats, secure neighborhoods, long-term options |
-| Property Owner | Individual renting out their property | Finding genuine tenants, managing listings | Easy listing process, tenant verification, communication tools |
+| Persona              | Description                                                  | Pain Points                                         | Needs                                                          |
+| -------------------- | ------------------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------- |
+| Student              | University student looking for bachelor accommodation/hostel | Limited budget, need reliable info, safety concerns | Affordable options, verified listings, location proximity      |
+| Working Professional | Employed individual seeking 1-2 BHK flats                    | Time-constrained, wants quality, transparency       | Quick search, detailed photos, direct owner contact            |
+| Family               | Family looking for 2-3 BHK flats                             | Space requirements, safety, amenities               | Spacious flats, secure neighborhoods, long-term options        |
+| Property Owner       | Individual renting out their property                        | Finding genuine tenants, managing listings          | Easy listing process, tenant verification, communication tools |
 
 ### Key Features
 
 **Core Features:**
+
 - User authentication with role-based access (Tenant, Owner, Admin)
 - Property listing with comprehensive details (photos, videos, amenities, pricing)
 - Advanced search and filtering system
@@ -53,6 +58,7 @@ To become Bangladesh's most trusted and user-friendly platform for rental proper
 - Review and rating system
 
 **Future Features:**
+
 - Virtual tours and 360° views
 - Price trend analytics
 - Neighborhood guides
@@ -102,6 +108,7 @@ To become Bangladesh's most trusted and user-friendly platform for rental proper
 ### Frontend Stack
 
 **Core Technologies:**
+
 ```json
 {
   "framework": "React 18+",
@@ -130,6 +137,7 @@ To become Bangladesh's most trusted and user-friendly platform for rental proper
 ### Backend Stack
 
 **Option A: Node.js/Express (Recommended)**
+
 ```json
 {
   "runtime": "Node.js 20+ LTS",
@@ -144,6 +152,7 @@ To become Bangladesh's most trusted and user-friendly platform for rental proper
 ```
 
 **Option B: Python/Django**
+
 ```python
 {
   "runtime": "Python 3.11+",
@@ -398,13 +407,14 @@ CREATE TABLE property_views (
 
 **User Roles:**
 
-| Role | Permissions |
-|------|-------------|
-| **Tenant** | Browse properties, save favorites, contact owners, submit reviews |
-| **Owner** | Create/edit/delete listings, manage inquiries, view analytics |
-| **Admin** | Verify listings, manage users, moderate content, view platform analytics |
+| Role       | Permissions                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| **Tenant** | Browse properties, save favorites, contact owners, submit reviews        |
+| **Owner**  | Create/edit/delete listings, manage inquiries, view analytics            |
+| **Admin**  | Verify listings, manage users, moderate content, view platform analytics |
 
 **Authentication Flow:**
+
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │  Register   │───►│ Email/Phone │───►│  Profile    │
@@ -413,6 +423,7 @@ CREATE TABLE property_views (
 ```
 
 **Registration Fields:**
+
 - Email/Phone (required)
 - Password (min 8 characters)
 - Role selection (Tenant/Owner)
@@ -424,23 +435,27 @@ CREATE TABLE property_views (
 **Listing Information Structure:**
 
 **1. Basic Information**
+
 - Property title (headline)
 - Property type (Bachelor/Family/Hostel/Sublet)
 - Listing type (Rent/Sell)
 
 **2. Location Details**
+
 - Full address
 - Area/Neighborhood
 - Nearby landmarks
 - Map coordinates
 
 **3. Property Specifications**
+
 - Bedrooms & Bathrooms
 - Floor number & Total floors
 - Square footage
 - Furnishing status (Furnished/Semi-furnished/Unfurnished)
 
 **4. Pricing Information**
+
 - Monthly rent
 - Security deposit
 - Advance payment required
@@ -448,6 +463,7 @@ CREATE TABLE property_views (
 
 **5. Amenities**
 **Common Amenities:**
+
 - WiFi/Internet
 - Parking (covered/open)
 - Generator backup
@@ -460,6 +476,7 @@ CREATE TABLE property_views (
 - Balcony
 
 **Apartment-Specific:**
+
 - Attached balcony
 - Shared kitchen
 - Dining space
@@ -467,18 +484,21 @@ CREATE TABLE property_views (
 - AC points
 
 **Hostel-Specific:**
+
 - Meal included
 - Laundry service
 - Common room
 - Study area
 
 **6. Media Upload**
+
 - Cover photo (required, max 5MB)
 - Gallery photos (up to 20 photos)
 - Video tour (YouTube/Vimeo link)
 - Floor plan image
 
 **7. Additional Details**
+
 - Description
 - House rules
 - Preferred tenants
@@ -513,6 +533,7 @@ Filters:
 ```
 
 **Search Algorithm Considerations:**
+
 - Full-text search on title and description
 - Geo-spatial search for nearby properties
 - Filter by exact match or range
@@ -522,6 +543,7 @@ Filters:
 ### Property Comparison
 
 **Comparison Features:**
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    COMPARE PROPERTIES                          │
@@ -546,6 +568,7 @@ Filters:
 ### Contact/Inquiry System
 
 **Inquiry Flow:**
+
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │   Tenant     │───►│  Inquiry     │───►│    Owner     │
@@ -561,6 +584,7 @@ Filters:
 ```
 
 **Inquiry Form Fields:**
+
 - Name (auto-filled if logged in)
 - Phone/Email (auto-filled)
 - Message (required)
@@ -568,6 +592,7 @@ Filters:
 - Move-in date (optional)
 
 **Response Types:**
+
 - Direct reply in chat
 - Call/Email notification
 - Scheduled viewing appointment
@@ -577,6 +602,7 @@ Filters:
 **Dashboard Sections:**
 
 **1. Overview Stats**
+
 ```
 ┌─────────────┬─────────────┬─────────────┬─────────────┐
 │ Total Users │ Total Props │ Pending     │ Active      │
@@ -587,17 +613,20 @@ Filters:
 ```
 
 **2. Pending Approvals**
+
 - List of unverified properties
 - Review photos and documents
 - Approve/Reject with notes
 
 **3. User Management**
+
 - View all users
 - Filter by role and status
 - Suspend/ban users
 - View user activity
 
 **4. Reports**
+
 - New registrations
 - Property views
 - Inquiry statistics
@@ -609,15 +638,16 @@ Filters:
 
 ### Property Types (MVP)
 
-| Property Type | Target Audience | Key Features |
-|---------------|-----------------|--------------|
-| **Bachelor Accommodation** | Students, working professionals | Shared/single rooms, flexible rent, near universities |
-| **Girls Hostel** | Female students/professionals | Safety features, meal options, strict security |
-| **Family Flats** | Families | Multiple bedrooms, family-friendly amenities, long-term |
+| Property Type              | Target Audience                 | Key Features                                            |
+| -------------------------- | ------------------------------- | ------------------------------------------------------- |
+| **Bachelor Accommodation** | Students, working professionals | Shared/single rooms, flexible rent, near universities   |
+| **Girls Hostel**           | Female students/professionals   | Safety features, meal options, strict security          |
+| **Family Flats**           | Families                        | Multiple bedrooms, family-friendly amenities, long-term |
 
 ### Dhaka Areas (Phase 1 - Priority Areas)
 
 **Tier 1 (High Priority):**
+
 - Dhanmondi
 - Gulshan
 - Banani
@@ -625,6 +655,7 @@ Filters:
 - Uttara
 
 **Tier 2 (Medium Priority):**
+
 - Mirpur
 - Mohammadpur
 - Pallabi
@@ -632,6 +663,7 @@ Filters:
 - Shyamoli
 
 **Tier 3 (Expansion):**
+
 - Badda
 - Rampura
 - Khilgaon
@@ -639,6 +671,7 @@ Filters:
 - Malibagh
 
 **Area Information Structure:**
+
 ```json
 {
   "name": "Dhanmondi",
@@ -657,6 +690,7 @@ Filters:
 ### MVP Features
 
 **Must-Have Features (Phase 1):**
+
 1. User registration/login (email + phone OTP)
 2. Property listing (basic fields only)
 3. Photo upload (max 5 photos)
@@ -667,6 +701,7 @@ Filters:
 8. Responsive mobile design
 
 **Nice-to-Have Features (Phase 1.5):**
+
 1. Save favorite properties
 2. Share property link
 3. Recently viewed
@@ -674,6 +709,7 @@ Filters:
 5. Google Maps integration
 
 **Out of Scope for MVP:**
+
 1. Virtual tours
 2. Advanced analytics
 3. Payment gateway integration
@@ -710,6 +746,7 @@ CREATE TABLE properties (
 ### Design Philosophy
 
 **Principles:**
+
 1. **Minimalism First** - Less is more. Clean interfaces with purposeful elements
 2. **Mobile-First** - Design for mobile, scale up for desktop
 3. **Accessibility** - WCAG AA compliance, readable fonts, sufficient contrast
@@ -719,6 +756,7 @@ CREATE TABLE properties (
 ### Airbnb-Inspired UI Elements
 
 **Navigation Bar:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  [Logo]  [Buy]  [Rent]  [Sell]  ▼ [Location]  [Search]      │
@@ -727,6 +765,7 @@ CREATE TABLE properties (
 ```
 
 **Property Card Design:**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  [─────────── Property Image ───────────]   │
@@ -744,6 +783,7 @@ CREATE TABLE properties (
 ```
 
 **Filter Chips:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  [✓] Generator  [✓] Parking  [  ] WiFi  [  ] Gas  [  ] Lift│
@@ -753,27 +793,29 @@ CREATE TABLE properties (
 ### Color Palette
 
 **Primary Colors (Maximum 3):**
+
 ```css
 /* Brand Colors */
---color-primary: #FF385C;      /* Primary Action (CTA Buttons) */
---color-secondary: #008489;    /* Secondary Action (Links) */
---color-accent: #FF385C;       /* Accent (Highlights) */
+--color-primary: #ff385c; /* Primary Action (CTA Buttons) */
+--color-secondary: #008489; /* Secondary Action (Links) */
+--color-accent: #ff385c; /* Accent (Highlights) */
 
 /* Neutral Colors */
 --color-text-primary: #222222;
 --color-text-secondary: #717171;
---color-border: #DDDDDD;
---color-background: #FFFFFF;
---color-background-alt: #F7F7F7;
+--color-border: #dddddd;
+--color-background: #ffffff;
+--color-background-alt: #f7f7f7;
 
 /* Status Colors */
---color-success: #00A699;
---color-warning: #FFB400;
---color-error: #FF385C;
+--color-success: #00a699;
+--color-warning: #ffb400;
+--color-error: #ff385c;
 --color-info: #008489;
 ```
 
 **Color Usage:**
+
 - Use primary color for main CTAs only
 - Keep secondary actions in neutral colors
 - Use whitespace generously
@@ -783,8 +825,13 @@ CREATE TABLE properties (
 
 ```css
 /* Font Stack */
-font-family: 'Circular', -apple-system, BlinkMacSystemFont,
-             'Segoe UI', Roboto, sans-serif;
+font-family:
+  'Circular',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  sans-serif;
 
 /* Type Scale */
 --text-xs: 12px;
@@ -859,34 +906,38 @@ src/
 
 ```css
 /* Breakpoints */
---breakpoint-sm: 640px;   /* Mobile landscape */
---breakpoint-md: 768px;   /* Tablet */
---breakpoint-lg: 1024px;  /* Desktop */
---breakpoint-xl: 1280px;  /* Large desktop */
+--breakpoint-sm: 640px; /* Mobile landscape */
+--breakpoint-md: 768px; /* Tablet */
+--breakpoint-lg: 1024px; /* Desktop */
+--breakpoint-xl: 1280px; /* Large desktop */
 --breakpoint-2xl: 1536px; /* Extra large */
 ```
 
 ### User Experience Priorities
 
 **1. Search Experience**
+
 - Instant search results as you type
 - Clear filter indicators
 - Easy to remove filters
 - Save search preferences
 
 **2. Property Viewing**
+
 - High-quality image gallery
 - Easy-to-scan information layout
 - Clear pricing display
 - Mobile-optimized gallery
 
 **3. Communication**
+
 - One-click contact (WhatsApp/Phone)
 - Message templates for quick inquiries
 - Read receipts for messages
 - Response time indicators
 
 **4. Trust & Safety**
+
 - Verified owner badges
 - Report listing functionality
 - Clear safety guidelines
@@ -899,6 +950,7 @@ src/
 ### Phase 1: MVP Development (Weeks 1-4)
 
 **Week 1: Foundation**
+
 - Set up project structure
 - Configure development environment
 - Design database schema
@@ -906,6 +958,7 @@ src/
 - Create base UI components
 
 **Week 2: Core Features**
+
 - Property listing CRUD
 - Image upload functionality
 - Basic search and filter
@@ -913,6 +966,7 @@ src/
 - Contact/inquiry form
 
 **Week 3: Admin & Testing**
+
 - Admin dashboard
 - Listing verification workflow
 - Unit testing
@@ -920,6 +974,7 @@ src/
 - Bug fixes
 
 **Week 4: Polish & Launch**
+
 - UI/UX refinement
 - Performance optimization
 - Security audit
@@ -927,6 +982,7 @@ src/
 - Deployment to staging
 
 **Phase 1 Deliverables:**
+
 - Working web application
 - Admin panel
 - 50+ seed properties
@@ -936,6 +992,7 @@ src/
 ### Phase 2: Enhanced Features (Weeks 5-8)
 
 **Week 5-6: User Experience**
+
 - Save favorite properties
 - User profiles
 - Review and rating system
@@ -943,6 +1000,7 @@ src/
 - Email notifications
 
 **Week 7-8: Business Features**
+
 - Premium listing packages
 - Featured properties
 - Owner analytics dashboard
@@ -950,6 +1008,7 @@ src/
 - SMS notifications
 
 **Phase 2 Deliverables:**
+
 - Full user profile system
 - Payment integration
 - Premium features
@@ -958,6 +1017,7 @@ src/
 ### Phase 3: Advanced Features (Weeks 9-12)
 
 **Week 9-10: Advanced Search**
+
 - Map-based property search
 - Drawing search area on map
 - Commute time calculator
@@ -965,6 +1025,7 @@ src/
 - Search history and saved searches
 
 **Week 11-12: Content & Engagement**
+
 - Virtual tour integration
 - Video upload support
 - Neighborhood guides
@@ -972,6 +1033,7 @@ src/
 - Social media integration
 
 **Phase 3 Deliverables:**
+
 - Map-based search
 - Video content support
 - Content management system
@@ -980,18 +1042,21 @@ src/
 ### Phase 4: Expansion (Month 4-6)
 
 **Additional Cities**
+
 - Chittagong
 - Sylhet
 - Rajshahi
 - Khulna
 
 **Mobile App**
+
 - React Native development
 - Push notifications
 - Offline property viewing
 - In-app messaging
 
 **Phase 4 Deliverables:**
+
 - Multi-city support
 - Mobile apps (iOS/Android)
 - Advanced analytics
@@ -999,12 +1064,12 @@ src/
 
 ### Timeline Summary
 
-| Phase | Duration | Key Milestones |
-|-------|----------|----------------|
-| **Phase 1** | 4 weeks | MVP launch for Dhaka |
-| **Phase 2** | 4 weeks | Enhanced features & payments |
-| **Phase 3** | 4 weeks | Advanced search & content |
-| **Phase 4** | 8-12 weeks | Multi-city & mobile app |
+| Phase       | Duration   | Key Milestones               |
+| ----------- | ---------- | ---------------------------- |
+| **Phase 1** | 4 weeks    | MVP launch for Dhaka         |
+| **Phase 2** | 4 weeks    | Enhanced features & payments |
+| **Phase 3** | 4 weeks    | Advanced search & content    |
+| **Phase 4** | 8-12 weeks | Multi-city & mobile app      |
 
 ---
 
@@ -1013,6 +1078,7 @@ src/
 ### Frontend Stack
 
 **Core Framework:**
+
 ```json
 {
   "react": "^18.2.0",
@@ -1022,6 +1088,7 @@ src/
 ```
 
 **Why Next.js?**
+
 - Server-side rendering for better SEO
 - API routes for backend integration
 - Built-in image optimization
@@ -1029,6 +1096,7 @@ src/
 - Easy deployment on Vercel
 
 **Styling:**
+
 ```json
 {
   "tailwindcss": "^3.3.0",
@@ -1038,6 +1106,7 @@ src/
 ```
 
 **State Management:**
+
 ```json
 {
   "@tanstack/react-query": "^5.0.0",
@@ -1046,6 +1115,7 @@ src/
 ```
 
 **Forms & Validation:**
+
 ```json
 {
   "react-hook-form": "^7.45.0",
@@ -1055,6 +1125,7 @@ src/
 ```
 
 **Other Libraries:**
+
 ```json
 {
   "react-router-dom": "^6.14.0",
@@ -1082,6 +1153,7 @@ src/
 ```
 
 **Libraries:**
+
 ```json
 {
   "bcryptjs": "^2.4.3",
@@ -1111,6 +1183,7 @@ redis==4.5
 ### Database
 
 **PostgreSQL (Recommended):**
+
 - ACID compliance for transactional integrity
 - Advanced querying capabilities
 - JSON support for flexible schemas
@@ -1118,11 +1191,13 @@ redis==4.5
 - Geo-spatial data support with PostGIS
 
 **Connection String:**
+
 ```
 postgresql://user:password@localhost:5432/bdflathub
 ```
 
 **Alternative: MongoDB**
+
 - Flexible schema design
 - Good for rapid prototyping
 - Built-in sharding
@@ -1131,6 +1206,7 @@ postgresql://user:password@localhost:5432/bdflathub
 ### File Storage
 
 **AWS S3 (Recommended):**
+
 ```
 Bucket: bdflathub-prod
 Structure:
@@ -1146,6 +1222,7 @@ Structure:
 ```
 
 **Alternative:**
+
 - Google Cloud Storage
 - Cloudflare R2 (cost-effective)
 - Azure Blob Storage
@@ -1153,6 +1230,7 @@ Structure:
 ### Hosting & Deployment
 
 **Frontend: Vercel (Recommended)**
+
 - Zero-config deployment
 - Automatic HTTPS
 - Preview deployments
@@ -1162,6 +1240,7 @@ Structure:
 **Backend: AWS / Railway / Render**
 
 **AWS EC2 Setup:**
+
 ```
 Instance: t3.medium (2 vCPU, 4GB RAM)
 OS: Ubuntu 22.04 LTS
@@ -1171,12 +1250,14 @@ CDN: CloudFront
 ```
 
 **Alternative: Railway (Simpler)**
+
 - Easy deployment
 - Built-in database
 - Automatic SSL
 - Good for MVP
 
 **Alternative: Render**
+
 - Free tier available
 - Simple setup
 - Good documentation
@@ -1184,6 +1265,7 @@ CDN: CloudFront
 ### CI/CD Pipeline
 
 **GitHub Actions Example:**
+
 ```yaml
 name: CI/CD
 on: [push]
@@ -1207,6 +1289,7 @@ jobs:
 ### Monitoring & Analytics
 
 **Tools:**
+
 - Google Analytics 4 - User analytics
 - Sentry - Error tracking
 - LogRocket - Session replay
@@ -1230,6 +1313,7 @@ jobs:
 ### Backend Development
 
 **Setup & Configuration:**
+
 - [ ] Initialize Node.js/Express project
 - [ ] Set up TypeScript configuration
 - [ ] Configure Prisma ORM
@@ -1238,6 +1322,7 @@ jobs:
 - [ ] Configure CORS and security middleware
 
 **Authentication:**
+
 - [ ] Implement user registration endpoint
 - [ ] Implement login endpoint with JWT
 - [ ] Create password reset functionality
@@ -1246,6 +1331,7 @@ jobs:
 - [ ] Create auth refresh token logic
 
 **Property Management:**
+
 - [ ] Create property listing endpoint
 - [ ] Implement property update endpoint
 - [ ] Create property delete endpoint
@@ -1255,6 +1341,7 @@ jobs:
 - [ ] Add property detail retrieval endpoint
 
 **Admin Features:**
+
 - [ ] Create admin authentication
 - [ ] Build listing approval/rejection endpoint
 - [ ] Implement user management endpoints
@@ -1262,6 +1349,7 @@ jobs:
 - [ ] Create admin dashboard data endpoints
 
 **API Documentation:**
+
 - [ ] Set up Swagger/OpenAPI documentation
 - [ ] Document all endpoints
 - [ ] Add request/response examples
@@ -1269,6 +1357,7 @@ jobs:
 ### Frontend Development
 
 **Setup & Configuration:**
+
 - [ ] Initialize React + TypeScript project
 - [ ] Configure Tailwind CSS
 - [ ] Set up React Router
@@ -1277,6 +1366,7 @@ jobs:
 - [ ] Set up global styles and theme
 
 **Authentication Pages:**
+
 - [ ] Create login page/component
 - [ ] Create registration page/component
 - [ ] Build OTP verification page
@@ -1285,6 +1375,7 @@ jobs:
 - [ ] Add auth context/state management
 
 **Home & Search:**
+
 - [ ] Design and build homepage
 - [ ] Create search bar component
 - [ ] Build filter panel component
@@ -1294,6 +1385,7 @@ jobs:
 - [ ] Build area selector dropdown
 
 **Property Pages:**
+
 - [ ] Create property detail page
 - [ ] Build image gallery component
 - [ ] Add amenities display component
@@ -1303,12 +1395,14 @@ jobs:
 - [ ] Create share property feature
 
 **User Dashboard:**
+
 - [ ] Create user profile page
 - [ ] Build favorites page
 - [ ] Create inquiries list page
 - [ ] Add settings page
 
 **Owner Dashboard:**
+
 - [ ] Create property listing form
 - [ ] Build image upload component
 - [ ] Create my properties page
@@ -1316,6 +1410,7 @@ jobs:
 - [ ] Add property analytics view
 
 **Admin Panel:**
+
 - [ ] Create admin login
 - [ ] Build admin dashboard overview
 - [ ] Create pending approvals page
@@ -1325,6 +1420,7 @@ jobs:
 ### Testing
 
 **Backend Testing:**
+
 - [ ] Write unit tests for auth endpoints
 - [ ] Write unit tests for property endpoints
 - [ ] Write integration tests
@@ -1332,6 +1428,7 @@ jobs:
 - [ ] Load testing for API endpoints
 
 **Frontend Testing:**
+
 - [ ] Write unit tests for components
 - [ ] Test user authentication flow
 - [ ] Test property search/filter flow
@@ -1351,6 +1448,7 @@ jobs:
 ### Deployment
 
 **Backend:**
+
 - [ ] Set up production database
 - [ ] Configure environment variables
 - [ ] Deploy backend to hosting
@@ -1360,6 +1458,7 @@ jobs:
 - [ ] Configure CDN for images
 
 **Frontend:**
+
 - [ ] Build production bundle
 - [ ] Optimize images and assets
 - [ ] Deploy to Vercel/Netlify
@@ -1395,17 +1494,20 @@ jobs:
 ### Useful Resources
 
 **Design Inspiration:**
+
 - [Airbnb Design](https://airbnb.design/)
 - [Dribbble - Real Estate Apps](https://dribbble.com/tags/real-estate-app)
 - [Mobbin - Mobile App Patterns](https://mobbin.com/)
 
 **Development Resources:**
+
 - [React Documentation](https://react.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [PostgreSQL Tutorial](https://www.postgresql.org/docs/)
 
 **Bangladesh Real Estate:**
+
 - [Bikroy.com - Properties](https://bikroy.com/en/ads/properties)
 - [Rent.com.bd](https://rent.com.bd/)
 

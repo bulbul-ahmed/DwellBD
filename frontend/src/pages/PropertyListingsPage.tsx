@@ -11,7 +11,8 @@ const mockProperties = [
   {
     id: '1',
     title: 'Spacious 2BHK Flat in Dhanmondi',
-    description: 'Modern flat with 24/7 security, parking, and generator backup. Walking distance to shopping malls.',
+    description:
+      'Modern flat with 24/7 security, parking, and generator backup. Walking distance to shopping malls.',
     propertyType: 'FAMILY' as const,
     listingType: 'RENT' as const,
     address: 'House 12, Road 5, Dhanmondi',
@@ -45,7 +46,8 @@ const mockProperties = [
   {
     id: '3',
     title: 'Girls Hostel in Gulshan',
-    description: 'Secure girls hostel with 24/7 security CCTV. Near shopping centers and restaurants.',
+    description:
+      'Secure girls hostel with 24/7 security CCTV. Near shopping centers and restaurants.',
     propertyType: 'HOSTEL' as const,
     listingType: 'RENT' as const,
     address: 'Gulshan-2',
@@ -126,25 +128,35 @@ const PropertyListingsPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const handleFilterChange = (key: string, value: string | string[]) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }))
   }
 
-  const filteredProperties = mockProperties.filter(property => {
-    const matchesSearch = property.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         property.description?.toLowerCase().includes(filters.search.toLowerCase())
+  const filteredProperties = mockProperties.filter((property) => {
+    const matchesSearch =
+      property.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+      property.description?.toLowerCase().includes(filters.search.toLowerCase())
     const matchesArea = !filters.area || property.area === filters.area
-    const matchesPropertyType = !filters.propertyType || property.propertyType === filters.propertyType
-    const matchesPrice = (!filters.minPrice || property.rentAmount >= parseInt(filters.minPrice)) &&
-                         (!filters.maxPrice || property.rentAmount <= parseInt(filters.maxPrice))
+    const matchesPropertyType =
+      !filters.propertyType || property.propertyType === filters.propertyType
+    const matchesPrice =
+      (!filters.minPrice || property.rentAmount >= parseInt(filters.minPrice)) &&
+      (!filters.maxPrice || property.rentAmount <= parseInt(filters.maxPrice))
     const matchesBedrooms = !filters.bedrooms || property.bedrooms?.toString() === filters.bedrooms
-    const matchesAmenities = filters.amenities.length === 0 ||
-                            filters.amenities.every(amenity => property.amenities.includes(amenity))
+    const matchesAmenities =
+      filters.amenities.length === 0 ||
+      filters.amenities.every((amenity) => property.amenities.includes(amenity))
 
-    return matchesSearch && matchesArea && matchesPropertyType &&
-           matchesPrice && matchesBedrooms && matchesAmenities
+    return (
+      matchesSearch &&
+      matchesArea &&
+      matchesPropertyType &&
+      matchesPrice &&
+      matchesBedrooms &&
+      matchesAmenities
+    )
   })
 
   const sortedProperties = [...filteredProperties].sort((a, b) => {
@@ -169,21 +181,31 @@ const PropertyListingsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Search Header */}
-      <div className="bg-white shadow-sm sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row gap-4">
+      <div className="sticky top-16 z-40 bg-white shadow-sm">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 md:flex-row">
             {/* Search Input */}
             <div className="flex-1">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search properties..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-primary-600"
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
-                <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
             </div>
@@ -191,7 +213,7 @@ const PropertyListingsPage = () => {
             {/* Sort Dropdown */}
             <div>
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-primary-600"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -202,21 +224,31 @@ const PropertyListingsPage = () => {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex rounded-lg overflow-hidden border border-gray-300">
+            <div className="flex overflow-hidden rounded-lg border border-gray-300">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-4 py-2 transition-colors ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
                 </svg>
               </button>
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-4 py-2 transition-colors ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
             </div>
@@ -224,23 +256,25 @@ const PropertyListingsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-8 lg:flex-row">
           {/* Filters Sidebar */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-              <div className="flex items-center justify-between mb-4">
+          <aside className="flex-shrink-0 lg:w-64">
+            <div className="sticky top-24 rounded-lg bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-semibold text-gray-900">Filters</h3>
                 <button
-                  onClick={() => setFilters({
-                    search: '',
-                    area: '',
-                    propertyType: '',
-                    minPrice: '',
-                    maxPrice: '',
-                    bedrooms: '',
-                    amenities: [],
-                  })}
+                  onClick={() =>
+                    setFilters({
+                      search: '',
+                      area: '',
+                      propertyType: '',
+                      minPrice: '',
+                      maxPrice: '',
+                      bedrooms: '',
+                      amenities: [],
+                    })
+                  }
                   className="text-sm text-primary-600 hover:text-primary-700"
                 >
                   Clear all
@@ -249,7 +283,7 @@ const PropertyListingsPage = () => {
 
               {/* Area Filter */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Area</h4>
+                <h4 className="mb-2 text-sm font-medium text-gray-900">Area</h4>
                 <div className="space-y-1">
                   {areas.map((area) => (
                     <label key={area} className="flex items-center">
@@ -267,7 +301,7 @@ const PropertyListingsPage = () => {
 
               {/* Property Type Filter */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Property Type</h4>
+                <h4 className="mb-2 text-sm font-medium text-gray-900">Property Type</h4>
                 <div className="space-y-1">
                   {propertyTypes.map((type) => (
                     <label key={type.value} className="flex items-center">
@@ -286,7 +320,7 @@ const PropertyListingsPage = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Price Range (BDT)</h4>
+                <h4 className="mb-2 text-sm font-medium text-gray-900">Price Range (BDT)</h4>
                 <div className="space-y-3">
                   <Input
                     type="number"
@@ -305,7 +339,7 @@ const PropertyListingsPage = () => {
 
               {/* Bedrooms */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Bedrooms</h4>
+                <h4 className="mb-2 text-sm font-medium text-gray-900">Bedrooms</h4>
                 <div className="space-y-1">
                   {['1', '2', '3', '4+'].map((beds) => (
                     <label key={beds} className="flex items-center">
@@ -324,7 +358,7 @@ const PropertyListingsPage = () => {
 
               {/* Amenities */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Amenities</h4>
+                <h4 className="mb-2 text-sm font-medium text-gray-900">Amenities</h4>
                 <div className="space-y-1">
                   {[
                     { id: 'wifi', label: 'WiFi', icon: Wifi },
@@ -340,7 +374,7 @@ const PropertyListingsPage = () => {
                         onChange={(e) => {
                           const updated = e.target.checked
                             ? [...filters.amenities, amenity.id]
-                            : filters.amenities.filter(a => a !== amenity.id)
+                            : filters.amenities.filter((a) => a !== amenity.id)
                           handleFilterChange('amenities', updated)
                         }}
                       />
@@ -354,25 +388,38 @@ const PropertyListingsPage = () => {
 
           {/* Properties Grid */}
           <main className="flex-1">
-            <div className="mb-4 flex justify-between items-center">
-              <p className="text-gray-600">
-                Showing {sortedProperties.length} properties
-              </p>
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-gray-600">Showing {sortedProperties.length} properties</p>
             </div>
 
             {sortedProperties.length === 0 ? (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="py-12 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
-                <p className="mt-1 text-sm text-gray-500">Try adjusting your filters or search terms</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Try adjusting your filters or search terms
+                </p>
               </div>
             ) : (
-              <div className={viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-                : 'space-y-6'
-              }>
+              <div
+                className={
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'
+                    : 'space-y-6'
+                }
+              >
                 {sortedProperties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}

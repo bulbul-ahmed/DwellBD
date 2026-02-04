@@ -9,7 +9,7 @@ export async function createUser(input: CreateUserInput) {
     password: hashedPassword,
     firstName: input.firstName,
     lastName: input.lastName,
-    role: input.role || 'TENANT' as UserRole,
+    role: input.role || ('TENANT' as UserRole),
   }
 
   if (input.phone) {

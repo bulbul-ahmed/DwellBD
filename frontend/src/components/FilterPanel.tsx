@@ -46,7 +46,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
   const handleFilterChange = (key: string, value: string | string[]) => {
     const updatedFilters = {
       ...filters,
-      [key]: value
+      [key]: value,
     }
     setFilters(updatedFilters)
     onFiltersChange(updatedFilters)
@@ -54,7 +54,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
 
   const handleAmenityToggle = (amenityId: string) => {
     const updatedAmenities = filters.amenities.includes(amenityId)
-      ? filters.amenities.filter(id => id !== amenityId)
+      ? filters.amenities.filter((id) => id !== amenityId)
       : [...filters.amenities, amenityId]
 
     handleFilterChange('amenities', updatedAmenities)
@@ -73,16 +73,19 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
     onFiltersChange(clearedFilters)
   }
 
-  const hasActiveFilters = Object.values(filters).some(value =>
-    value !== '' && value !== null && value !== undefined &&
-    (Array.isArray(value) ? value.length > 0 : true)
+  const hasActiveFilters = Object.values(filters).some(
+    (value) =>
+      value !== '' &&
+      value !== null &&
+      value !== undefined &&
+      (Array.isArray(value) ? value.length > 0 : true)
   )
 
   if (!isOpen) return null
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
         <div className="flex items-center space-x-3">
           {hasActiveFilters && (
@@ -104,8 +107,8 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
       <div className="space-y-6">
         {/* Area Filter */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-            <MapPin className="h-4 w-4 mr-2" />
+          <h4 className="mb-2 flex items-center text-sm font-medium text-gray-900">
+            <MapPin className="mr-2 h-4 w-4" />
             Area
           </h4>
           <Select
@@ -126,10 +129,13 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
 
         {/* Property Type */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Property Type</h4>
+          <h4 className="mb-2 text-sm font-medium text-gray-900">Property Type</h4>
           <div className="grid grid-cols-1 gap-2">
             {propertyTypes.map((type) => (
-              <label key={type.value} className="flex items-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+              <label
+                key={type.value}
+                className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50"
+              >
                 <input
                   type="radio"
                   name="propertyType"
@@ -145,7 +151,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
 
         {/* Price Range */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Price Range (BDT)</h4>
+          <h4 className="mb-2 text-sm font-medium text-gray-900">Price Range (BDT)</h4>
           <div className="space-y-3">
             <Input
               type="number"
@@ -164,10 +170,13 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
 
         {/* Bedrooms */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Bedrooms</h4>
+          <h4 className="mb-2 text-sm font-medium text-gray-900">Bedrooms</h4>
           <div className="grid grid-cols-1 gap-2">
             {bedrooms.map((beds) => (
-              <label key={beds.value} className="flex items-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+              <label
+                key={beds.value}
+                className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50"
+              >
                 <input
                   type="radio"
                   name="bedrooms"
@@ -183,7 +192,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
 
         {/* Amenities */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Amenities</h4>
+          <h4 className="mb-2 text-sm font-medium text-gray-900">Amenities</h4>
           <div className="grid grid-cols-2 gap-2">
             {amenities.map((amenity) => {
               const Icon = amenity.icon
@@ -191,9 +200,9 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
                 <label
                   key={amenity.id}
                   className={cn(
-                    'flex items-center p-2 rounded-lg border transition-colors cursor-pointer',
+                    'flex cursor-pointer items-center rounded-lg border p-2 transition-colors',
                     filters.amenities.includes(amenity.id)
-                      ? 'bg-primary-50 border-primary-600 text-primary-700'
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
                       : 'border-gray-300 hover:bg-gray-50'
                   )}
                 >
@@ -203,7 +212,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle }: Filte
                     checked={filters.amenities.includes(amenity.id)}
                     onChange={() => handleAmenityToggle(amenity.id)}
                   />
-                  <Icon className="h-4 w-4 mr-2" />
+                  <Icon className="mr-2 h-4 w-4" />
                   <span className="text-sm">{amenity.label}</span>
                 </label>
               )
