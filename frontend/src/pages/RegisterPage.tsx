@@ -99,10 +99,32 @@ const RegisterPage = () => {
       await register(registerData)
       toast.success('Registration successful! Redirecting to login...')
       navigate('/')
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Registration failed. Please try again.'
-      toast.error(message)
+    } catch (error: any) {
+      // Handle specific backend errors
+      if (error.response?.status === 409) {
+        const field = error.response.data?.field
+        const message = error.response.data?.message
+
+        if (field === 'email') {
+          setErrors({
+            ...errors,
+            email: message || 'This email address is already registered',
+          })
+          toast.error('Email already exists. Please use a different email.')
+        } else if (field === 'phone') {
+          setErrors({
+            ...errors,
+            phone: message || 'This phone number is already registered',
+          })
+          toast.error('Phone number already exists. Please use a different phone.')
+        } else {
+          toast.error(message || 'This account already exists')
+        }
+      } else {
+        const message =
+          error instanceof Error ? error.message : 'Registration failed. Please try again.'
+        toast.error(message)
+      }
     } finally {
       setIsLoading(false)
     }

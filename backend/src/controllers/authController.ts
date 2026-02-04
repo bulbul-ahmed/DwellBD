@@ -23,14 +23,30 @@ export async function register(req: Request, res: Response): Promise<void> {
       return
     }
 
-    // Check if user already exists
-    const existingUser = await getUserByEmail(email)
-    if (existingUser) {
+    // Check if email already exists
+    const existingUserByEmail = await getUserByEmail(email)
+    if (existingUserByEmail) {
       res.status(409).json({
-        error: 'User already exists',
-        message: 'An account with this email already exists',
+        error: 'Email already exists',
+        message: 'This email address is already registered',
+        field: 'email',
       })
       return
+    }
+
+    // Check if phone already exists (if phone is provided)
+    if (phone) {
+      const existingUserByPhone = await prisma.user.findUnique({
+        where: { phone },
+      })
+      if (existingUserByPhone) {
+        res.status(409).json({
+          error: 'Phone number already exists',
+          message: 'This phone number is already registered',
+          field: 'phone',
+        })
+        return
+      }
     }
 
     // Create new user
