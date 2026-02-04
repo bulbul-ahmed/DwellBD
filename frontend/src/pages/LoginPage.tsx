@@ -5,10 +5,12 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../stores/authStore'
+import { isValidEmail } from '../utils/validation'
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -17,14 +19,46 @@ const LoginPage = () => {
   const login = useAuthStore((state) => state.login)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: '',
+      })
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required'
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -65,6 +99,7 @@ const LoginPage = () => {
               onChange={handleChange}
               required
               icon={<Mail className="h-4 w-4" />}
+              error={errors.email}
             />
 
             <div>

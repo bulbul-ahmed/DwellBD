@@ -6,11 +6,13 @@ import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../stores/authStore'
+import { isValidEmail, isValidBdPhone, isValidPassword } from '../utils/validation'
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,24 +26,69 @@ const RegisterPage = () => {
   const register = useAuthStore((state) => state.register)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: '',
+      })
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    // First name validation
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required'
+    }
+
+    // Last name validation
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required'
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    // Phone validation
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    } else if (!isValidBdPhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid Bangladeshi phone number'
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required'
+    } else if (!isValidPassword(formData.password, 8)) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+
+    // Confirm password validation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-
-    // Validate password strength
-    if (formData.password.length < 8) {
-      toast.error('Password must be at least 8 characters')
+    if (!validateForm()) {
       return
     }
 
@@ -90,6 +137,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 required
                 icon={<User className="h-4 w-4" />}
+                error={errors.firstName}
               />
               <Input
                 label="Last Name"
@@ -99,6 +147,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 required
                 icon={<User className="h-4 w-4" />}
+                error={errors.lastName}
               />
             </div>
 
@@ -111,17 +160,20 @@ const RegisterPage = () => {
               onChange={handleChange}
               required
               icon={<Mail className="h-4 w-4" />}
+              error={errors.email}
             />
 
             <Input
               label="Phone Number"
               type="tel"
               name="phone"
-              placeholder="Enter your phone number"
+              placeholder="01712345678 or +8801712345678"
               value={formData.phone}
               onChange={handleChange}
               required
               icon={<Phone className="h-4 w-4" />}
+              error={errors.phone}
+              helperText="Bangladeshi format: 01X-XXXXXX or +8801X-XXXXXX"
             />
 
             <Select
@@ -144,7 +196,11 @@ const RegisterPage = () => {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   placeholder="Create a password"
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-10 focus:border-transparent focus:ring-2 focus:ring-primary-600"
+                  className={`w-full rounded-lg border py-2 pl-10 pr-10 focus:border-transparent focus:ring-2 ${
+                    errors.password
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-primary-600'
+                  }`}
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -164,7 +220,9 @@ const RegisterPage = () => {
                   )}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-gray-500">Password must be at least 8 characters</p>
+              <p className={`mt-1 text-xs ${errors.password ? 'text-red-600' : 'text-gray-500'}`}>
+                {errors.password || 'Password must be at least 8 characters'}
+              </p>
             </div>
 
             <div>
@@ -181,7 +239,11 @@ const RegisterPage = () => {
                   type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   placeholder="Confirm your password"
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-10 focus:border-transparent focus:ring-2 focus:ring-primary-600"
+                  className={`w-full rounded-lg border py-2 pl-10 pr-10 focus:border-transparent focus:ring-2 ${
+                    errors.confirmPassword
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-primary-600'
+                  }`}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
@@ -201,6 +263,9 @@ const RegisterPage = () => {
                   )}
                 </button>
               </div>
+              {errors.confirmPassword && (
+                <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>
+              )}
             </div>
           </div>
 
