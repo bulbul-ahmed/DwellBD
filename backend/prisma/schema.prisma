@@ -18,6 +18,8 @@ model User {
   role      Role     @default(TENANT)
   isVerified Boolean  @default(false)
   isActive   Boolean  @default(true)
+  passwordResetToken   String?   @unique
+  passwordResetExpires DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

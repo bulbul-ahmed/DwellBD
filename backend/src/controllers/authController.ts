@@ -7,6 +7,8 @@ import {
 } from '../services/userService'
 import { generateToken, generateRefreshToken } from '../utils/jwt'
 import { prisma } from '../models'
+import { sendPasswordResetEmail } from '../services/emailService'
+import * as passwordResetService from '../services/passwordResetService'
 
 export async function register(req: Request, res: Response): Promise<void> {
   try {
@@ -265,4 +267,73 @@ export async function logout(req: Request, res: Response): Promise<void> {
   res.status(200).json({
     message: 'Logout successful',
   })
+}
+
+export async function requestPasswordReset(req: Request, res: Response): Promise<void> {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' })
+      return
+    }
+
+    const user = await getUserByEmail(email)
+
+    // Always return success (don't reveal if user exists)
+    if (user) {
+      const resetToken = passwordResetService.generateResetToken()
+      const hashedToken = passwordResetService.hashResetToken(resetToken)
+
+      await passwordResetService.storeResetToken(user.id, hashedToken)
+      await sendPasswordResetEmail(email, resetToken)
+    }
+
+    res.status(200).json({
+      message: 'If an account exists with that email, a reset link has been sent.',
+    })
+  } catch (error) {
+    console.error('Password reset request error:', error)
+    res.status(500).json({ error: 'Failed to process password reset request' })
+  }
+}
+
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { token, newPassword } = req.body
+
+    if (!token || !newPassword) {
+      res.status(400).json({ error: 'Token and new password are required' })
+      return
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ error: 'Password must be at least 6 characters' })
+      return
+    }
+
+    const hashedToken = passwordResetService.hashResetToken(token)
+    const user = await passwordResetService.findUserByResetToken(hashedToken)
+
+    if (!user) {
+      res.status(400).json({ error: 'Invalid or expired reset token' })
+      return
+    }
+
+    // Hash new password and update user
+    const bcrypt = await import('bcryptjs')
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword },
+    })
+
+    await passwordResetService.clearResetToken(user.id)
+
+    res.status(200).json({ message: 'Password reset successful' })
+  } catch (error) {
+    console.error('Password reset error:', error)
+    res.status(500).json({ error: 'Failed to reset password' })
+  }
 }

@@ -1,10 +1,31 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Search, MapPin, User, LogIn } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react'
+import { useAuthStore } from '../stores/authStore'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated, user, logout } = useAuthStore()
+
+  const handleLogout = async () => {
+    await logout()
+    setIsUserMenuOpen(false)
+    navigate('/login')
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (isUserMenuOpen && !target.closest('[data-user-menu]')) {
+        setIsUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isUserMenuOpen])
 
   const navigation = [
     { name: 'Buy', href: '/buy' },
@@ -67,19 +88,73 @@ const Header = () => {
 
             {/* User Actions */}
             <div className="hidden items-center space-x-4 md:flex">
-              <Link
-                to="/login"
-                className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>Log in</span>
-              </Link>
-              <Link
-                to="/register"
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700"
-              >
-                Sign up
-              </Link>
+              {isAuthenticated && user ? (
+                <div className="relative" data-user-menu>
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 rounded-lg border border-gray-300 px-3 py-2 transition-colors hover:bg-gray-50"
+                  >
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.firstName} className="h-8 w-8 rounded-full" />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-medium text-white">
+                        {user.firstName[0]}
+                        {user.lastName[0]}
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-gray-700">{user.firstName}</span>
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
+                      <div className="py-1">
+                        <Link
+                          to="/profile"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <UserIcon className="h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                        {user.role === 'OWNER' && (
+                          <Link
+                            to="/dashboard"
+                            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="h-4 w-4" />
+                            <span>Dashboard</span>
+                          </Link>
+                        )}
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    <span>Log in</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -110,22 +185,68 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
-              <div className="flex items-center space-x-4 border-t border-gray-200 pt-4">
-                <Link
-                  to="/login"
-                  className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>Log in</span>
-                </Link>
-                <Link
-                  to="/register"
-                  className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign up
-                </Link>
+              <div className="border-t border-gray-200 pt-4">
+                {isAuthenticated && user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 px-4 py-2">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.firstName} className="h-8 w-8 rounded-full" />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-medium text-white">
+                          {user.firstName[0]}
+                          {user.lastName[0]}
+                        </div>
+                      )}
+                      <span className="text-sm font-medium text-gray-700">{user.firstName}</span>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <UserIcon className="h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                    {user.role === 'OWNER' && (
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setIsMenuOpen(false)
+                      }}
+                      className="flex w-full items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-4">
+                    <Link
+                      to="/login"
+                      className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Log in</span>
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-700"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
