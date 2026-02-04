@@ -4,16 +4,19 @@ import { prisma, CreateUserInput, UserRole } from '../models'
 export async function createUser(input: CreateUserInput) {
   const hashedPassword = await bcryptjs.hash(input.password, 10)
 
-  return prisma.user.create({
-    data: {
-      email: input.email,
-      phone: input.phone,
-      password: hashedPassword,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      role: input.role || 'TENANT' as UserRole,
-    },
-  })
+  const data: any = {
+    email: input.email,
+    password: hashedPassword,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    role: input.role || 'TENANT' as UserRole,
+  }
+
+  if (input.phone) {
+    data.phone = input.phone
+  }
+
+  return prisma.user.create({ data })
 }
 
 export async function getUserByEmail(email: string) {

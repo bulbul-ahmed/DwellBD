@@ -9,23 +9,25 @@ declare global {
   }
 }
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export function authenticateToken(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 
   if (!token) {
-    return res.status(401).json({
+    res.status(401).json({
       error: 'Unauthorized',
       message: 'No authentication token provided'
     })
+    return
   }
 
   const payload = verifyToken(token)
   if (!payload) {
-    return res.status(403).json({
+    res.status(403).json({
       error: 'Forbidden',
       message: 'Invalid or expired token'
     })
+    return
   }
 
   req.user = payload
@@ -33,19 +35,21 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 }
 
 export function requireRole(...roles: string[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Unauthorized',
         message: 'Authentication required'
       })
+      return
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         error: 'Forbidden',
         message: `Required role: ${roles.join(' or ')}`
       })
+      return
     }
 
     next()

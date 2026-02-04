@@ -1,10 +1,18 @@
 import AWS from 'aws-sdk'
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const s3Config: AWS.S3.ClientConfiguration = {
   region: process.env.AWS_REGION || 'us-east-1',
-})
+}
+
+if (process.env.AWS_ACCESS_KEY_ID) {
+  s3Config.accessKeyId = process.env.AWS_ACCESS_KEY_ID
+}
+
+if (process.env.AWS_SECRET_ACCESS_KEY) {
+  s3Config.secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+}
+
+const s3 = new AWS.S3(s3Config)
 
 export async function uploadFileToS3(
   file: Express.Multer.File,
