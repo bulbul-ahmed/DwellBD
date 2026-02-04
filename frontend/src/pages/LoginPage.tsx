@@ -4,6 +4,7 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { toast } from 'react-hot-toast'
+import { useAuthStore } from '../stores/authStore'
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -13,6 +14,7 @@ const LoginPage = () => {
     password: '',
   })
   const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -26,13 +28,12 @@ const LoginPage = () => {
     setIsLoading(true)
 
     try {
-      // TODO: Implement actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
+      await login(formData)
       toast.success('Login successful!')
       navigate('/')
     } catch (error) {
-      toast.error('Invalid email or password')
+      const message = error instanceof Error ? error.message : 'Invalid email or password'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }

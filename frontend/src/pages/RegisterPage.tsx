@@ -5,6 +5,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import { toast } from 'react-hot-toast'
+import { useAuthStore } from '../stores/authStore'
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -17,9 +18,10 @@ const RegisterPage = () => {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'TENANT',
+    role: 'TENANT' as 'TENANT' | 'OWNER',
   })
   const navigate = useNavigate()
+  const register = useAuthStore((state) => state.register)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -46,13 +48,13 @@ const RegisterPage = () => {
     setIsLoading(true)
 
     try {
-      // TODO: Implement actual registration
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      toast.success('Registration successful! Please check your email to verify your account.')
-      navigate('/login')
+      const { confirmPassword, ...registerData } = formData
+      await register(registerData)
+      toast.success('Registration successful! Redirecting to login...')
+      navigate('/')
     } catch (error) {
-      toast.error('Registration failed. Please try again.')
+      const message = error instanceof Error ? error.message : 'Registration failed. Please try again.'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }

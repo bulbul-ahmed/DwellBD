@@ -5,6 +5,7 @@ import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { prisma } from './models'
+import authRoutes from './routes/authRoutes'
 
 // Load environment variables
 dotenv.config()
@@ -58,16 +59,26 @@ app.get('/health', async (req, res) => {
   }
 })
 
-// API routes will be added here
+// API routes
+app.use('/api/auth', authRoutes)
+
+// API documentation
 app.get('/api', (req, res) => {
   res.json({
     message: 'BDFlatHub API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      users: '/api/users',
+      auth: {
+        register: 'POST /api/auth/register',
+        login: 'POST /api/auth/login',
+        getCurrentUser: 'GET /api/auth/me (protected)',
+        verifyEmail: 'POST /api/auth/verify-email (protected)',
+        refreshToken: 'POST /api/auth/refresh',
+        logout: 'POST /api/auth/logout',
+      },
       properties: '/api/properties',
-      auth: '/api/auth',
+      users: '/api/users',
     }
   })
 })
