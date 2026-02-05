@@ -1,71 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, MapPin, Calendar, Users, Bed } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
 import Button from '../components/ui/Button'
 import { PropertyListSkeleton } from '../components/ui/Skeleton'
-
-// Mock data for properties
-const mockProperties = [
-  {
-    id: '1',
-    title: 'Spacious 2BHK Flat in Dhanmondi',
-    description:
-      'Modern flat with 24/7 security, parking, and generator backup. Walking distance to shopping malls.',
-    propertyType: 'FAMILY' as const,
-    listingType: 'RENT' as const,
-    address: 'House 12, Road 5, Dhanmondi',
-    area: 'Dhanmondi',
-    rentAmount: 35000,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1200,
-    images: ['/placeholder1.jpg', '/placeholder2.jpg', '/placeholder3.jpg'],
-    amenities: ['wifi', 'parking', 'generator', 'gas'],
-    isVerified: true,
-    createdAt: '2024-01-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Bachelor Room Near Dhaka University',
-    description: 'Clean and safe bachelor accommodation with meals included. Perfect for students.',
-    propertyType: 'BACHELOR' as const,
-    listingType: 'RENT' as const,
-    address: 'Near Dhaka University Campus',
-    area: 'Dhanmondi',
-    rentAmount: 8000,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 300,
-    images: ['/placeholder4.jpg', '/placeholder5.jpg'],
-    amenities: ['wifi', 'meals', 'laundry'],
-    isVerified: true,
-    createdAt: '2024-01-20T10:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Girls Hostel in Gulshan',
-    description:
-      'Secure girls hostel with 24/7 security CCTV. Near shopping centers and restaurants.',
-    propertyType: 'HOSTEL' as const,
-    listingType: 'RENT' as const,
-    address: 'Gulshan-2',
-    area: 'Gulshan',
-    rentAmount: 12000,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 400,
-    images: ['/placeholder6.jpg', '/placeholder7.jpg'],
-    amenities: ['wifi', 'security', 'meals', 'common-room'],
-    isVerified: true,
-    createdAt: '2024-01-25T10:00:00Z',
-  },
-]
+import { usePropertyStore } from '../stores/propertyStore'
 
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
+  const { properties, isLoading: isLoadingProperties, searchProperties } = usePropertyStore()
+
+  useEffect(() => {
+    searchProperties({ limit: 3 })
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -245,16 +194,20 @@ const HomePage = () => {
               <h2 className="mb-2 text-3xl font-bold text-gray-900">Featured Properties</h2>
               <p className="text-gray-600">Discover the most popular properties in Dhaka</p>
             </div>
-            <Button variant="secondary">View All Properties</Button>
+            <Button variant="secondary" onClick={() => navigate('/properties')}>View All Properties</Button>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {isLoading ? (
+            {isLoadingProperties ? (
               <PropertyListSkeleton />
-            ) : (
-              mockProperties.map((property) => (
+            ) : properties.length > 0 ? (
+              properties.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-600">
+                No properties available at the moment
+              </div>
             )}
           </div>
         </div>
