@@ -73,7 +73,7 @@ const HomePage = () => {
       setIsLoading(true)
       setTimeout(() => {
         setIsLoading(false)
-        navigate('/properties')
+        navigate(`/properties?q=${encodeURIComponent(searchQuery)}`)
       }, 500)
     }
   }
@@ -138,19 +138,19 @@ const HomePage = () => {
 
             {/* Quick Links */}
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <button className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
+              <button onClick={() => navigate('/properties?area=Dhanmondi')} className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
                 <MapPin className="mr-2 inline h-4 w-4" />
                 Dhanmondi
               </button>
-              <button className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
+              <button onClick={() => navigate('/properties?area=Gulshan')} className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
                 <MapPin className="mr-2 inline h-4 w-4" />
                 Gulshan
               </button>
-              <button className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
+              <button onClick={() => navigate('/properties?propertyType=FAMILY')} className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
                 <Bed className="mr-2 inline h-4 w-4" />
                 2BHK Flats
               </button>
-              <button className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
+              <button onClick={() => navigate('/properties?propertyType=BACHELOR')} className="rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md">
                 <Users className="mr-2 inline h-4 w-4" />
                 Bachelor Rooms
               </button>

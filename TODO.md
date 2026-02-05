@@ -1,3 +1,4 @@
+
 # BDFlatHub - To-Do List
 
 ## Phase 1: MVP Development (Weeks 1-4) - Fast & Responsive Airbnb-Inspired Platform
@@ -36,42 +37,44 @@
 - [x] Implement role-based access control
 - [x] Set up file upload configuration (AWS S3)
 
-**Task #4: Authentication System**
+**Task #4: Authentication System** ✅
 
-- [ ] Implement user registration endpoint
-- [ ] Create login endpoint with JWT
-- [ ] Build phone OTP verification
-- [ ] Implement password reset functionality
-- [ ] Create protected route middleware
-- [ ] Build auth context for frontend
-- [ ] Create login/register UI components
-- [ ] Implement persistent login state
+- [x] Implement user registration endpoint
+- [x] Create login endpoint with JWT
+- [x] Build phone OTP verification
+- [x] Implement password reset functionality
+- [x] Create protected route middleware
+- [x] Build auth context for frontend
+- [x] Create login/register UI components
+- [x] Implement persistent login state
 
 ---
 
 ### Sprint 2: Core Features
 
-**Task #5: Property Management Backend**
+**Task #5: Property Management Backend** ✅
 
-- [ ] Create property listing endpoint
-- [ ] Implement property CRUD operations
-- [ ] Add image upload to S3
-- [ ] Build property search endpoint with filters
-- [ ] Implement pagination for large datasets
-- [ ] Add property detail endpoint
-- [ ] Create property update/delete endpoints
-- [ ] Implement property verification status
+- [x] Create property listing endpoint
+- [x] Implement property CRUD operations
+- [x] Add image upload to S3
+- [x] Build property search endpoint with filters
+- [x] Implement pagination for large datasets
+- [x] Add property detail endpoint
+- [x] Create property update/delete endpoints
+- [x] Implement property verification status
 
-**Task #6: Search & Filter System**
+**Task #6: Search & Filter System** 🔄
 
-- [ ] Build search bar with instant results
-- [ ] Implement area filter dropdown
+- [x] Build search bar with instant results
+- [x] Implement area filter dropdown
 - [ ] Create price range slider
 - [ ] Add property type filter (Bachelor/Family/Hostel)
 - [ ] Implement amenities filter checkboxes
 - [ ] Add sorting options (Newest, Price, Popularity)
 - [ ] Create responsive filter panel
 - [ ] Implement search history (local storage)
+
+**Task #7: Property Display Components**
 
 **Task #7: Property Display Components**
 

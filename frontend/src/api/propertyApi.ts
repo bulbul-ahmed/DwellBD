@@ -1,6 +1,7 @@
 import api from './authApi'
 
 export interface PropertyFilters {
+  q?: string
   area?: string
   minPrice?: number
   maxPrice?: number
@@ -8,6 +9,8 @@ export interface PropertyFilters {
   bedrooms?: number
   furnished?: string
   listingType?: string
+  sortBy?: 'createdAt' | 'rentAmount' | 'bedrooms'
+  order?: 'asc' | 'desc'
   page?: number
   limit?: number
 }
@@ -63,6 +66,7 @@ export interface PropertyResponse {
 export async function searchProperties(filters: PropertyFilters): Promise<PropertyResponse> {
   const params = new URLSearchParams()
 
+  if (filters.q) params.append('q', filters.q)
   if (filters.area) params.append('area', filters.area)
   if (filters.minPrice) params.append('minPrice', filters.minPrice.toString())
   if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString())
@@ -70,6 +74,8 @@ export async function searchProperties(filters: PropertyFilters): Promise<Proper
   if (filters.bedrooms) params.append('bedrooms', filters.bedrooms.toString())
   if (filters.furnished) params.append('furnished', filters.furnished)
   if (filters.listingType) params.append('listingType', filters.listingType)
+  if (filters.sortBy) params.append('sortBy', filters.sortBy)
+  if (filters.order) params.append('order', filters.order)
   if (filters.page) params.append('page', filters.page.toString())
   if (filters.limit) params.append('limit', filters.limit.toString())
 

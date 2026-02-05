@@ -1,6 +1,7 @@
 import { prisma, CreatePropertyInput, PropertyStatus, PropertyType } from '../models'
 
 interface SearchFilters {
+  q?: string
   area?: string
   minPrice?: number
   maxPrice?: number
@@ -8,11 +9,26 @@ interface SearchFilters {
   bedrooms?: number
   furnished?: string
   listingType?: string
+  sortBy?: 'createdAt' | 'rentAmount' | 'bedrooms'
+  order?: 'asc' | 'desc'
 }
 
 interface PaginationOptions {
   page?: number
   limit?: number
+}
+
+function buildOrderBy(sortBy?: string, order?: 'asc' | 'desc') {
+  const sortOrder = order || 'desc'
+  switch (sortBy) {
+    case 'rentAmount':
+      return { rentAmount: sortOrder }
+    case 'bedrooms':
+      return { bedrooms: sortOrder }
+    case 'createdAt':
+    default:
+      return { createdAt: sortOrder }
+  }
 }
 
 export async function createProperty(ownerId: string, data: CreatePropertyInput) {
@@ -114,6 +130,36 @@ export async function searchProperties(
     status: 'ACTIVE',
   }
 
+  // Add text search support
+  if (filters.q && filters.q.trim()) {
+    where.OR = [
+      {
+        title: {
+          contains: filters.q.trim(),
+          mode: 'insensitive',
+        },
+      },
+      {
+        description: {
+          contains: filters.q.trim(),
+          mode: 'insensitive',
+        },
+      },
+      {
+        address: {
+          contains: filters.q.trim(),
+          mode: 'insensitive',
+        },
+      },
+      {
+        area: {
+          contains: filters.q.trim(),
+          mode: 'insensitive',
+        },
+      },
+    ]
+  }
+
   if (filters.area) {
     where.area = {
       contains: filters.area,
@@ -152,7 +198,7 @@ export async function searchProperties(
       where,
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: buildOrderBy(filters.sortBy, filters.order),
       include: {
         owner: {
           select: {

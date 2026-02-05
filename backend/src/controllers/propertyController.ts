@@ -120,6 +120,7 @@ export async function getMyProperties(req: Request, res: Response): Promise<void
 export async function searchAllProperties(req: Request, res: Response): Promise<void> {
   try {
     const {
+      q,
       area,
       minPrice,
       maxPrice,
@@ -127,11 +128,14 @@ export async function searchAllProperties(req: Request, res: Response): Promise<
       bedrooms,
       furnished,
       listingType,
+      sortBy,
+      order,
       page,
       limit,
     } = req.query
 
     const filters: any = {}
+    if (q) filters.q = q as string
     if (area) filters.area = area as string
     if (minPrice) filters.minPrice = parseFloat(minPrice as string)
     if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string)
@@ -139,6 +143,8 @@ export async function searchAllProperties(req: Request, res: Response): Promise<
     if (bedrooms) filters.bedrooms = parseInt(bedrooms as string)
     if (furnished) filters.furnished = furnished as string
     if (listingType) filters.listingType = listingType as string
+    if (sortBy) filters.sortBy = sortBy as string
+    if (order) filters.order = order as 'asc' | 'desc'
 
     const options = {
       page: page ? parseInt(page as string) : 1,

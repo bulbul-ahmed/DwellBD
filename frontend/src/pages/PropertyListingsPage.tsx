@@ -1,256 +1,196 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Filter, MapPin, Wifi, Car, Utensils, Tv } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Filter, Wifi, Car, Utensils, Tv, Grid, List } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
+import SearchBar from '../components/SearchBar'
+import AreaFilterDropdown from '../components/AreaFilterDropdown'
+import FilterPanel from '../components/FilterPanel'
+import PriceRangeFilter from '../components/PriceRangeFilter'
+import PropertyTypeFilter from '../components/PropertyTypeFilter'
+import { searchProperties, PropertyFilters, PropertyResponse } from '../api/propertyApi'
+import { useQuery } from '@tanstack/react-query'
+import { useAreaFilter } from '../hooks/useAreaFilter'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 
-// Mock data
-const mockProperties = [
-  {
-    id: '1',
-    title: 'Spacious 2BHK Flat in Dhanmondi',
-    description:
-      'Modern flat with 24/7 security, parking, and generator backup. Walking distance to shopping malls.',
-    propertyType: 'FAMILY' as const,
-    listingType: 'RENT' as const,
-    address: 'House 12, Road 5, Dhanmondi',
-    area: 'Dhanmondi',
-    rentAmount: 35000,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1200,
-    images: ['/placeholder1.jpg', '/placeholder2.jpg', '/placeholder3.jpg'],
-    amenities: ['wifi', 'parking', 'generator', 'gas'],
-    isVerified: true,
-    createdAt: '2024-01-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Bachelor Room Near Dhaka University',
-    description: 'Clean and safe bachelor accommodation with meals included. Perfect for students.',
-    propertyType: 'BACHELOR' as const,
-    listingType: 'RENT' as const,
-    address: 'Near Dhaka University Campus',
-    area: 'Dhanmondi',
-    rentAmount: 8000,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 300,
-    images: ['/placeholder4.jpg', '/placeholder5.jpg'],
-    amenities: ['wifi', 'meals', 'laundry'],
-    isVerified: true,
-    createdAt: '2024-01-20T10:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Girls Hostel in Gulshan',
-    description:
-      'Secure girls hostel with 24/7 security CCTV. Near shopping centers and restaurants.',
-    propertyType: 'HOSTEL' as const,
-    listingType: 'RENT' as const,
-    address: 'Gulshan-2',
-    area: 'Gulshan',
-    rentAmount: 12000,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 400,
-    images: ['/placeholder6.jpg', '/placeholder7.jpg'],
-    amenities: ['wifi', 'security', 'meals', 'common-room'],
-    isVerified: true,
-    createdAt: '2024-01-25T10:00:00Z',
-  },
-  {
-    id: '4',
-    title: 'Luxury 3BHK Apartment in Banani',
-    description: 'Premium apartment with modern amenities. High floor with city view.',
-    propertyType: 'FAMILY' as const,
-    listingType: 'RENT' as const,
-    address: 'Banani-11',
-    area: 'Banani',
-    rentAmount: 75000,
-    bedrooms: 3,
-    bathrooms: 3,
-    squareFeet: 2000,
-    images: ['/placeholder8.jpg', '/placeholder9.jpg', '/placeholder10.jpg'],
-    amenities: ['wifi', 'parking', 'gym', 'swimming-pool'],
-    isVerified: true,
-    createdAt: '2024-01-30T10:00:00Z',
-  },
-  {
-    id: '5',
-    title: 'Shared Bachelor Accommodation in Uttara',
-    description: 'Affordable shared rooms for working professionals. Fully furnished.',
-    propertyType: 'BACHELOR' as const,
-    listingType: 'RENT' as const,
-    address: 'Uttara Sector-15',
-    area: 'Uttara',
-    rentAmount: 6000,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 250,
-    images: ['/placeholder11.jpg', '/placeholder12.jpg'],
-    amenities: ['wifi', 'shared-kitchen', 'laundry'],
-    isVerified: true,
-    createdAt: '2024-02-01T10:00:00Z',
-  },
-  {
-    id: '6',
-    title: 'Family Flat in Mirpur',
-    description: 'Spacious family flat in quiet neighborhood. Near schools and markets.',
-    propertyType: 'FAMILY' as const,
-    listingType: 'RENT' as const,
-    address: 'Mirpur-10',
-    area: 'Mirpur',
-    rentAmount: 22000,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1000,
-    images: ['/placeholder13.jpg', '/placeholder14.jpg'],
-    amenities: ['wifi', 'generator', 'parking'],
-    isVerified: true,
-    createdAt: '2024-02-02T10:00:00Z',
-  },
-]
+// Search query hook
+const useSearchQuery = (filters: PropertyFilters) => {
+  return useQuery({
+    queryKey: ['search-properties', filters],
+    queryFn: () => searchProperties(filters),
+    keepPreviousData: true,
+    staleTime: 5000, // Cache for 5 seconds
+    refetchOnWindowFocus: false,
+  })
+}
+
+const { data: searchResult, isLoading, error } = useSearchQuery(filters)
 
 const PropertyListingsPage = () => {
-  const [filters, setFilters] = useState({
-    search: '',
-    area: '',
-    propertyType: '',
-    minPrice: '',
-    maxPrice: '',
-    bedrooms: '',
-    amenities: [] as string[],
-  })
+  const [searchParams, setSearchParams] = useSearchParams()
   const [sortBy, setSortBy] = useState('newest')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [showFilters, setShowFilters] = useState(false)
+  const isLargeScreen = useMediaQuery('(min-width: 1024px)')
 
-  const handleFilterChange = (key: string, value: string | string[]) => {
-    setFilters((prev) => ({
+  // Get initial filters from URL params
+  const initialFilters = useMemo(() => ({
+    q: searchParams.get('q') || '',
+    area: searchParams.get('area') || '',
+    propertyType: searchParams.get('propertyType') || '',
+    minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
+    maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
+    bedrooms: searchParams.get('bedrooms') ? parseInt(searchParams.get('bedrooms')!) : undefined,
+    furnished: searchParams.get('furnished') as 'NONE' | 'PARTIAL' | 'FULL' | undefined,
+    listingType: searchParams.get('listingType') as 'RENT' | 'SELL' | undefined,
+    sortBy: (searchParams.get('sortBy') || 'createdAt') as 'createdAt' | 'rentAmount' | 'bedrooms',
+    order: (searchParams.get('order') || 'desc') as 'asc' | 'desc',
+    page: parseInt(searchParams.get('page') || '1'),
+    limit: 20,
+  }), [searchParams])
+
+  const [filters, setFilters] = useState(initialFilters)
+
+  // Use area filter hook
+  const { selectedArea, setArea, clearArea } = useAreaFilter({
+    defaultValue: initialFilters.area,
+    autoSync: true
+  })
+
+  const handleSearch = (searchFilters: PropertyFilters) => {
+    setFilters(prev => ({
       ...prev,
-      [key]: value,
+      ...searchFilters,
+      page: 1,
     }))
   }
 
-  const filteredProperties = mockProperties.filter((property) => {
-    const matchesSearch =
-      property.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      property.description?.toLowerCase().includes(filters.search.toLowerCase())
-    const matchesArea = !filters.area || property.area === filters.area
-    const matchesPropertyType =
-      !filters.propertyType || property.propertyType === filters.propertyType
-    const matchesPrice =
-      (!filters.minPrice || property.rentAmount >= parseInt(filters.minPrice)) &&
-      (!filters.maxPrice || property.rentAmount <= parseInt(filters.maxPrice))
-    const matchesBedrooms = !filters.bedrooms || property.bedrooms?.toString() === filters.bedrooms
-    const matchesAmenities =
-      filters.amenities.length === 0 ||
-      filters.amenities.every((amenity) => property.amenities.includes(amenity))
+  const handleFilterChange = (key: string, value: string | string[]) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: 1,
+    }))
+  }
 
-    return (
-      matchesSearch &&
-      matchesArea &&
-      matchesPropertyType &&
-      matchesPrice &&
-      matchesBedrooms &&
-      matchesAmenities
-    )
-  })
+  const handlePriceRangeChange = (minPrice?: number, maxPrice?: number) => {
+    setFilters(prev => ({
+      ...prev,
+      minPrice: minPrice?.toString(),
+      maxPrice: maxPrice?.toString(),
+      page: 1,
+    }))
+  }
 
-  const sortedProperties = [...filteredProperties].sort((a, b) => {
-    switch (sortBy) {
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page,
+    }))
+  }
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (filters.q) params.append('q', filters.q)
+    if (filters.area) params.append('area', filters.area)
+    if (filters.propertyType) params.append('propertyType', filters.propertyType)
+    if (filters.minPrice) params.append('minPrice', filters.minPrice.toString())
+    if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString())
+    if (filters.bedrooms) params.append('bedrooms', filters.bedrooms.toString())
+    if (filters.furnished) params.append('furnished', filters.furnished)
+    if (filters.listingType) params.append('listingType', filters.listingType)
+    if (filters.sortBy) params.append('sortBy', filters.sortBy)
+    if (filters.order) params.append('order', filters.order)
+    if (filters.page) params.append('page', filters.page.toString())
+
+    setSearchParams(params, { replace: true })
+  }, [filters, setSearchParams])
+
+  const properties = searchResult?.properties || []
+  const total = searchResult?.total || 0
+  const pages = searchResult?.pages || 1
+
+  const handleSortChange = (value: string) => {
+    let newSortBy: 'createdAt' | 'rentAmount' = 'createdAt'
+    let newOrder: 'asc' | 'desc' = 'desc'
+
+    switch (value) {
       case 'price-low':
-        return a.rentAmount - b.rentAmount
+        newSortBy = 'rentAmount'
+        newOrder = 'asc'
+        break
       case 'price-high':
-        return b.rentAmount - a.rentAmount
+        newSortBy = 'rentAmount'
+        newOrder = 'desc'
+        break
       case 'newest':
       default:
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        newSortBy = 'createdAt'
+        newOrder = 'desc'
     }
-  })
 
-  const areas = ['Dhanmondi', 'Gulshan', 'Banani', 'Uttara', 'Mirpur']
-  const propertyTypes = [
-    { value: 'BACHELOR', label: 'Bachelor' },
-    { value: 'FAMILY', label: 'Family' },
-    { value: 'HOSTEL', label: 'Hostel' },
-  ]
+    setSortBy(value)
+    setFilters(prev => ({ ...prev, sortBy: newSortBy, order: newOrder, page: 1 }))
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Search Header */}
       <div className="sticky top-16 z-40 bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row">
-            {/* Search Input */}
-            <div className="flex-1">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search properties..."
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-primary-600"
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+          <div className="flex flex-col gap-4">
+            {/* Enhanced Search Bar */}
+            <SearchBar onSearch={handleSearch} />
+
+            {/* Controls */}
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              {/* Area Filter */}
+              <div className="w-full md:w-auto">
+                <AreaFilterDropdown
+                  value={selectedArea}
+                  onChange={setArea}
+                  className="w-full"
+                  placeholder="Select area..."
                 />
-                <svg
-                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
               </div>
-            </div>
 
-            {/* Sort Dropdown */}
-            <div>
-              <select
-                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-primary-600"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-            </div>
+              {/* Sort Dropdown */}
+              <div className="w-full md:w-auto">
+                <Select
+                  value={sortBy}
+                  onValueChange={handleSortChange}
+                  className="w-full md:w-48"
+                >
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="newest">Newest</Select.Item>
+                    <Select.Item value="price-low">Price: Low to High</Select.Item>
+                    <Select.Item value="price-high">Price: High to Low</Select.Item>
+                  </Select.Content>
+                </Select>
+              </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex overflow-hidden rounded-lg border border-gray-300">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 transition-colors ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 transition-colors ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
+              {/* View Mode Toggle */}
+              <div className="flex overflow-hidden rounded-lg border border-gray-300">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <Grid className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <List className="h-5 w-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -260,139 +200,72 @@ const PropertyListingsPage = () => {
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Filters Sidebar */}
           <aside className="flex-shrink-0 lg:w-64">
-            <div className="sticky top-24 rounded-lg bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Filters</h3>
-                <button
-                  onClick={() =>
-                    setFilters({
-                      search: '',
-                      area: '',
-                      propertyType: '',
-                      minPrice: '',
-                      maxPrice: '',
-                      bedrooms: '',
-                      amenities: [],
-                    })
-                  }
-                  className="text-sm text-primary-600 hover:text-primary-700"
-                >
-                  Clear all
-                </button>
-              </div>
-
-              {/* Area Filter */}
-              <div className="mb-6">
-                <h4 className="mb-2 text-sm font-medium text-gray-900">Area</h4>
-                <div className="space-y-1">
-                  {areas.map((area) => (
-                    <label key={area} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-600"
-                        checked={filters.area === area}
-                        onChange={(e) => handleFilterChange('area', e.target.checked ? area : '')}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{area}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Property Type Filter */}
-              <div className="mb-6">
-                <h4 className="mb-2 text-sm font-medium text-gray-900">Property Type</h4>
-                <div className="space-y-1">
-                  {propertyTypes.map((type) => (
-                    <label key={type.value} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="propertyType"
-                        className="border-gray-300 text-primary-600 focus:ring-primary-600"
-                        checked={filters.propertyType === type.value}
-                        onChange={() => handleFilterChange('propertyType', type.value)}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{type.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6">
-                <h4 className="mb-2 text-sm font-medium text-gray-900">Price Range (BDT)</h4>
-                <div className="space-y-3">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Bedrooms */}
-              <div className="mb-6">
-                <h4 className="mb-2 text-sm font-medium text-gray-900">Bedrooms</h4>
-                <div className="space-y-1">
-                  {['1', '2', '3', '4+'].map((beds) => (
-                    <label key={beds} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="bedrooms"
-                        className="border-gray-300 text-primary-600 focus:ring-primary-600"
-                        checked={filters.bedrooms === beds}
-                        onChange={() => handleFilterChange('bedrooms', beds)}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{beds}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Amenities */}
-              <div className="mb-6">
-                <h4 className="mb-2 text-sm font-medium text-gray-900">Amenities</h4>
-                <div className="space-y-1">
-                  {[
-                    { id: 'wifi', label: 'WiFi', icon: Wifi },
-                    { id: 'parking', label: 'Parking', icon: Car },
-                    { id: 'meals', label: 'Meals', icon: Utensils },
-                    { id: 'tv', label: 'TV', icon: Tv },
-                  ].map((amenity) => (
-                    <label key={amenity.id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-600"
-                        checked={filters.amenities.includes(amenity.id)}
-                        onChange={(e) => {
-                          const updated = e.target.checked
-                            ? [...filters.amenities, amenity.id]
-                            : filters.amenities.filter((a) => a !== amenity.id)
-                          handleFilterChange('amenities', updated)
-                        }}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{amenity.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+            {/* Filter Toggle Button for Mobile */}
+            <div className="lg:hidden mb-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex w-full items-center justify-between rounded-lg border border-gray-300 px-4 py-3 text-left"
+              >
+                <span className="font-medium text-gray-900">Filters</span>
+                <span className="text-gray-500">{showFilters ? 'Hide' : 'Show'}</span>
+              </button>
             </div>
+
+            {/* Filter Panel */}
+            {(showFilters || isLargeScreen) && (
+              <div className="lg:block transition-all duration-200">
+                <FilterPanel
+                  isOpen={true}
+                  onToggle={() => setShowFilters(!showFilters)}
+                  isMobile={!isLargeScreen}
+                  onFiltersChange={(newFilters) => {
+                    const updatedFilters = {
+                      ...filters,
+                      ...newFilters,
+                      page: 1,
+                    }
+                    setFilters(updatedFilters)
+                  }}
+                />
+              </div>
+            )}
           </aside>
 
           {/* Properties Grid */}
           <main className="flex-1">
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-gray-600">Showing {sortedProperties.length} properties</p>
-            </div>
-
-            {sortedProperties.length === 0 ? (
+            {isLoading ? (
+              <div className="py-12">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="animate-pulse">
+                      <div className="mb-4 h-48 bg-gray-200 rounded-lg" />
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                        <div className="h-4 bg-gray-200 rounded w-1/2" />
+                        <div className="h-4 bg-gray-200 rounded w-1/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : error ? (
+              <div className="py-12 text-center">
+                <div className="mx-auto h-12 w-12 text-red-400">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading properties</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Please try again later
+                </p>
+              </div>
+            ) : properties.length === 0 ? (
               <div className="py-12 text-center">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
@@ -413,17 +286,46 @@ const PropertyListingsPage = () => {
                 </p>
               </div>
             ) : (
-              <div
-                className={
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'
-                    : 'space-y-6'
-                }
-              >
-                {sortedProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-gray-600">
+                    Showing {properties.length} of {total} properties
+                  </p>
+                </div>
+
+                <div
+                  className={
+                    viewMode === 'grid'
+                      ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'
+                      : 'space-y-6'
+                  }
+                >
+                  {properties.map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {pages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <div className="flex space-x-2">
+                      {Array.from({ length: pages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            filters.page === page
+                              ? 'bg-primary-600 text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </main>
         </div>
