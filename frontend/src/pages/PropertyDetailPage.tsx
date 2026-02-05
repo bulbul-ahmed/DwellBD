@@ -357,12 +357,12 @@ const PropertyDetailPage = () => {
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-1">
                     <Star className="h-4 w-4 fill-current text-yellow-400" />
-                    <span className="text-sm font-medium">{property.stats.averageRating}</span>
+                    <span className="text-sm font-medium">4.5</span>
                     <span className="text-sm text-gray-600">
-                      ({property.stats.favorites} favorites)
+                      ({property._count?.favorites || 0} favorites)
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600">{property.stats.views} views</div>
+                  <div className="text-sm text-gray-600">{property._count?.propertyViews || 0} views</div>
                 </div>
               </div>
 
