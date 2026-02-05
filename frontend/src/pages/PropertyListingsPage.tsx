@@ -1,32 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Filter, Wifi, Car, Utensils, Tv, Grid, List } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Grid, List } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
-import Button from '../components/ui/Button'
-import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import SearchBar from '../components/SearchBar'
 import AreaFilterDropdown from '../components/AreaFilterDropdown'
 import FilterPanel from '../components/FilterPanel'
-import PriceRangeFilter from '../components/PriceRangeFilter'
-import PropertyTypeFilter from '../components/PropertyTypeFilter'
-import { searchProperties, PropertyFilters, PropertyResponse } from '../api/propertyApi'
+import { searchProperties, PropertyFilters } from '../api/propertyApi'
 import { useQuery } from '@tanstack/react-query'
 import { useAreaFilter } from '../hooks/useAreaFilter'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-
-// Search query hook
-const useSearchQuery = (filters: PropertyFilters) => {
-  return useQuery({
-    queryKey: ['search-properties', filters],
-    queryFn: () => searchProperties(filters),
-    keepPreviousData: true,
-    staleTime: 5000, // Cache for 5 seconds
-    refetchOnWindowFocus: false,
-  })
-}
-
-const { data: searchResult, isLoading, error } = useSearchQuery(filters)
 
 const PropertyListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -53,8 +36,17 @@ const PropertyListingsPage = () => {
 
   const [filters, setFilters] = useState(initialFilters)
 
+  // Search query hook
+  const { data: searchResult, isLoading, error } = useQuery({
+    queryKey: ['search-properties', filters],
+    queryFn: () => searchProperties(filters),
+    placeholderData: (previousData) => previousData,
+    staleTime: 5000, // Cache for 5 seconds
+    refetchOnWindowFocus: false,
+  })
+
   // Use area filter hook
-  const { selectedArea, setArea, clearArea } = useAreaFilter({
+  const { selectedArea, setArea } = useAreaFilter({
     defaultValue: initialFilters.area,
     autoSync: true
   })
@@ -63,23 +55,6 @@ const PropertyListingsPage = () => {
     setFilters(prev => ({
       ...prev,
       ...searchFilters,
-      page: 1,
-    }))
-  }
-
-  const handleFilterChange = (key: string, value: string | string[]) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value,
-      page: 1,
-    }))
-  }
-
-  const handlePriceRangeChange = (minPrice?: number, maxPrice?: number) => {
-    setFilters(prev => ({
-      ...prev,
-      minPrice: minPrice?.toString(),
-      maxPrice: maxPrice?.toString(),
       page: 1,
     }))
   }
@@ -162,18 +137,14 @@ const PropertyListingsPage = () => {
               <div className="w-full md:w-auto">
                 <Select
                   value={sortBy}
-                  onValueChange={handleSortChange}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  options={[
+                    { value: 'newest', label: 'Newest' },
+                    { value: 'price-low', label: 'Price: Low to High' },
+                    { value: 'price-high', label: 'Price: High to Low' },
+                  ]}
                   className="w-full md:w-48"
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="newest">Newest</Select.Item>
-                    <Select.Item value="price-low">Price: Low to High</Select.Item>
-                    <Select.Item value="price-high">Price: High to Low</Select.Item>
-                  </Select.Content>
-                </Select>
+                />
               </div>
 
               {/* View Mode Toggle */}
