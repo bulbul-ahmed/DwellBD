@@ -63,16 +63,21 @@
 - [x] Create property update/delete endpoints
 - [x] Implement property verification status
 
-**Task #6: Search & Filter System** 🔄
+**Task #6: Search & Filter System** ✅
 
 - [x] Build search bar with instant results
 - [x] Implement area filter dropdown
-- [ ] Create price range slider
-- [ ] Add property type filter (Bachelor/Family/Hostel)
-- [ ] Implement amenities filter checkboxes
-- [ ] Add sorting options (Newest, Price, Popularity)
-- [ ] Create responsive filter panel
-- [ ] Implement search history (local storage)
+- [x] Create price range slider
+- [x] Add property type filter (Bachelor/Family/Hostel)
+- [x] Implement amenities filter checkboxes
+- [x] Add sorting options (Newest, Price, Popularity)
+- [x] Create responsive filter panel
+- [x] Implement search history (local storage)
+- [x] Fix AmenitiesFilter import bug
+- [x] Implement backend sorting support
+- [x] Add full-text search functionality
+- [x] Create useMediaQuery hook for responsive design
+- [x] Add mobile drawer pattern with overlay
 
 **Task #7: Property Display Components**
 
