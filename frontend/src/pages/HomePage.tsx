@@ -43,7 +43,7 @@ const HomePage = () => {
         {/* Background Image */}
         <div className="h-[500px] bg-gradient-to-br from-primary-50 to-secondary-50">
           <img
-            src="/hero-bg.jpg"
+            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=500&fit=crop"
             alt="Property background"
             className="h-full w-full object-cover opacity-20"
           />

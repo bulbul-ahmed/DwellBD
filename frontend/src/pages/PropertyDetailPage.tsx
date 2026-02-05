@@ -1,72 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Heart, MapPin, Phone, Mail, Calendar, Share2, Star } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
-
-// Mock property data
-const mockProperty = {
-  id: '1',
-  title: 'Spacious 2BHK Flat in Dhanmondi',
-  description: `This modern and spacious 2BHK flat is located in the heart of Dhanmondi, one of Dhaka's most prestigious neighborhoods. The property offers a perfect blend of comfort and convenience, making it ideal for families or working professionals.
-
-The apartment features well-appointed bedrooms with ample storage space, a modern bathroom with premium fixtures, and a spacious living area that receives plenty of natural light. The kitchen is fully equipped with all necessary appliances and has provisions for a gas connection.
-
-The building offers 24/7 security with CCTV surveillance, ensuring the safety of residents. There is ample parking space available for residents and visitors. The property also benefits from a generator backup, ensuring uninterrupted electricity supply during load shedding.
-
-Location is a key advantage of this property, with easy access to shopping malls, restaurants, schools, and hospitals. The area is well-connected to major transportation routes, making commuting hassle-free.`,
-
-  propertyType: 'FAMILY' as const,
-  listingType: 'RENT' as const,
-  address: 'House 12, Road 5, Dhanmondi',
-  area: 'Dhanmondi',
-  city: 'Dhaka',
-  latitude: 23.7529,
-  longitude: 90.3814,
-  rentAmount: 35000,
-  rentPeriod: 'MONTHLY' as const,
-  securityDeposit: 70000,
-  advancePayment: 3,
-  bedrooms: 2,
-  bathrooms: 2,
-  floorNumber: 3,
-  totalFloors: 5,
-  squareFeet: 1200,
-  furnished: 'FULL' as const,
-  amenities: ['wifi', 'parking', 'generator', 'gas', 'security', 'elevator', 'balcony'],
-  images: [
-    '/placeholder1.jpg',
-    '/placeholder2.jpg',
-    '/placeholder3.jpg',
-    '/placeholder4.jpg',
-    '/placeholder5.jpg',
-  ],
-  videoUrl: 'https://youtube.com/watch?v=example',
-  isAvailable: true,
-  availableFrom: '2024-02-01',
-  isVerified: true,
-  owner: {
-    id: 'owner1',
-    name: 'Rahim Uddin',
-    phone: '+8801700123456',
-    email: 'rahim@example.com',
-    avatar: '/placeholder-avatar.jpg',
-  },
-  stats: {
-    views: 234,
-    favorites: 12,
-    averageRating: 4.5,
-  },
-  createdAt: '2024-01-15T10:00:00Z',
-}
+import { usePropertyStore } from '../stores/propertyStore'
 
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const [isFavorited, setIsFavorited] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [contactMessage, setContactMessage] = useState('')
+  const { currentProperty, isLoading, getProperty } = usePropertyStore()
 
-  const property = mockProperty
+  useEffect(() => {
+    if (id) {
+      getProperty(id)
+    }
+  }, [id, getProperty])
+
+  const property = currentProperty
 
   const handleContact = () => {
     if (!contactMessage.trim()) return
@@ -97,6 +49,28 @@ const PropertyDetailPage = () => {
     laundry: 'Laundry Service',
     meals: 'Meals',
     commonRoom: 'Common Room',
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-primary-600"></div>
+          <p className="text-gray-600">Loading property details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!property) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-medium text-gray-900">Property not found</p>
+          <p className="text-gray-600">The property you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
