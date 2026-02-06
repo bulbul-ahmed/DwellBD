@@ -145,11 +145,6 @@ export async function getCurrentUser(): Promise<{ user: User }> {
   return response.data
 }
 
-export async function verifyEmail(): Promise<any> {
-  const response = await api.post('/auth/verify-email')
-  return response.data
-}
-
 export async function refreshToken(): Promise<{ message: string; token: string }> {
   const response = await api.post('/auth/refresh')
   return response.data
