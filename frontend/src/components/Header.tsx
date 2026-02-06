@@ -28,9 +28,9 @@ const Header = () => {
   }, [isUserMenuOpen])
 
   const navigation = [
-    { name: 'Buy', href: '/buy' },
-    { name: 'Rent', href: '/rent' },
-    { name: 'Sell', href: '/sell' },
+    { name: 'Buy', href: '/properties?listingType=SELL' },
+    { name: 'Rent', href: '/properties?listingType=RENT' },
+    { name: 'Sell', href: '/properties?listingType=SELL' },
   ]
 
   const isActive = (href: string) => {
