@@ -153,6 +153,7 @@ const AdminUsers: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Input
             type="text"
+            label="Search"
             placeholder="Search by name, email, phone..."
             value={filters.search}
             onChange={e => setFilters({ ...filters, search: e.target.value })}
