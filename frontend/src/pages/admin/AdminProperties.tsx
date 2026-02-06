@@ -5,7 +5,8 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
-import { Edit2, ChevronLeft, ChevronRight } from 'lucide-react'
+import CreatePropertyModal from '../../components/admin/CreatePropertyModal'
+import { Edit2, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Property {
@@ -44,6 +45,7 @@ const AdminProperties: React.FC = () => {
   })
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [updateData, setUpdateData] = useState({
     status: '',
   })
@@ -141,17 +143,27 @@ const AdminProperties: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Properties Management</h1>
-        <p className="text-gray-600 mt-1">Total properties: {total}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Properties Management</h1>
+          <p className="text-gray-600 mt-1">Total properties: {total}</p>
+        </div>
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Create Property
+        </Button>
       </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Input
             type="text"
+            label="Search"
             placeholder="Search by title or address..."
             value={filters.search}
             onChange={e => setFilters({ ...filters, search: e.target.value })}
@@ -296,6 +308,13 @@ const AdminProperties: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Create Property Modal */}
+      <CreatePropertyModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={fetchProperties}
+      />
     </div>
   )
 }

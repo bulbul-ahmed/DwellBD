@@ -9,6 +9,8 @@ import {
   getAnalyticsData,
   getMonthlyTrends
 } from '../services/adminService'
+import { createProperty } from '../services/propertyService'
+import { prisma } from '../models'
 
 export async function getDashboardStatsHandler(req: Request, res: Response): Promise<void> {
   try {
@@ -116,5 +118,107 @@ export async function getPendingApprovalsHandler(req: Request, res: Response): P
   } catch (error) {
     console.error('Error fetching pending approvals:', error)
     res.status(500).json({ error: 'Failed to fetch pending approvals' })
+  }
+}
+
+export async function createPropertyByAdminHandler(req: Request, res: Response): Promise<void> {
+  try {
+    const {
+      ownerId,
+      title,
+      description,
+      propertyType,
+      listingType,
+      address,
+      area,
+      city,
+      bedrooms,
+      bathrooms,
+      floorNumber,
+      totalFloors,
+      squareFeet,
+      furnished,
+      rentAmount,
+      rentPeriod,
+      securityDeposit,
+      advancePayment,
+      amenities,
+      availableFrom,
+    } = req.body
+
+    // Validate required fields
+    if (!ownerId || !title || !propertyType || !address || !area || rentAmount === undefined) {
+      res.status(400).json({
+        error: 'Validation error',
+        message: 'ownerId, title, propertyType, address, area, and rentAmount are required',
+      })
+      return
+    }
+
+    // Verify owner exists and has OWNER role
+    const owner = await prisma.user.findUnique({
+      where: { id: ownerId },
+      select: { id: true, role: true, isActive: true },
+    })
+
+    if (!owner) {
+      res.status(404).json({ error: 'Not found', message: 'Owner not found' })
+      return
+    }
+
+    if (owner.role !== 'OWNER') {
+      res.status(400).json({
+        error: 'Validation error',
+        message: 'Selected user must have OWNER role',
+      })
+      return
+    }
+
+    if (!owner.isActive) {
+      res.status(400).json({
+        error: 'Validation error',
+        message: 'Owner account is inactive',
+      })
+      return
+    }
+
+    // Build property data object
+    const propertyData: any = {
+      title,
+      propertyType,
+      address,
+      area,
+      rentAmount: parseFloat(rentAmount),
+      amenities: Array.isArray(amenities) ? amenities : [],
+    }
+
+    // Add optional fields with type conversions
+    if (description) propertyData.description = description
+    if (listingType) propertyData.listingType = listingType
+    if (city) propertyData.city = city
+    if (bedrooms) propertyData.bedrooms = parseInt(bedrooms)
+    if (bathrooms) propertyData.bathrooms = parseInt(bathrooms)
+    if (floorNumber) propertyData.floorNumber = parseInt(floorNumber)
+    if (totalFloors) propertyData.totalFloors = parseInt(totalFloors)
+    if (squareFeet) propertyData.squareFeet = parseInt(squareFeet)
+    if (furnished) propertyData.furnished = furnished
+    if (rentPeriod) propertyData.rentPeriod = rentPeriod
+    if (securityDeposit) propertyData.securityDeposit = parseFloat(securityDeposit)
+    if (advancePayment) propertyData.advancePayment = parseFloat(advancePayment)
+    if (availableFrom) propertyData.availableFrom = new Date(availableFrom)
+
+    // Use existing createProperty service
+    const property = await createProperty(ownerId, propertyData)
+
+    res.status(201).json({
+      message: 'Property created successfully by admin',
+      property,
+    })
+  } catch (error) {
+    console.error('Admin create property error:', error)
+    res.status(500).json({
+      error: 'Failed to create property',
+      message: error instanceof Error ? error.message : 'An error occurred',
+    })
   }
 }

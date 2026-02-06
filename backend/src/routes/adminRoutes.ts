@@ -8,7 +8,8 @@ import {
   updateUserHandler,
   getAnalyticsDataHandler,
   getMonthlyTrendsHandler,
-  getPendingApprovalsHandler
+  getPendingApprovalsHandler,
+  createPropertyByAdminHandler
 } from '../controllers/adminController'
 import { strictLimiter } from '../middleware/rateLimiter'
 
@@ -22,6 +23,7 @@ router.get('/dashboard', getDashboardStatsHandler)
 
 // Properties
 router.get('/properties', getAllPropertiesHandler)
+router.post('/properties', strictLimiter, createPropertyByAdminHandler)
 router.patch('/properties/:id', strictLimiter, updatePropertyHandler)
 
 // Users

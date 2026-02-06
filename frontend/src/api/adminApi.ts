@@ -74,3 +74,29 @@ export async function getAnalytics(dateRange?: { start: string; end: string }) {
   const response = await api.get(`/admin/analytics?${params}`)
   return response.data
 }
+
+export async function createPropertyByAdmin(data: {
+  ownerId: string
+  title: string
+  description?: string
+  propertyType: string
+  listingType?: string
+  address: string
+  area: string
+  city?: string
+  bedrooms?: number
+  bathrooms?: number
+  floorNumber?: number
+  totalFloors?: number
+  squareFeet?: number
+  furnished?: string
+  rentAmount: number
+  rentPeriod?: string
+  securityDeposit?: number
+  advancePayment?: number
+  amenities?: string[]
+  availableFrom?: string
+}) {
+  const response = await api.post('/admin/properties', data)
+  return response.data
+}
