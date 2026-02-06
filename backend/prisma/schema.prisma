@@ -32,6 +32,10 @@ model User {
   ratingsGiven    UserRating[] @relation("RatingsGiven")
   ratingsReceived UserRating[] @relation("RatingsReceived")
 
+  @@index([email])
+  @@index([role])
+  @@index([isVerified])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -75,6 +79,14 @@ model Property {
     inquiries    Inquiry[]
   propertyViews PropertyView[]
 
+  @@index([ownerId])
+  @@index([status])
+  @@index([area])
+  @@index([type])
+  @@index([rentAmount])
+  @@index([createdAt])
+  @@index([area, status])
+  @@index([type, status])
   @@map("properties")
 }
 
@@ -89,6 +101,9 @@ model Favorite {
   property   Property @relation(fields: [propertyId], references: [id])
 
   @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@index([createdAt])
   @@map("favorites")
 }
 
@@ -104,6 +119,9 @@ model Review {
   user      User     @relation(fields: [userId], references: [id])
   property   Property @relation(fields: [propertyId], references: [id])
 
+  @@index([propertyId])
+  @@index([userId])
+  @@index([rating])
   @@map("reviews")
 }
 
@@ -122,6 +140,9 @@ model Booking {
   property   Property @relation(fields: [propertyId], references: [id])
   ratings   UserRating[]
 
+  @@index([userId])
+  @@index([propertyId])
+  @@index([status])
   @@map("bookings")
 }
 
@@ -201,6 +222,8 @@ model Inquiry {
   user      User?     @relation(fields: [userId], references: [id])
   property   Property @relation(fields: [propertyId], references: [id])
 
+  @@index([propertyId])
+  @@index([status])
   @@map("inquiries")
 }
 
@@ -215,6 +238,8 @@ model PropertyView {
   property   Property @relation(fields: [propertyId], references: [id])
 
   @@unique([userId, propertyId])
+  @@index([propertyId])
+  @@index([viewedAt])
   @@map("property_views")
 }
 
