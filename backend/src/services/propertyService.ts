@@ -5,7 +5,7 @@ interface SearchFilters {
   area?: string
   minPrice?: number
   maxPrice?: number
-  propertyType?: PropertyType
+  type?: PropertyType
   bedrooms?: number
   furnished?: string
   listingType?: string
@@ -32,9 +32,11 @@ function buildOrderBy(sortBy?: string, order?: 'asc' | 'desc') {
 }
 
 export async function createProperty(ownerId: string, data: CreatePropertyInput) {
+  const { propertyType, ...rest } = data
   return prisma.property.create({
     data: {
-      ...data,
+      ...rest,
+      type: propertyType,
       ownerId,
       status: 'PENDING' as PropertyStatus,
     },
@@ -177,8 +179,8 @@ export async function searchProperties(
     }
   }
 
-  if (filters.propertyType) {
-    where.propertyType = filters.propertyType
+  if (filters.type) {
+    where.type = filters.type
   }
 
   if (filters.bedrooms) {

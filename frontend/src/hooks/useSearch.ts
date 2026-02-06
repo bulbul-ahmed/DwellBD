@@ -11,7 +11,7 @@ export function useSearch<T>(options: UseSearchOptions = {}) {
   const [results, setResults] = useState<T[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
 
   const search = async (searchQuery: string) => {
     if (searchQuery.length < minChars) {

@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Filter, MapPin, Wifi, Car, Utensils, Tv, Calendar, X } from 'lucide-react'
+import { MapPin, X } from 'lucide-react'
 import Button from './ui/Button'
-import Input from './ui/Input'
 import Select from './ui/Select'
 import PriceRangeFilter from './PriceRangeFilter'
 import PropertyTypeFilter from './PropertyTypeFilter'
@@ -48,7 +47,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
     amenities: [] as string[],
   })
 
-  const handleFilterChange = (key: string, value: string | string | number[]) => {
+  const handleFilterChange = (key: string, value: string | string[]) => {
     const updatedFilters = {
       ...filters,
       [key]: value,
@@ -65,14 +64,6 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
     }
     setFilters(updatedFilters)
     onFiltersChange(updatedFilters)
-  }
-
-  const handleAmenityToggle = (amenityId: string) => {
-    const updatedAmenities = filters.amenities.includes(amenityId)
-      ? filters.amenities.filter((id) => id !== amenityId)
-      : [...filters.amenities, amenityId]
-
-    handleFilterChange('amenities', updatedAmenities)
   }
 
   const clearFilters = () => {
@@ -139,7 +130,6 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
             Area
           </h4>
           <Select
-            placeholder="Select area"
             options={areas.map(area => ({ value: area, label: area }))}
             value={filters.area}
             onChange={(value) => handleFilterChange('area', value)}

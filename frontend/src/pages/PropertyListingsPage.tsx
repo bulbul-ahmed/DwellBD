@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Grid, List } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
@@ -16,23 +16,31 @@ const PropertyListingsPage = () => {
   const [sortBy, setSortBy] = useState('newest')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
+  const [accumulatedProperties, setAccumulatedProperties] = useState<any[]>([])
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMorePages, setHasMorePages] = useState(true)
+  const observerTarget = useRef<HTMLDivElement>(null)
   const isLargeScreen = useMediaQuery('(min-width: 1024px)')
 
   // Get initial filters from URL params
-  const initialFilters = useMemo(() => ({
-    q: searchParams.get('q') || '',
-    area: searchParams.get('area') || '',
-    propertyType: searchParams.get('propertyType') || '',
-    minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
-    maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
-    bedrooms: searchParams.get('bedrooms') ? parseInt(searchParams.get('bedrooms')!) : undefined,
-    furnished: searchParams.get('furnished') as 'NONE' | 'PARTIAL' | 'FULL' | undefined,
-    listingType: searchParams.get('listingType') as 'RENT' | 'SELL' | undefined,
-    sortBy: (searchParams.get('sortBy') || 'createdAt') as 'createdAt' | 'rentAmount' | 'bedrooms',
-    order: (searchParams.get('order') || 'desc') as 'asc' | 'desc',
-    page: parseInt(searchParams.get('page') || '1'),
-    limit: 20,
-  }), [searchParams])
+  const initialFilters = useMemo(() => {
+    const furnishedValue = searchParams.get('furnished')
+    const listingTypeValue = searchParams.get('listingType')
+    return {
+      q: searchParams.get('q') || '',
+      area: searchParams.get('area') || '',
+      propertyType: searchParams.get('propertyType') || '',
+      minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
+      maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
+      bedrooms: searchParams.get('bedrooms') ? parseInt(searchParams.get('bedrooms')!) : undefined,
+      furnished: (furnishedValue === 'NONE' || furnishedValue === 'PARTIAL' || furnishedValue === 'FULL') ? furnishedValue : undefined,
+      listingType: (listingTypeValue === 'RENT' || listingTypeValue === 'SELL') ? listingTypeValue : undefined,
+      sortBy: (searchParams.get('sortBy') || 'createdAt') as 'createdAt' | 'rentAmount' | 'bedrooms',
+      order: (searchParams.get('order') || 'desc') as 'asc' | 'desc',
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: 20,
+    }
+  }, [searchParams])
 
   const [filters, setFilters] = useState(initialFilters)
 
@@ -86,7 +94,43 @@ const PropertyListingsPage = () => {
 
   const properties = searchResult?.properties || []
   const total = searchResult?.total || 0
-  const pages = searchResult?.pages || 1
+
+  // Accumulate properties for infinite scroll
+  useEffect(() => {
+    // Reset accumulated properties when filters change (new search)
+    if (filters.page === 1) {
+      setAccumulatedProperties(properties)
+      setHasMorePages(properties.length < total && properties.length > 0)
+    } else {
+      // Append new properties when loading more
+      setAccumulatedProperties(prev => [...prev, ...properties])
+      setHasMorePages(accumulatedProperties.length + properties.length < total)
+    }
+    setIsLoadingMore(false)
+  }, [searchResult])
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMorePages && !isLoading && !isLoadingMore) {
+          setIsLoadingMore(true)
+          handlePageChange(filters.page + 1)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current)
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current)
+      }
+    }
+  }, [hasMorePages, isLoading, isLoadingMore, filters.page, handlePageChange])
 
   const handleSortChange = (value: string) => {
     let newSortBy: 'createdAt' | 'rentAmount' = 'createdAt'
@@ -137,7 +181,7 @@ const PropertyListingsPage = () => {
               <div className="w-full md:w-auto">
                 <Select
                   value={sortBy}
-                  onChange={(e) => handleSortChange(e.target.value)}
+                  onChange={(value) => handleSortChange(value)}
                   options={[
                     { value: 'newest', label: 'Newest' },
                     { value: 'price-low', label: 'Price: Low to High' },
@@ -236,7 +280,7 @@ const PropertyListingsPage = () => {
                   Please try again later
                 </p>
               </div>
-            ) : properties.length === 0 ? (
+            ) : accumulatedProperties.length === 0 ? (
               <div className="py-12 text-center">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
@@ -260,7 +304,7 @@ const PropertyListingsPage = () => {
               <>
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-gray-600">
-                    Showing {properties.length} of {total} properties
+                    Showing {accumulatedProperties.length} of {total} properties
                   </p>
                 </div>
 
@@ -271,29 +315,22 @@ const PropertyListingsPage = () => {
                       : 'space-y-6'
                   }
                 >
-                  {properties.map((property) => (
+                  {accumulatedProperties.map((property) => (
                     <PropertyCard key={property.id} property={property} />
                   ))}
                 </div>
 
-                {/* Pagination */}
-                {pages > 1 && (
-                  <div className="mt-8 flex justify-center">
-                    <div className="flex space-x-2">
-                      {Array.from({ length: pages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            filters.page === page
-                              ? 'bg-primary-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                    </div>
+                {/* Infinite Scroll Observer Target */}
+                {hasMorePages && (
+                  <div ref={observerTarget} className="mt-8 flex justify-center">
+                    {isLoadingMore ? (
+                      <div className="text-center py-4">
+                        <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-gray-300 border-t-primary-600"></div>
+                        <p className="mt-2 text-gray-600">Loading more properties...</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">Scroll down to load more</p>
+                    )}
                   </div>
                 )}
               </>

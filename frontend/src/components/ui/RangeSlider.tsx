@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, forwardRef, HTMLAttributes } from 'react'
 
-interface RangeSliderProps extends HTMLAttributes<HTMLDivElement> {
+interface RangeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   min: number
   max: number
   value: [number, number]
@@ -96,7 +96,6 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(
 
     const minPercent = getPercent(tempValues[0])
     const maxPercent = getPercent(tempValues[1])
-    const rangeWidth = maxPercent - minPercent
 
     const formatCurrency = (value: number) => {
       return new Intl.NumberFormat('bn-BD', {

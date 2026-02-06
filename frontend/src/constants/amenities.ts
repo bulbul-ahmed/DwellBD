@@ -12,7 +12,6 @@ import {
   Dumbbell,
   Shirt,
   Users,
-  Check
 } from 'lucide-react'
 
 export interface AmenityOption {

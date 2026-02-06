@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react'
+import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, Heart, MessageCircle, Calendar } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
 const Header = () => {
@@ -127,6 +127,16 @@ const Header = () => {
                             <span>Dashboard</span>
                           </Link>
                         )}
+                        {user.role === 'ADMIN' && (
+                          <Link
+                            to="/admin"
+                            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <Shield className="h-4 w-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        )}
                         <button
                           onClick={handleLogout}
                           className="flex w-full items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -207,6 +217,30 @@ const Header = () => {
                       <UserIcon className="h-4 w-4" />
                       <span>Profile</span>
                     </Link>
+                    <Link
+                      to="/favorites"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Heart className="h-4 w-4" />
+                      <span>Saved Properties</span>
+                    </Link>
+                    <Link
+                      to="/inquiries"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>Inquiries</span>
+                    </Link>
+                    <Link
+                      to="/bookings"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Calendar className="h-4 w-4" />
+                      <span>Bookings</span>
+                    </Link>
                     {user.role === 'OWNER' && (
                       <Link
                         to="/dashboard"
@@ -215,6 +249,16 @@ const Header = () => {
                       >
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Dashboard</span>
+                      </Link>
+                    )}
+                    {user.role === 'ADMIN' && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Shield className="h-4 w-4" />
+                        <span>Admin Panel</span>
                       </Link>
                     )}
                     <button

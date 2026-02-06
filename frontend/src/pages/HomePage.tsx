@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, Calendar, Users, Bed } from 'lucide-react'
+import { Search, MapPin, Users, Bed } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
 import Button from '../components/ui/Button'
 import { PropertyListSkeleton } from '../components/ui/Skeleton'
@@ -25,15 +25,6 @@ const HomePage = () => {
         navigate(`/properties?q=${encodeURIComponent(searchQuery)}`)
       }, 500)
     }
-  }
-
-  const formatPrice = (amount: number) => {
-    const formatter = new Intl.NumberFormat('bn-BD', {
-      style: 'currency',
-      currency: 'BDT',
-      maximumFractionDigits: 0,
-    })
-    return formatter.format(amount)
   }
 
   return (

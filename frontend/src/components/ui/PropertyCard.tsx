@@ -1,22 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Heart, MapPin, Bed, Bath, Square, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import Button from './Button'
+import LazyImage from './LazyImage'
+import { useAuthStore } from '../../stores/authStore'
+import { addFavorite, removeFavorite, checkIsFavorited } from '../../api/favoriteApi'
 
 export interface Property {
   id: string
   title: string
   description?: string
-  propertyType: 'BACHELOR' | 'FAMILY' | 'HOSTEL'
-  listingType: 'RENT' | 'SELL'
+  propertyType: 'BACHELOR' | 'FAMILY' | 'HOSTEL' | 'SUBLET' | 'OFFICE'
+  listingType?: 'RENT' | 'SELL'
   address: string
   area: string
   rentAmount: number
   bedrooms?: number
   bathrooms?: number
   squareFeet?: number
-  images: string[]
-  amenities: string[]
+  images?: string[]
+  amenities?: string[]
   isVerified: boolean
   createdAt: string
 }
@@ -28,9 +32,39 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
   const [isFavorited, setIsFavorited] = useState(false)
+  const { user } = useAuthStore()
 
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited)
+  useEffect(() => {
+    if (user) {
+      checkIsFavorited(property.id)
+        .then((isFav) => setIsFavorited(isFav))
+        .catch((error) => console.error('Error checking favorite status:', error))
+    }
+  }, [property.id, user])
+
+  const handleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user) {
+      toast.error('Please log in to add favorites')
+      return
+    }
+
+    try {
+      if (isFavorited) {
+        await removeFavorite(property.id)
+        setIsFavorited(false)
+        toast.success('Removed from favorites')
+      } else {
+        await addFavorite(property.id)
+        setIsFavorited(true)
+        toast.success('Added to favorites')
+      }
+    } catch (error) {
+      console.error('Error updating favorite:', error)
+      toast.error('Failed to update favorite')
+    }
   }
 
   const formatPrice = (amount: number) => {
@@ -51,6 +85,8 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
     BACHELOR: 'Bachelor',
     FAMILY: 'Family',
     HOSTEL: 'Hostel',
+    SUBLET: 'Sublet',
+    OFFICE: 'Office',
   }
 
   return (
@@ -60,11 +96,11 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
       {/* Image */}
       <div className="relative">
         <Link to={`/properties/${property.id}`}>
-          <img
-            src={property.images[0] || '/placeholder-property.jpg'}
+          <LazyImage
+            src={property.images?.[0] || '/placeholder-property.jpg'}
             alt={property.title}
-            className="h-64 w-full cursor-pointer object-cover"
-            loading="lazy"
+            className="h-64 cursor-pointer"
+            placeholderClassName="rounded-t-lg"
           />
         </Link>
 
@@ -151,9 +187,11 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
         </div>
 
         {/* CTA Button */}
-        <Button size="md" className="w-full">
-          View Details
-        </Button>
+        <Link to={`/properties/${property.id}`}>
+          <Button size="md" className="w-full">
+            View Details
+          </Button>
+        </Link>
       </div>
     </div>
   )

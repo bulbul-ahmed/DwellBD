@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, MapPin, X, Clock, History } from 'lucide-react'
 import Input from './ui/Input'
-import Button from './ui/Button'
 import { cn } from '@/lib/utils'
 import { searchProperties, PropertyFilters, Property } from '@/api/propertyApi'
 import { useQuery } from '@tanstack/react-query'
@@ -45,7 +44,7 @@ const useInstantSearch = (query: string, area: string) => {
       page: 1,
       limit: 5
     }),
-    enabled: (query.trim() || area) && (query.trim().length >= 2 || area.length > 0),
+    enabled: !!(query.trim() || area) && (query.trim().length >= 2 || area.length > 0),
     staleTime: 3000, // Cache for 3 seconds
     refetchOnWindowFocus: false,
   })
@@ -54,19 +53,17 @@ const useInstantSearch = (query: string, area: string) => {
 export default function SearchBar({ className, onSearch }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [showAreas, setShowAreas] = useState(false)
   const [selectedArea, setSelectedArea] = useState('')
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { searchHistory, addToHistory, removeFromHistory } = useSearchHistory()
 
-  const { data: searchResults, isLoading: isSearching } = useInstantSearch(query, selectedArea)
+  const { data: searchResults = { properties: [] }, isLoading: isSearching } = useInstantSearch(query, selectedArea)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false)
-        setShowAreas(false)
       }
     }
 
@@ -96,7 +93,6 @@ export default function SearchBar({ className, onSearch }: SearchBarProps) {
 
       navigate(`/properties?${searchParams.toString()}`)
       setShowSuggestions(false)
-      setShowAreas(false)
       // Don't clear query when navigating, let results page handle it
     }
   }
@@ -104,7 +100,6 @@ export default function SearchBar({ className, onSearch }: SearchBarProps) {
   const handleAreaSelect = (area: string) => {
     setSelectedArea(area === selectedArea ? '' : area)
     setQuery('')
-    setShowAreas(false)
     setShowSuggestions(false)
   }
 
@@ -198,7 +193,7 @@ export default function SearchBar({ className, onSearch }: SearchBarProps) {
                 <div className="space-y-2">
                   {isSearching ? (
                     <div className="py-2 text-center text-sm text-gray-500">Loading results...</div>
-                  ) : searchResults?.properties.length ? (
+                  ) : searchResults.properties.length ? (
                     searchResults.properties.slice(0, 3).map((property: Property) => (
                       <button
                         key={property.id}

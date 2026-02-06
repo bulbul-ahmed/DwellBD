@@ -1,14 +1,19 @@
-import { forwardRef, SelectHTMLAttributes } from 'react'
+import { forwardRef, SelectHTMLAttributes, ChangeEvent } from 'react'
 
-export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   label?: string
   error?: string
   helperText?: string
   options: Array<{ value: string; label: string }>
+  onChange?: (value: string) => void
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, helperText, options, className = '', ...props }, ref) => {
+  ({ label, error, helperText, options, className = '', onChange, ...props }, ref) => {
+    const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+      onChange?.(e.target.value)
+    }
+
     return (
       <div className="w-full">
         {label && <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>}
@@ -19,6 +24,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
               ? 'border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:border-transparent focus:ring-primary-500'
           } ${className} `}
+          onChange={handleChange}
           {...props}
         >
           {options.map((option) => (

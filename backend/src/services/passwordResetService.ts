@@ -10,30 +10,32 @@ export function hashResetToken(token: string): string {
 }
 
 export async function storeResetToken(userId: string, hashedToken: string): Promise<void> {
-  await prisma.user.update({
-    where: { id: userId },
+  await prisma.passwordReset.create({
     data: {
-      passwordResetToken: hashedToken,
-      passwordResetExpires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+      userId,
+      token: hashedToken,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
     },
   })
 }
 
 export async function findUserByResetToken(hashedToken: string) {
-  return prisma.user.findFirst({
+  const passwordReset = await prisma.passwordReset.findFirst({
     where: {
-      passwordResetToken: hashedToken,
-      passwordResetExpires: { gt: new Date() },
+      token: hashedToken,
+      expiresAt: { gt: new Date() },
+      used: false,
+    },
+    include: {
+      user: true,
     },
   })
+  return passwordReset?.user
 }
 
 export async function clearResetToken(userId: string): Promise<void> {
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      passwordResetToken: null,
-      passwordResetExpires: null,
-    },
+  await prisma.passwordReset.updateMany({
+    where: { userId },
+    data: { used: true },
   })
 }

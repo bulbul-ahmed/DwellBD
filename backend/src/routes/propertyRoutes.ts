@@ -11,6 +11,7 @@ import {
   getPropertyStatsHandler,
 } from '../controllers/propertyController'
 import { authenticateToken, requireRole } from '../middleware/auth'
+import { searchLimiter, strictLimiter } from '../middleware/rateLimiter'
 
 const router = express.Router()
 
@@ -30,18 +31,19 @@ const upload = multer({
   },
 })
 
-// Public routes - these must come before /:id routes
-router.get('/search', searchAllProperties)
+// Public routes with search limiter - these must come before /:id routes
+router.get('/', searchLimiter, searchAllProperties)
+router.get('/search', searchLimiter, searchAllProperties)
 
-// Protected routes - these must come before /:id routes
-router.post('/', authenticateToken, requireRole('OWNER'), createNewProperty)
+// Protected routes with strict limiter for mutations
+router.post('/', authenticateToken, requireRole('OWNER'), strictLimiter, createNewProperty)
 router.get('/user/my-properties', authenticateToken, getMyProperties)
-router.post('/upload/images', authenticateToken, upload.array('images', 10), uploadPropertyImages)
+router.post('/upload/images', authenticateToken, strictLimiter, upload.array('images', 10), uploadPropertyImages)
 
 // Routes with :id parameter - these come last
 router.get('/:id', getProperty)
 router.get('/:id/stats', getPropertyStatsHandler)
-router.patch('/:id', authenticateToken, requireRole('OWNER'), updatePropertyData)
-router.delete('/:id', authenticateToken, requireRole('OWNER'), deletePropertyData)
+router.patch('/:id', authenticateToken, requireRole('OWNER'), strictLimiter, updatePropertyData)
+router.delete('/:id', authenticateToken, requireRole('OWNER'), strictLimiter, deletePropertyData)
 
 export default router

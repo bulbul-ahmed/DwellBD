@@ -1,21 +1,62 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import compression from 'compression'
-import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { prisma } from './models'
 import authRoutes from './routes/authRoutes'
+import adminRoutes from './routes/adminRoutes'
 import propertyRoutes from './routes/propertyRoutes'
+import favoriteRoutes from './routes/favoriteRoutes'
+import bookingRoutes from './routes/bookingRoutes'
+import reviewRoutes from './routes/reviewRoutes'
+import inquiryRoutes from './routes/inquiryRoutes'
+import ratingRoutes from './routes/ratingRoutes'
+import {
+  apiLimiter,
+  authLimiter,
+  searchLimiter,
+  strictLimiter,
+  passwordLimiter,
+} from './middleware/rateLimiter'
 
 // Load environment variables
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3002
 
-// Security middleware
-app.use(helmet())
+// Enhanced security middleware with Helmet
+app.use(
+  helmet({
+    // Content Security Policy
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'"],
+      },
+    },
+    // Disable X-Powered-By header
+    hidePoweredBy: true,
+    // Enable HSTS (HTTP Strict Transport Security)
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true,
+      preload: true,
+    },
+    // Enable X-Frame-Options to prevent clickjacking
+    frameguard: {
+      action: 'deny',
+    },
+    // Enable X-Content-Type-Options
+    noSniff: true,
+    // Enable X-XSS-Protection
+    xssFilter: true,
+  })
+)
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -23,106 +64,45 @@ app.use(
   })
 )
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    error: 'Too many requests from this IP, please try again after 15 minutes',
-  },
-})
-app.use('/api/', limiter)
-
-// Compression
-app.use(compression())
-
-// Body parsing middleware
+// Body parsing middleware with size limits
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// Health check endpoint
-app.get('/health', async (req, res) => {
-  try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`
+// Apply general API rate limiter to all API routes
+app.use('/api/', apiLimiter)
 
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: 'connected',
-    })
-  } catch (error) {
-    res.status(503).json({
-      status: 'error',
-      timestamp: new Date().toISOString(),
-      database: 'disconnected',
-      message: 'Database connection failed',
-    })
-  }
+// Basic routes
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'BD Flat Hub Backend is running' })
+})
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'BD Flat Hub API is running' })
 })
 
 // API routes
 app.use('/api/auth', authRoutes)
+app.use('/api/admin', adminRoutes)
 app.use('/api/properties', propertyRoutes)
-
-// API documentation
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'BDFlatHub API',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      auth: {
-        register: 'POST /api/auth/register',
-        login: 'POST /api/auth/login',
-        getCurrentUser: 'GET /api/auth/me (protected)',
-        verifyEmail: 'POST /api/auth/verify-email (protected)',
-        refreshToken: 'POST /api/auth/refresh',
-        logout: 'POST /api/auth/logout',
-      },
-      properties: {
-        search: 'GET /api/properties/search?area=...&minPrice=...&maxPrice=...&propertyType=...',
-        getOne: 'GET /api/properties/:id',
-        getStats: 'GET /api/properties/:id/stats',
-        create: 'POST /api/properties (protected, OWNER only)',
-        myProperties: 'GET /api/properties/user/my-properties (protected)',
-        update: 'PATCH /api/properties/:id (protected, OWNER only)',
-        delete: 'DELETE /api/properties/:id (protected, OWNER only)',
-        uploadImages: 'POST /api/properties/upload/images (protected)',
-      },
-    },
-  })
-})
+app.use('/api/favorites', favoriteRoutes)
+app.use('/api/bookings', bookingRoutes)
+app.use('/api/reviews', reviewRoutes)
+app.use('/api/inquiries', inquiryRoutes)
+app.use('/api/ratings', ratingRoutes)
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack)
-  res.status(500).json({
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
-  })
+  res.status(500).json({ error: 'Something went wrong!' })
 })
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.originalUrl} not found`,
-  })
+  res.status(404).json({ error: 'Route not found' })
 })
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 BDFlatHub API server running on port ${PORT}`)
-  console.log(`📊 Health check: http://localhost:${PORT}/health`)
-})
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\nShutting down gracefully...')
-  await prisma.$disconnect()
-  server.close(() => {
-    console.log('Server closed')
-    process.exit(0)
-  })
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+  console.log(`Environment: ${process.env.NODE_ENV}`)
 })

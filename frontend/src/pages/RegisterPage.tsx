@@ -25,8 +25,20 @@ const RegisterPage = () => {
   const navigate = useNavigate()
   const register = useAuthStore((state) => state.register)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | string) => {
+    let name: string
+    let value: string
+
+    if (typeof e === 'string') {
+      // Called from Select component with string value
+      name = 'role'
+      value = e
+    } else {
+      // Called from Input or native Select with event
+      name = e.target.name
+      value = e.target.value
+    }
+
     setFormData({
       ...formData,
       [name]: value,

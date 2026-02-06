@@ -8,122 +8,85 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  phone     String?  @unique
-  password  String
-  firstName String
-  lastName  String
-  avatar    String?
-  role      Role     @default(TENANT)
-  isVerified Boolean  @default(false)
+  id          String   @id @default(cuid())
+  email       String   @unique
+  phone       String?
+  password    String
+  firstName   String
+  lastName    String
+  role        UserRole @default(TENANT)
+  isVerified  Boolean  @default(false)
   isActive   Boolean  @default(true)
-  passwordResetToken   String?   @unique
-  passwordResetExpires DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  properties     Property[]
-  inquiriesSent  Inquiry[] @relation("InquirySender")
-  inquiriesReceived Inquiry[] @relation("InquiryReceiver")
-  favorites      Favorite[]
-  reviews        Review[]
-  propertyViews  PropertyView[]
+  properties  Property[]
+  favorites   Favorite[]
+  reviews     Review[]
+  bookings    Booking[]
+  passwordResets PasswordReset[]
+  inquiries    Inquiry[]
+  propertyViews PropertyView[]
+  ratingsGiven    UserRating[] @relation("RatingsGiven")
+  ratingsReceived UserRating[] @relation("RatingsReceived")
 
   @@map("users")
 }
 
 model Property {
-  id              String      @id @default(cuid())
-  title           String
-  description     String?
-  propertyType    PropertyType
-  listingType     ListingType @default(RENT)
-
-  // Location
-  address         String      @db.Text
-  area            String
-  city            String      @default("Dhaka")
-  latitude        Decimal?    @db.Decimal(10, 8)
-  longitude       Decimal?    @db.Decimal(11, 8)
-
-  // Property details
-  bedrooms        Int?
-  bathrooms       Int?
-  floorNumber     Int?
-  totalFloors     Int?
-  squareFeet      Int?
-  furnished       Furnished?  @default(NONE)
-
-  // Pricing
-  rentAmount      Decimal     @db.Decimal(10, 2)
-  rentPeriod      RentPeriod  @default(MONTHLY)
-  securityDeposit Decimal?    @db.Decimal(10, 2)
-  advancePayment  Int         @default(3) // months
-
-  // Amenities
-  amenities       Json        // Array of amenity strings
-
-  // Availability
-  isAvailable     Boolean     @default(true)
-  availableFrom   DateTime?
-
-  // Media
-  coverImage      String?
-  images          Json        // Array of image URLs
-  videoUrl        String?
-
-  // Status
-  status          PropertyStatus @default(PENDING)
-  isVerified      Boolean     @default(false)
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  type        PropertyType
+  listingType ListingType?
+  address     String
+  area        String
+  city        String?
+  latitude    Float?
+  longitude   Float?
+  bedrooms    Int?
+  bathrooms   Int?
+  floorNumber Int?
+  totalFloors Int?
+  squareFeet  Int?
+  furnished   Furnished?
+  rentAmount  Float
+  rentPeriod  RentPeriod?
+  securityDeposit Float?
+  advancePayment Float?
+  amenities   String[]
+  availableFrom DateTime?
+  coverImage  String?
+  images      String[]
+  videoUrl    String?
+  status      PropertyStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   // Relations
-  ownerId         String
-  owner           User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  inquiries       Inquiry[]
-  reviews         Review[]
-  favorites       Favorite[]
-  propertyViews   PropertyView[]
+  owner       User       @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  favorites   Favorite[]
+  reviews     Review[]
+  bookings    Booking[]
 
-  // Timestamps
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  expiresAt       DateTime?
+    inquiries    Inquiry[]
+  propertyViews PropertyView[]
 
   @@map("properties")
 }
 
-model Inquiry {
-  id        String           @id @default(cuid())
-  message   String           @db.Text
-  status    InquiryStatus    @default(PENDING)
-
-  // Relations
-  propertyId String
-  property   Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  senderId  String
-  sender    User             @relation("InquirySender", fields: [senderId], references: [id])
-
-  receiverId String
-  receiver   User             @relation("InquiryReceiver", fields: [receiverId], references: [id])
-
-  createdAt DateTime         @default(now())
-
-  @@map("inquiries")
-}
-
 model Favorite {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  propertyId String
+  createdAt DateTime @default(now())
 
   // Relations
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
 
   @@unique([userId, propertyId])
   @@map("favorites")
@@ -131,37 +94,52 @@ model Favorite {
 
 model Review {
   id        String   @id @default(cuid())
-  rating    Int      @db.SmallInt // 1-5
-  comment   String?  @db.Text
+  userId    String
+  propertyId String
+  rating    Int      @db.SmallInt
+  comment   String?
   createdAt DateTime @default(now())
 
   // Relations
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, propertyId])
   @@map("reviews")
 }
 
-model PropertyView {
+model Booking {
+  id        String        @id @default(cuid())
+  userId    String
+  propertyId String
+  checkIn   DateTime
+  checkOut  DateTime
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
+  ratings   UserRating[]
+
+  @@map("bookings")
+}
+
+model PasswordReset {
   id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
   createdAt DateTime @default(now())
 
   // Relations
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
 
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
-
-  @@map("property_views")
+  @@map("password_resets")
 }
 
-// Enums
-enum Role {
+enum UserRole {
   TENANT
   OWNER
   ADMIN
@@ -199,8 +177,86 @@ enum PropertyStatus {
   SOLD
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// Missing models referenced in services
+model Inquiry {
+  id          String   @id @default(cuid())
+  userId      String?
+  propertyId  String
+  name        String
+  email       String
+  phone       String
+  message     String?
+  status      InquiryStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user      User?     @relation(fields: [userId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  @@map("inquiries")
+}
+
+model PropertyView {
+  id          String   @id @default(cuid())
+  userId      String?
+  propertyId  String
+  viewedAt    DateTime @default(now())
+
+  // Relations
+  user      User?     @relation(fields: [userId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([userId, propertyId])
+  @@map("property_views")
+}
+
+model UserRating {
+  id            String   @id @default(cuid())
+
+  // Who gave the rating
+  fromUserId    String
+  fromUser      User     @relation("RatingsGiven", fields: [fromUserId], references: [id], onDelete: Cascade)
+
+  // Who received the rating
+  toUserId      String
+  toUser        User     @relation("RatingsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  // Rating details
+  rating        Int      @db.SmallInt // 1-5 stars
+  review        String?  // Optional review text
+  ratingType    RatingType // OWNER or TENANT
+
+  // Optional: Link to booking
+  bookingId     String?
+  booking       Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Unique constraint: one rating per user pair per booking
+  @@unique([fromUserId, toUserId, bookingId])
+  @@index([toUserId])
+  @@index([fromUserId])
+
+  @@map("user_ratings")
+}
+
+enum RatingType {
+  OWNER
+  TENANT
+}
+
 enum InquiryStatus {
   PENDING
-  REPLIED
+  RESPONDED
   CLOSED
 }

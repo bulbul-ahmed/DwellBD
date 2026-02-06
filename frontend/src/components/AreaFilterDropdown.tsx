@@ -50,7 +50,7 @@ export default function AreaFilterDropdown({
   }
 
   const handleOutsideClick = (event: MouseEvent) => {
-    if (!event.target.closest('.area-dropdown')) {
+    if (!event.target || !(event.target as Element).closest('.area-dropdown')) {
       setIsOpen(false)
     }
   }

@@ -35,6 +35,20 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   next()
 }
 
+export function optionalAuth(req: Request, res: Response, next: NextFunction): void {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+
+  if (token) {
+    const payload = verifyToken(token)
+    if (payload) {
+      req.user = payload
+    }
+  }
+
+  next()
+}
+
 export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {

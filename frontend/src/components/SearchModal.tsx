@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Dialog } from '@headlessui/react'
-import { Search, MapPin, Calendar, Users, Bed } from 'lucide-react'
+import { MapPin, Users, Bed } from 'lucide-react'
 import SearchBar from './SearchBar'
 import Button from './ui/Button'
 import { cn } from '@/lib/utils'
@@ -17,7 +17,6 @@ export default function SearchModal({ isOpen, onOpenChange }: SearchModalProps) 
     { title: 'Dhanmondi', icon: MapPin, query: 'Dhanmondi' },
     { title: '2BHK Flats', icon: Bed, query: '2BHK' },
     { title: 'Bachelor Rooms', icon: Users, query: 'Bachelor' },
-    { title: 'Available Now', icon: Calendar, query: 'immediate' },
   ]
 
   return (
@@ -89,7 +88,7 @@ export default function SearchModal({ isOpen, onOpenChange }: SearchModalProps) 
             {/* Advanced Search Link */}
             <div className="mt-6 border-t border-gray-200 pt-4 text-center">
               <button
-                onClick={onOpenChange}
+                onClick={() => onOpenChange(false)}
                 className="text-sm font-medium text-primary-600 hover:text-primary-700"
               >
                 Advanced Search Options →
