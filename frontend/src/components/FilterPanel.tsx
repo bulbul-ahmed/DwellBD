@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { MapPin, X } from 'lucide-react'
 import Button from './ui/Button'
 import Select from './ui/Select'
@@ -47,26 +47,30 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
     amenities: [] as string[],
   })
 
-  const handleFilterChange = (key: string, value: string | string[]) => {
-    const updatedFilters = {
-      ...filters,
-      [key]: value,
-    }
-    setFilters(updatedFilters)
-    onFiltersChange(updatedFilters)
-  }
+  const handleFilterChange = useCallback((key: string, value: string | string[]) => {
+    setFilters(prev => {
+      const updatedFilters = {
+        ...prev,
+        [key]: value,
+      }
+      onFiltersChange(updatedFilters)
+      return updatedFilters
+    })
+  }, [onFiltersChange])
 
-  const handlePriceRangeChange = (minPrice?: number, maxPrice?: number) => {
-    const updatedFilters = {
-      ...filters,
-      minPrice: minPrice?.toString() || '',
-      maxPrice: maxPrice?.toString() || '',
-    }
-    setFilters(updatedFilters)
-    onFiltersChange(updatedFilters)
-  }
+  const handlePriceRangeChange = useCallback((minPrice?: number, maxPrice?: number) => {
+    setFilters(prev => {
+      const updatedFilters = {
+        ...prev,
+        minPrice: minPrice?.toString() || '',
+        maxPrice: maxPrice?.toString() || '',
+      }
+      onFiltersChange(updatedFilters)
+      return updatedFilters
+    })
+  }, [onFiltersChange])
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     const clearedFilters = {
       area: '',
       propertyType: '',
@@ -77,7 +81,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
     }
     setFilters(clearedFilters)
     onFiltersChange(clearedFilters)
-  }
+  }, [onFiltersChange])
 
   const hasActiveFilters = Object.values(filters).some(
     (value) =>

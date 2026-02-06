@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Grid, List } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
@@ -59,20 +59,20 @@ const PropertyListingsPage = () => {
     autoSync: true
   })
 
-  const handleSearch = (searchFilters: PropertyFilters) => {
+  const handleSearch = useCallback((searchFilters: PropertyFilters) => {
     setFilters(prev => ({
       ...prev,
       ...searchFilters,
       page: 1,
     }))
-  }
+  }, [])
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setFilters(prev => ({
       ...prev,
       page,
     }))
-  }
+  }, [])
 
   // Update URL when filters change
   useEffect(() => {
@@ -96,14 +96,18 @@ const PropertyListingsPage = () => {
   const total = searchResult?.total || 0
 
   // Accumulate properties for infinite scroll
+  const MAX_ACCUMULATED = 100
   useEffect(() => {
     // Reset accumulated properties when filters change (new search)
     if (filters.page === 1) {
       setAccumulatedProperties(properties)
       setHasMorePages(properties.length < total && properties.length > 0)
     } else {
-      // Append new properties when loading more
-      setAccumulatedProperties(prev => [...prev, ...properties])
+      // Append new properties when loading more, keeping only the last MAX_ACCUMULATED
+      setAccumulatedProperties(prev => {
+        const newProps = [...prev, ...properties]
+        return newProps.slice(-MAX_ACCUMULATED)
+      })
       setHasMorePages(accumulatedProperties.length + properties.length < total)
     }
     setIsLoadingMore(false)
@@ -132,7 +136,7 @@ const PropertyListingsPage = () => {
     }
   }, [hasMorePages, isLoading, isLoadingMore, filters.page, handlePageChange])
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = useCallback((value: string) => {
     let newSortBy: 'createdAt' | 'rentAmount' = 'createdAt'
     let newOrder: 'asc' | 'desc' = 'desc'
 
@@ -153,7 +157,7 @@ const PropertyListingsPage = () => {
 
     setSortBy(value)
     setFilters(prev => ({ ...prev, sortBy: newSortBy, order: newOrder, page: 1 }))
-  }
+  }, [])
 
 
   return (

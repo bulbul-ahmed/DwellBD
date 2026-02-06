@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, Heart, MessageCircle, Calendar } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
@@ -10,11 +10,11 @@ const Header = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useAuthStore()
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout()
     setIsUserMenuOpen(false)
     navigate('/login')
-  }
+  }, [logout, navigate])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

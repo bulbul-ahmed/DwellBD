@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { Heart, MapPin, Bed, Bath, Square, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -197,4 +197,7 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
   )
 }
 
-export default PropertyCard
+// Memoize with custom comparison to prevent unnecessary re-renders
+export default memo(PropertyCard, (prev, next) => {
+  return prev.property.id === next.property.id && prev.className === next.className
+})

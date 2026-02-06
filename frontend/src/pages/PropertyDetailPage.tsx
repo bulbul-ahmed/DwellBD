@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { Heart, MapPin, Phone, Mail, Calendar, Share2, Star, User } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -61,7 +61,7 @@ const PropertyDetailPage = () => {
     }
   }, [user, showContactModal])
 
-  const handleFavoriteClick = async () => {
+  const handleFavoriteClick = useCallback(async () => {
     if (!user) {
       toast.error('Please log in to add favorites')
       return
@@ -86,11 +86,11 @@ const PropertyDetailPage = () => {
       console.error('Error updating favorite:', error)
       toast.error('Failed to update favorite')
     }
-  }
+  }, [user, id, isFavorited])
 
   const property = currentProperty
 
-  const handleContact = async () => {
+  const handleContact = useCallback(async () => {
     if (!contactMessage.trim()) {
       toast.error('Please enter a message')
       return
@@ -130,9 +130,9 @@ const PropertyDetailPage = () => {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [contactMessage, contactName, contactPhone, id])
 
-  const handleShare = (platform: string) => {
+  const handleShare = useCallback((platform: string) => {
     if (!id || !property) {
       toast.error('Property not found')
       return
@@ -170,7 +170,7 @@ const PropertyDetailPage = () => {
       default:
         break
     }
-  }
+  }, [id, property])
 
   const formatPrice = (amount: number) => {
     const formatter = new Intl.NumberFormat('bn-BD', {
