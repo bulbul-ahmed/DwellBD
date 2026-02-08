@@ -8,6 +8,7 @@ import {
   resetPassword,
   updateProfile,
   uploadProfilePhoto,
+  logout,
 } from '../controllers/authController'
 import { authenticateToken } from '../middleware/auth'
 import { authLimiter, passwordLimiter } from '../middleware/rateLimiter'
@@ -40,5 +41,6 @@ router.post('/reset-password', passwordLimiter, resetPassword)
 router.get('/me', authenticateToken, getProfile)
 router.put('/me', authenticateToken, updateProfile)
 router.post('/upload-photo', authenticateToken, profilePhotoUpload.single('photo'), uploadProfilePhoto)
+router.post('/logout', authenticateToken, logout)
 
 export default router

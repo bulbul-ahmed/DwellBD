@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, Heart, MessageCircle, Calendar } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
+import { toast } from 'react-hot-toast'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -11,9 +12,15 @@ const Header = () => {
   const { isAuthenticated, user, logout } = useAuthStore()
 
   const handleLogout = useCallback(async () => {
-    await logout()
-    setIsUserMenuOpen(false)
-    navigate('/login')
+    try {
+      await logout()
+      setIsUserMenuOpen(false)
+      navigate('/login')
+      toast.success('Logged out successfully')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Failed to logout')
+    }
   }, [logout, navigate])
 
   useEffect(() => {
