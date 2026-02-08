@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Phone, Lock, User } from 'lucide-react'
 import Button from '../components/ui/Button'
@@ -23,7 +23,14 @@ const RegisterPage = () => {
     role: 'TENANT' as 'TENANT' | 'OWNER',
   })
   const navigate = useNavigate()
-  const register = useAuthStore((state) => state.register)
+  const { register, isAuthenticated } = useAuthStore()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated, navigate])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | string) => {
     let name: string

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import Button from '../components/ui/Button'
@@ -16,7 +16,14 @@ const LoginPage = () => {
     password: '',
   })
   const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
+  const { login, isAuthenticated } = useAuthStore()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated, navigate])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
