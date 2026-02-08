@@ -17,6 +17,10 @@ import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
 import InquiriesPage from './pages/InquiriesPage'
 import BookingsPage from './pages/BookingsPage'
+import VisitsPage from './pages/VisitsPage'
+import OwnerVisitRequestsPage from './pages/OwnerVisitRequestsPage'
+import MyPropertiesPage from './pages/MyPropertiesPage'
+import OwnerInquiriesPage from './pages/OwnerInquiriesPage'
 import FAQPage from './pages/FAQPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
@@ -51,6 +55,10 @@ function App() {
             <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
             <Route path="/inquiries" element={<ProtectedRoute><InquiriesPage /></ProtectedRoute>} />
             <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
+            <Route path="/visits" element={<ProtectedRoute><VisitsPage /></ProtectedRoute>} />
+            <Route path="/owner/visit-requests" element={<ProtectedRoute requiredRole="OWNER"><OwnerVisitRequestsPage /></ProtectedRoute>} />
+            <Route path="/my-properties" element={<ProtectedRoute requiredRole="OWNER"><MyPropertiesPage /></ProtectedRoute>} />
+            <Route path="/owner/inquiries" element={<ProtectedRoute requiredRole="OWNER"><OwnerInquiriesPage /></ProtectedRoute>} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />

@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { prisma } from '../models'
 import { comparePassword, hashPassword } from '../utils/auth'
 import { generateToken, JWTPayload } from '../utils/jwt'
+import { uploadFileToS3 } from '../utils/s3'
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -158,5 +159,43 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
   } catch (error) {
     console.error('Update profile error:', error)
     res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
+export const uploadProfilePhoto = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user.userId
+    const file = req.file
+
+    if (!file) {
+      res.status(400).json({ error: 'No file provided' })
+      return
+    }
+
+    // Validate file type
+    if (!file.mimetype.startsWith('image/')) {
+      res.status(400).json({ error: 'File must be an image' })
+      return
+    }
+
+    // Upload to S3
+    const avatarUrl = await uploadFileToS3(file, 'profile-photos')
+
+    // Update user with new avatar URL
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { avatar: avatarUrl }
+    })
+
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = updatedUser
+
+    res.json({
+      message: 'Profile photo uploaded successfully',
+      user: userWithoutPassword
+    })
+  } catch (error) {
+    console.error('Upload profile photo error:', error)
+    res.status(500).json({ error: 'Failed to upload profile photo' })
   }
 }

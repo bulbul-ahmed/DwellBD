@@ -247,3 +247,85 @@ export const deleteInquiry = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: 'Internal server error' })
   }
 }
+
+/**
+ * GET /api/inquiries/owner
+ * Get all inquiries for properties owned by current user
+ */
+export const getOwnerInquiries = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId
+    const { status, propertyId, page = 1, limit = 10 } = req.query
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' })
+      return
+    }
+
+    // Get all properties owned by this user
+    const ownerProperties = await prisma.property.findMany({
+      where: { ownerId: userId },
+      select: { id: true }
+    })
+
+    const propertyIds = ownerProperties.map(p => p.id)
+
+    // Build query filters
+    const where: any = {
+      propertyId: { in: propertyIds }
+    }
+
+    if (status && status !== 'ALL') {
+      where.status = status
+    }
+
+    if (propertyId) {
+      where.propertyId = propertyId as string
+    }
+
+    const skip = ((parseInt(page as string) || 1) - 1) * parseInt(limit as string || '10')
+
+    // Fetch inquiries with related data
+    const inquiries = await prisma.inquiry.findMany({
+      where,
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            area: true,
+            rentAmount: true,
+            coverImage: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit as string || '10'),
+      skip
+    })
+
+    const total = await prisma.inquiry.count({ where })
+
+    res.json({
+      inquiries,
+      pagination: {
+        total,
+        page: parseInt(page as string) || 1,
+        limit: parseInt(limit as string || '10'),
+        totalPages: Math.ceil(total / parseInt(limit as string || '10'))
+      }
+    })
+  } catch (error) {
+    console.error('Get owner inquiries error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}

@@ -4,7 +4,8 @@ import {
   getUserInquiries,
   getInquiryById,
   updateInquiryStatus,
-  deleteInquiry
+  deleteInquiry,
+  getOwnerInquiries
 } from '../controllers/inquiryController'
 import { authenticateToken, optionalAuth } from '../middleware/auth'
 import { strictLimiter } from '../middleware/rateLimiter'
@@ -16,6 +17,9 @@ router.post('/', optionalAuth, strictLimiter, createInquiry)
 
 // Protected routes - require authentication
 router.use(authenticateToken)
+
+// Get inquiries for owner's properties
+router.get('/owner', getOwnerInquiries)
 
 // Get user's inquiries
 router.get('/', getUserInquiries)

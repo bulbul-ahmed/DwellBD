@@ -44,6 +44,18 @@ export const changePassword = async (data: ChangePasswordData): Promise<{ messag
   return response.data
 }
 
+// Upload profile photo
+export const uploadProfilePhoto = async (file: File): Promise<UserProfile> => {
+  const formData = new FormData()
+  formData.append('photo', file)
+  const response = await api.post('/auth/upload-photo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  return response.data.user
+}
+
 // Logout
 export const logout = (): void => {
   localStorage.removeItem('token')

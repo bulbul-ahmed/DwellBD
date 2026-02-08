@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, Phone, Calendar, Edit2, LogOut } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import RatingSection from '../components/RatingSection'
 import { useAuthStore } from '../stores/authStore'
-import { getProfile, updateProfile, logout } from '../api/userApi'
+import { getProfile, updateProfile, logout, uploadProfilePhoto } from '../api/userApi'
 
 interface UserData {
   id: string
@@ -27,6 +27,8 @@ const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -65,6 +67,47 @@ const ProfilePage = () => {
       ...prev,
       [name]: value,
     }))
+  }
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Photo size must be less than 5MB')
+      return
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file')
+      return
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      setPhotoPreview(event.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // Upload photo
+    setIsUploadingPhoto(true)
+    try {
+      const updated = await uploadProfilePhoto(file)
+      setUserData(updated)
+      setPhotoPreview(null)
+      toast.success('Profile photo uploaded successfully')
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      toast.error('Failed to upload photo')
+      setPhotoPreview(null)
+    } finally {
+      setIsUploadingPhoto(false)
+      // Reset file input
+      e.target.value = ''
+    }
   }
 
   const handleSaveProfile = async () => {
@@ -138,8 +181,14 @@ const ProfilePage = () => {
         <div className="bg-white rounded-lg shadow-md p-8">
           {/* Avatar Section */}
           <div className="mb-8 text-center">
-            <div className="mx-auto w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4">
-              {userData.avatar ? (
+            <div className="mx-auto w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4 relative group cursor-pointer">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Preview"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : userData.avatar ? (
                 <img
                   src={userData.avatar}
                   alt={userData.firstName}
@@ -147,6 +196,20 @@ const ProfilePage = () => {
                 />
               ) : (
                 <User className="w-12 h-12 text-primary-600" />
+              )}
+              {isEditing && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-white" />
+                </div>
+              )}
+              {isEditing && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoSelect}
+                  disabled={isUploadingPhoto}
+                  className="absolute inset-0 rounded-full opacity-0 cursor-pointer"
+                />
               )}
             </div>
             <div>
@@ -162,6 +225,9 @@ const ProfilePage = () => {
                 <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
                   ✓ Verified
                 </span>
+              )}
+              {isEditing && (
+                <p className="text-sm text-gray-500 mt-2">Click on your photo to upload a new one</p>
               )}
             </div>
           </div>

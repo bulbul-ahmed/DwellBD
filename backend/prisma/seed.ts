@@ -830,6 +830,9 @@ async function main() {
           images: images,
           ownerId: owner.id,
           status: prop.status,
+          serviceCharge: 500, // Default service charge for Dhaka
+          gasType: 'NATURAL_GAS' as const, // Default gas type
+          tenantPreference: 'ANY' as const, // Accept any tenant type
         },
       })
       createdProperties.push(created)

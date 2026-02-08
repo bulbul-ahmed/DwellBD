@@ -26,10 +26,8 @@ export interface PropertyStats {
 // Get reviews for a property
 export const getPropertyReviews = async (propertyId: string): Promise<Review[]> => {
   try {
-    const response = await api.get(`/reviews`, {
-      params: { propertyId },
-    })
-    return response.data || []
+    const response = await api.get(`/reviews/property/${propertyId}`)
+    return response.data.reviews || []
   } catch (error) {
     console.error('Error fetching reviews:', error)
     return []

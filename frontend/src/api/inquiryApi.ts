@@ -50,3 +50,35 @@ export const updateInquiryStatus = async (
 export const deleteInquiry = async (id: string): Promise<void> => {
   await api.delete(`/inquiries/${id}`)
 }
+
+// Get inquiries for owner's properties
+export const getOwnerInquiries = async (
+  status?: string,
+  propertyId?: string,
+  page = 1,
+  limit = 10
+): Promise<{
+  inquiries: Inquiry[]
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString()
+  })
+
+  if (status && status !== 'ALL') {
+    params.append('status', status)
+  }
+
+  if (propertyId) {
+    params.append('propertyId', propertyId)
+  }
+
+  const response = await api.get(`/inquiries/owner?${params}`)
+  return response.data
+}

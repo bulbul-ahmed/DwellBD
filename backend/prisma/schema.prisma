@@ -31,6 +31,8 @@ model User {
   propertyViews PropertyView[]
   ratingsGiven    UserRating[] @relation("RatingsGiven")
   ratingsReceived UserRating[] @relation("RatingsReceived")
+  tenantVisits    VisitRequest[] @relation("TenantVisits")
+  ownerVisits     VisitRequest[] @relation("OwnerVisits")
 
   @@index([email])
   @@index([role])
@@ -60,11 +62,14 @@ model Property {
   rentPeriod  RentPeriod?
   securityDeposit Float?
   advancePayment Float?
+  serviceCharge Float?
   amenities   String[]
   availableFrom DateTime?
   coverImage  String?
   images      String[]
   videoUrl    String?
+  gasType     GasType?
+  tenantPreference TenantPreference?
   status      PropertyStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -75,9 +80,9 @@ model Property {
   favorites   Favorite[]
   reviews     Review[]
   bookings    Booking[]
-
-    inquiries    Inquiry[]
+  inquiries    Inquiry[]
   propertyViews PropertyView[]
+  visitRequests VisitRequest[]
 
   @@index([ownerId])
   @@index([status])
@@ -190,12 +195,27 @@ enum RentPeriod {
   YEARLY
 }
 
+enum GasType {
+  NATURAL_GAS
+  LP_GAS
+  CYLINDER
+}
+
+enum TenantPreference {
+  FAMILY
+  BACHELOR
+  OFFICE
+  ANY
+}
+
 enum PropertyStatus {
   PENDING
   ACTIVE
   INACTIVE
   RENTED
   SOLD
+  UNDER_DISCUSSION
+  BOOKED
 }
 
 enum BookingStatus {
@@ -275,9 +295,63 @@ model UserRating {
   @@map("user_ratings")
 }
 
+model VisitRequest {
+  id              String        @id @default(cuid())
+
+  // Property and users
+  propertyId      String
+  property        Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  tenantId        String
+  tenant          User          @relation("TenantVisits", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  ownerId         String
+  owner           User          @relation("OwnerVisits", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Visit scheduling
+  requestedDate   DateTime      // Initial date requested by tenant
+  requestedTime   String        // Time in HH:mm format (e.g., "14:30")
+
+  confirmedDate   DateTime?     // Final confirmed date (set by owner)
+  confirmedTime   String?       // Final confirmed time
+
+  suggestedDate   DateTime?     // Alternative date suggested by owner
+  suggestedTime   String?       // Alternative time suggested by owner
+
+  // Messages
+  tenantNote      String?       @db.Text
+  ownerNote       String?       @db.Text
+  rejectionReason String?       @db.Text
+
+  // Status tracking
+  status          VisitStatus   @default(PENDING)
+
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  completedAt     DateTime?     // When marked as completed
+
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([requestedDate])
+  @@index([confirmedDate])
+  @@map("visit_requests")
+}
+
 enum RatingType {
   OWNER
   TENANT
+}
+
+enum VisitStatus {
+  PENDING             // Initial state - awaiting owner response
+  CONFIRMED           // Owner confirmed the visit
+  PENDING_ALTERNATIVE // Owner suggested alternative date
+  REJECTED            // Owner declined the request
+  CANCELLED           // Tenant cancelled before confirmation
+  COMPLETED           // Visit happened (marked after date passed)
 }
 
 enum InquiryStatus {

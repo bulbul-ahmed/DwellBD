@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Heart, MapPin, Phone, Mail, Calendar, Share2, Star, User } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import RatingSection from '../components/RatingSection'
+import RequestVisitModal from '../components/RequestVisitModal'
 import { usePropertyStore } from '../stores/propertyStore'
 import { useAuthStore } from '../stores/authStore'
 import { createInquiry } from '../api/inquiryApi'
@@ -13,9 +14,12 @@ import { getPropertyReviews, getPropertyStats, Review, PropertyStats } from '../
 
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [isFavorited, setIsFavorited] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showVisitModal, setShowVisitModal] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [contactMessage, setContactMessage] = useState('')
@@ -225,7 +229,7 @@ const PropertyDetailPage = () => {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="rounded-lg p-2 hover:bg-gray-100">
+              <button onClick={() => navigate(-1)} className="rounded-lg p-2 hover:bg-gray-100">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -262,7 +266,7 @@ const PropertyDetailPage = () => {
             {/* Main Image */}
             <div className="relative mb-4">
               <img
-                src={property.images?.[0] || '/placeholder-property.jpg'}
+                src={property.images?.[selectedImageIndex] || '/placeholder-property.jpg'}
                 alt={property.title}
                 className="h-[400px] w-full rounded-lg object-cover"
               />
@@ -273,14 +277,19 @@ const PropertyDetailPage = () => {
               )}
             </div>
 
-            {/* Thumbnail Gallery */}
+            {/* Thumbnail Gallery - Show ALL images */}
             <div className="grid grid-cols-4 gap-2">
-              {property.images && property.images.slice(1, 5).map((image, index) => (
+              {property.images && property.images.map((image, index) => (
                 <img
                   key={index}
                   src={image}
-                  alt={`Property image ${index + 2}`}
-                  className="h-24 w-full cursor-pointer rounded-lg object-cover transition-opacity hover:opacity-80"
+                  alt={`Property image ${index + 1}`}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className={`h-24 w-full cursor-pointer rounded-lg object-cover transition-all ${
+                    selectedImageIndex === index
+                      ? 'ring-2 ring-primary-600'
+                      : 'hover:opacity-80'
+                  }`}
                 />
               ))}
             </div>
@@ -480,14 +489,28 @@ const PropertyDetailPage = () => {
                 )}
               </div>
 
-              {/* Contact Button */}
-              <Button
-                size="lg"
-                className="w-full bg-primary-600 hover:bg-primary-700"
-                onClick={() => setShowContactModal(true)}
-              >
-                Send Message
-              </Button>
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <Button
+                  size="lg"
+                  className="w-full bg-primary-600 hover:bg-primary-700"
+                  onClick={() => setShowContactModal(true)}
+                >
+                  Send Message
+                </Button>
+
+                {/* Request Visit Button - Only show for logged-in tenants who are not the owner */}
+                {user && user.id !== property.owner?.id && (
+                  <Button
+                    size="lg"
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                    onClick={() => setShowVisitModal(true)}
+                  >
+                    <Calendar className="h-5 w-5" />
+                    Request Visit
+                  </Button>
+                )}
+              </div>
 
               {/* Owner Ratings Section */}
               {property.owner && (
@@ -722,6 +745,19 @@ const PropertyDetailPage = () => {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Request Visit Modal */}
+      {showVisitModal && property && (
+        <RequestVisitModal
+          propertyId={property.id}
+          propertyTitle={property.title || 'Property'}
+          onClose={() => setShowVisitModal(false)}
+          onSuccess={() => {
+            setShowVisitModal(false)
+            toast.success('Visit request sent! Navigate to your visits to track the status.')
+          }}
+        />
       )}
     </div>
   )

@@ -16,12 +16,12 @@ export const apiLimiter = rateLimit({
 // Strict rate limiter for authentication endpoints
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs
+  max: 50, // limit each IP to 50 requests per windowMs (increased for dev/testing)
   message: 'Too many login/register attempts, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: false, // Count all requests, even successful ones
-  skipFailedRequests: false, // Count failed requests too
+  skipSuccessfulRequests: true, // Skip counting successful requests
+  skipFailedRequests: false, // Count failed requests
 })
 
 // Moderate rate limiter for search and property listing

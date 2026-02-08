@@ -117,15 +117,41 @@ const Header = () => {
                           <UserIcon className="h-4 w-4" />
                           <span>Profile</span>
                         </Link>
+                        <Link
+                          to="/visits"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <Calendar className="h-4 w-4" />
+                          <span>My Visits</span>
+                        </Link>
                         {user.role === 'OWNER' && (
-                          <Link
-                            to="/dashboard"
-                            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <LayoutDashboard className="h-4 w-4" />
-                            <span>Dashboard</span>
-                          </Link>
+                          <>
+                            <Link
+                              to="/my-properties"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <LayoutDashboard className="h-4 w-4" />
+                              <span>My Properties</span>
+                            </Link>
+                            <Link
+                              to="/owner/inquiries"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                              <span>Inquiries</span>
+                            </Link>
+                            <Link
+                              to="/owner/visit-requests"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <Calendar className="h-4 w-4" />
+                              <span>Visit Requests</span>
+                            </Link>
+                          </>
                         )}
                         {user.role === 'ADMIN' && (
                           <Link
@@ -241,15 +267,33 @@ const Header = () => {
                       <Calendar className="h-4 w-4" />
                       <span>Bookings</span>
                     </Link>
+                    <Link
+                      to="/visits"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Calendar className="h-4 w-4" />
+                      <span>My Visits</span>
+                    </Link>
                     {user.role === 'OWNER' && (
-                      <Link
-                        to="/dashboard"
-                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <LayoutDashboard className="h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
+                      <>
+                        <Link
+                          to="/owner/visit-requests"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Calendar className="h-4 w-4" />
+                          <span>Visit Requests</span>
+                        </Link>
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </>
                     )}
                     {user.role === 'ADMIN' && (
                       <Link
