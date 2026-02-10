@@ -20,6 +20,7 @@ export default function AmenitiesFilter({
   maxSelection = 10,
   showTopAmenities = true
 }: AmenitiesFilterProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     essential: true,
     comfort: true,
@@ -106,34 +107,63 @@ export default function AmenitiesFilter({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-900">Amenities</h4>
-        <div className="flex items-center space-x-2">
+    <div className={cn('space-y-3', className)}>
+      {/* Header - Clickable to expand/collapse */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex w-full items-center justify-between"
+      >
+        <div className="flex items-center gap-2">
+          <h4 className="text-sm font-medium text-gray-900">Amenities</h4>
           {selectedAmenities.length > 0 && (
-            <span className="text-xs text-gray-600">
-              {selectedAmenities.length} selected
+            <span className="text-xs text-gray-600 bg-primary-100 px-2 py-0.5 rounded-full">
+              {selectedAmenities.length}
             </span>
           )}
-          <button
-            onClick={() => onChange([])}
-            className="rounded-md p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
-      </div>
+        <div className="flex items-center gap-2">
+          {selectedAmenities.length > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onChange([])
+              }}
+              className="rounded-md p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          )}
+        </div>
+      </button>
 
-      {/* Selection Limit Warning */}
-      {hasReachedMax && (
-        <div className="rounded-md bg-orange-50 p-3 text-sm text-orange-700">
-          Maximum {maxSelection} amenities can be selected
+      {/* Collapsed Summary */}
+      {!isExpanded && selectedAmenities.length > 0 && (
+        <div className="text-xs text-gray-600">
+          {selectedAmenities.slice(0, 3).map(id => {
+            const amenity = amenities.find(a => a.id === id)
+            return amenity?.label
+          }).filter(Boolean).join(', ')}
+          {selectedAmenities.length > 3 && ` +${selectedAmenities.length - 3} more`}
         </div>
       )}
 
-      {/* Top Amenities */}
-      {showTopAmenities && (
+      {/* Expanded Content */}
+      {isExpanded && (
+        <>
+          {/* Selection Limit Warning */}
+          {hasReachedMax && (
+            <div className="rounded-md bg-orange-50 p-2 text-xs text-orange-700">
+              Maximum {maxSelection} amenities can be selected
+            </div>
+          )}
+
+          {/* Top Amenities */}
+          {showTopAmenities && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-gray-600">Popular Amenities</p>
@@ -178,24 +208,13 @@ export default function AmenitiesFilter({
         </div>
       )}
 
-      {/* All Amenities (if categories not shown) */}
-      {!showCategories && (
-        <div className="grid grid-cols-1 gap-2">
-          {amenities.map(renderAmenity)}
-        </div>
-      )}
-
-      {/* Selected Summary */}
-      {selectedAmenities.length > 0 && (
-        <div className="rounded-md bg-primary-50 p-3">
-          <p className="text-sm text-primary-700">
-            Selected amenities:{' '}
-            {selectedAmenities.map(id => {
-              const amenity = amenities.find(a => a.id === id)
-              return amenity ? amenity.label : ''
-            }).filter(Boolean).join(', ')}
-          </p>
-        </div>
+          {/* All Amenities (if categories not shown) */}
+          {!showCategories && (
+            <div className="grid grid-cols-1 gap-2">
+              {amenities.map(renderAmenity)}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

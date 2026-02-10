@@ -159,26 +159,18 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
           onChange={handlePriceRangeChange}
         />
 
-        {/* Bedrooms */}
+        {/* Bedrooms - Compact Select */}
         <div>
-          <h4 className="mb-2 text-sm font-medium text-gray-900">Bedrooms</h4>
-          <div className="grid grid-cols-1 gap-2">
-            {bedrooms.map((beds) => (
-              <label
-                key={beds.value}
-                className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50"
-              >
-                <input
-                  type="radio"
-                  name="bedrooms"
-                  className="mr-3 border-gray-300 text-primary-600 focus:ring-primary-600"
-                  checked={filters.bedrooms === beds.value}
-                  onChange={() => handleFilterChange('bedrooms', beds.value)}
-                />
-                <span className="text-sm text-gray-700">{beds.label}</span>
-              </label>
-            ))}
-          </div>
+          <Select
+            label="Bedrooms"
+            value={filters.bedrooms}
+            onChange={(value) => handleFilterChange('bedrooms', value)}
+            options={[
+              { value: '', label: 'Any' },
+              ...bedrooms
+            ]}
+            className="text-sm"
+          />
         </div>
 
         {/* Amenities */}
