@@ -91,7 +91,7 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
 
   return (
     <div
-      className={`overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-200 hover:shadow-md ${className}`}
+      className={`flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-200 hover:shadow-md ${className}`}
     >
       {/* Image */}
       <div className="relative">
@@ -129,7 +129,7 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         {/* Location */}
         <div className="mb-2 flex items-center text-sm text-gray-600">
           <MapPin className="mr-1 h-4 w-4" />
@@ -185,6 +185,9 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
           <Calendar className="mr-1 h-3 w-3" />
           <span>Listed {formatDate(property.createdAt)}</span>
         </div>
+
+        {/* Spacer to push button to bottom */}
+        <div className="mt-auto" />
 
         {/* CTA Button */}
         <Link to={`/properties/${property.id}`}>
