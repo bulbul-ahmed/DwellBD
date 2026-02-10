@@ -150,7 +150,6 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
         <PropertyTypeFilter
           selectedType={filters.propertyType}
           onChange={(value) => handleFilterChange('propertyType', value)}
-          showDescription={true}
         />
 
         {/* Price Range */}
