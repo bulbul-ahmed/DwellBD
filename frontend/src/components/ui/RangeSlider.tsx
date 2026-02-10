@@ -60,10 +60,12 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(
       const newValue = min + percent * (max - min)
 
       if (dragging === 'min') {
-        const newMin = Math.max(min, Math.min(newValue - step, currentMax - step))
+        // Allow min to move freely but not exceed max
+        const newMin = Math.max(min, Math.min(newValue, currentMax - step))
         setTempValues([Math.round(newMin / step) * step, currentMax])
       } else {
-        const newMax = Math.min(max, Math.max(newValue + step, currentMin + step))
+        // Allow max to move freely but not go below min
+        const newMax = Math.min(max, Math.max(newValue, currentMin + step))
         setTempValues([currentMin, Math.round(newMax / step) * step])
       }
     }
@@ -98,7 +100,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(
     const maxPercent = getPercent(tempValues[1])
 
     const formatCurrency = (value: number) => {
-      return new Intl.NumberFormat('bn-BD', {
+      return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'BDT',
         maximumFractionDigits: 0
