@@ -82,6 +82,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         try {
           await logoutUser()
+        } catch (error) {
+          console.error('Logout error:', error)
+        } finally {
+          // Always clear state and localStorage, even if API call fails
           set({
             user: null,
             token: null,
@@ -89,16 +93,21 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
           })
-        } catch (error) {
-          console.error('Logout error:', error)
-          set({ isLoading: false })
+          localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('user')
         }
       },
 
       fetchCurrentUser: async () => {
         const token = get().token || localStorage.getItem('token')
         if (!token) {
-          set({ isAuthenticated: false })
+          set({
+            user: null,
+            token: null,
+            refreshToken: null,
+            isAuthenticated: false
+          })
           return
         }
 
@@ -106,15 +115,20 @@ export const useAuthStore = create<AuthState>()(
           const response = await getCurrentUser()
           set({
             user: response.user,
+            token: token, // Ensure token is set in state
             isAuthenticated: true,
           })
         } catch (error) {
+          // Token is invalid or expired - clear everything
+          console.error('Failed to fetch current user:', error)
           set({
             user: null,
             token: null,
+            refreshToken: null,
             isAuthenticated: false,
           })
           localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
         }
       },
 
