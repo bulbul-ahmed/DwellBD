@@ -58,10 +58,37 @@ app.use(
   })
 )
 
+// CORS configuration with multiple allowed origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'http://192.168.0.125:3000', // For mobile testing on local network
+  'http://192.168.0.125:3002'
+].filter(Boolean) // Remove undefined values
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin) {
+        return callback(null, true)
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        // In development, allow all origins for easier testing
+        if (process.env.NODE_ENV === 'development') {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      }
+    },
+    credentials: true, // Allow cookies to be sent
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
 

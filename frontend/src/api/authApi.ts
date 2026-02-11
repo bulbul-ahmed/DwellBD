@@ -1,7 +1,9 @@
 import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
+// Main API instance with interceptors
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -9,16 +11,15 @@ const api = axios.create({
   },
 })
 
-// Add token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
+// Separate API instance for refresh calls (NO INTERCEPTORS to prevent infinite loop)
+const apiNoIntercept = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
-// Token refresh logic
+// Token refresh state
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (value?: any) => void; reject: (reason?: any) => void }> = []
 
@@ -33,13 +34,75 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = []
 }
 
-// Response interceptor for automatic token refresh
+// Helper to check if token is expired or expiring soon
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const decoded = jwtDecode<{ exp: number }>(token)
+    const now = Date.now() / 1000
+    // Consider token expired if it expires in less than 60 seconds
+    return decoded.exp < now + 60
+  } catch {
+    return true
+  }
+}
+
+// Helper to refresh tokens
+const refreshTokens = async (): Promise<{ token: string; refreshToken: string }> => {
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (!refreshToken) {
+    throw new Error('No refresh token available')
+  }
+
+  // Use apiNoIntercept to prevent infinite loop
+  const response = await apiNoIntercept.post('/auth/refresh', { refreshToken })
+
+  const { token: newToken, refreshToken: newRefreshToken } = response.data
+
+  // Update stored tokens
+  localStorage.setItem('token', newToken)
+  localStorage.setItem('refreshToken', newRefreshToken)
+
+  return { token: newToken, refreshToken: newRefreshToken }
+}
+
+// Request interceptor: Add token + proactive refresh
+api.interceptors.request.use(
+  async (config) => {
+    const token = localStorage.getItem('token')
+
+    if (token) {
+      // Check if token is expired or expiring soon
+      if (isTokenExpired(token)) {
+        try {
+          // Proactively refresh before making the request
+          const { token: newToken } = await refreshTokens()
+          config.headers.Authorization = `Bearer ${newToken}`
+        } catch (error) {
+          // If refresh fails, clear tokens and redirect to login
+          localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          window.location.href = '/login'
+          return Promise.reject(error)
+        }
+      } else {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    }
+
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+// Response interceptor: Handle 401 errors with token refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
+    // If 401 and haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If already refreshing, queue this request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -55,25 +118,19 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (!refreshToken) {
-          throw new Error('No refresh token')
-        }
+        const { token: newToken } = await refreshTokens()
 
-        const response = await api.post('/auth/refresh', null, {
-          headers: { Authorization: `Bearer ${refreshToken}` },
-        })
-
-        const newToken = response.data.token
-        localStorage.setItem('token', newToken)
-        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+        // Update request with new token
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`
 
+        // Process queued requests
         processQueue(null, newToken)
         isRefreshing = false
 
+        // Retry original request
         return api(originalRequest)
       } catch (refreshError) {
+        // Refresh failed - logout user
         processQueue(refreshError, null)
         isRefreshing = false
 
@@ -145,8 +202,19 @@ export async function getCurrentUser(): Promise<{ user: User }> {
   return response.data
 }
 
-export async function refreshToken(): Promise<{ message: string; token: string }> {
-  const response = await api.post('/auth/refresh')
+export async function refreshToken(): Promise<{ message: string; token: string; refreshToken: string }> {
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (!refreshToken) {
+    throw new Error('No refresh token available')
+  }
+
+  // Use apiNoIntercept to prevent triggering interceptors
+  const response = await apiNoIntercept.post('/auth/refresh', { refreshToken })
+
+  // Update stored tokens
+  localStorage.setItem('token', response.data.token)
+  localStorage.setItem('refreshToken', response.data.refreshToken)
+
   return response.data
 }
 

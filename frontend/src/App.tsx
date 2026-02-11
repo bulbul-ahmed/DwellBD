@@ -32,11 +32,33 @@ import AdminUsers from './pages/admin/AdminUsers'
 import AdminAnalytics from './pages/admin/AdminAnalytics'
 
 function App() {
-  const { fetchCurrentUser } = useAuthStore()
+  const { fetchCurrentUser, logout } = useAuthStore()
 
   useEffect(() => {
+    // Fetch current user on mount
     fetchCurrentUser()
   }, [])
+
+  useEffect(() => {
+    // Cross-tab synchronization: listen for storage changes
+    const handleStorageChange = (e: StorageEvent) => {
+      // If token was removed in another tab, logout in this tab too
+      if (e.key === 'token' && e.newValue === null) {
+        logout()
+      }
+
+      // If token was added/changed in another tab, refetch user
+      if (e.key === 'token' && e.newValue !== null) {
+        fetchCurrentUser()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [logout, fetchCurrentUser])
 
   return (
     <ErrorBoundary>
