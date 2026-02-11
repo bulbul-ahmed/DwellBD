@@ -159,11 +159,11 @@ const PendingApprovals: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
                   <div>
                     <p className="text-gray-600">Inquiries</p>
-                    <p className="font-semibold text-gray-900">{property._count.inquiries}</p>
+                    <p className="font-semibold text-gray-900">{property._count?.inquiries ?? 0}</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Favorites</p>
-                    <p className="font-semibold text-gray-900">{property._count.favorites}</p>
+                    <p className="font-semibold text-gray-900">{property._count?.favorites ?? 0}</p>
                   </div>
                 </div>
 
