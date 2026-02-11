@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, Search, MapPin, LogIn, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, Heart, MessageCircle, Calendar } from 'lucide-react'
+import { Menu, X, Search, MapPin, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, Heart, MessageCircle, Calendar } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { toast } from 'react-hot-toast'
 
@@ -185,10 +185,9 @@ const Header = () => {
                 <>
                   <Link
                     to="/login"
-                    className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
+                    className="text-sm text-gray-700 transition-colors hover:text-primary-600"
                   >
-                    <LogIn className="h-4 w-4" />
-                    <span>Log in</span>
+                    Log in
                   </Link>
                   <Link
                     to="/register"
@@ -327,11 +326,10 @@ const Header = () => {
                   <div className="flex items-center space-x-4">
                     <Link
                       to="/login"
-                      className="flex items-center space-x-2 text-sm text-gray-700 transition-colors hover:text-primary-600"
+                      className="text-sm text-gray-700 transition-colors hover:text-primary-600"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <LogIn className="h-4 w-4" />
-                      <span>Log in</span>
+                      Log in
                     </Link>
                     <Link
                       to="/register"
