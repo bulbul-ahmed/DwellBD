@@ -162,30 +162,29 @@ export async function getAnalyticsData(days: number = 30) {
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - days)
 
+  // Get counts for summary
+  const totalUsers = await prisma.user.count({ where: { createdAt: { gte: startDate } } })
+  const totalProperties = await prisma.property.count({ where: { createdAt: { gte: startDate } } })
+  const totalInquiries = await prisma.inquiry.count({ where: { createdAt: { gte: startDate } } })
+  const totalViews = await prisma.propertyView.count({ where: { viewedAt: { gte: startDate } } })
+  const totalFavorites = await prisma.favorite.count({ where: { createdAt: { gte: startDate } } })
+
+  // Get data for growth charts
   const users = await prisma.user.findMany({
-    where: {
-      createdAt: {
-        gte: startDate
-      }
-    }
+    where: { createdAt: { gte: startDate } },
+    select: { createdAt: true }
   })
 
   const properties = await prisma.property.findMany({
-    where: {
-      createdAt: {
-        gte: startDate
-      }
-    }
+    where: { createdAt: { gte: startDate } },
+    select: { createdAt: true, area: true, type: true }
   })
 
   const bookings = await prisma.booking.findMany({
-    where: {
-      createdAt: {
-        gte: startDate
-      }
-    }
+    where: { createdAt: { gte: startDate } }
   })
 
+  // Build growth data
   const growthData: { [key: string]: { users: number; properties: number; bookings: number } } = {}
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate)
@@ -197,28 +196,119 @@ export async function getAnalyticsData(days: number = 30) {
   users.forEach(user => {
     const dateStr = user.createdAt.toISOString().split('T')[0]!
     if (dateStr in growthData) {
-      (growthData[dateStr] as { users: number; properties: number; bookings: number }).users++
+      growthData[dateStr]!.users++
     }
   })
 
   properties.forEach(property => {
     const dateStr = property.createdAt.toISOString().split('T')[0]!
     if (dateStr in growthData) {
-      (growthData[dateStr] as { users: number; properties: number; bookings: number }).properties++
+      growthData[dateStr]!.properties++
     }
   })
 
   bookings.forEach(booking => {
     const dateStr = booking.createdAt.toISOString().split('T')[0]!
     if (dateStr in growthData) {
-      (growthData[dateStr] as { users: number; properties: number; bookings: number }).bookings++
+      growthData[dateStr]!.bookings++
     }
   })
 
-  return Object.entries(growthData).map(([date, data]) => ({
-    date,
-    ...data
-  }))
+  // Area statistics
+  const areaStats: { [key: string]: number } = {}
+  properties.forEach(property => {
+    const area = property.area || 'Unknown'
+    areaStats[area] = (areaStats[area] || 0) + 1
+  })
+
+  // Type distribution
+  const typeDistribution: { [key: string]: number } = {}
+  properties.forEach(property => {
+    const type = property.type || 'Unknown'
+    typeDistribution[type] = (typeDistribution[type] || 0) + 1
+  })
+
+  // Top owners
+  const topOwners = await prisma.user.findMany({
+    where: { role: 'OWNER' },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      _count: { select: { properties: true } }
+    },
+    orderBy: { properties: { _count: 'desc' } },
+    take: 5
+  })
+
+  // Most viewed properties
+  const mostViewed = await prisma.property.findMany({
+    select: {
+      id: true,
+      title: true,
+      address: true,
+      rentAmount: true,
+      _count: { select: { propertyViews: true } }
+    },
+    orderBy: { propertyViews: { _count: 'desc' } },
+    take: 5
+  })
+
+  // Most favorited properties
+  const mostFavorited = await prisma.property.findMany({
+    select: {
+      id: true,
+      title: true,
+      address: true,
+      rentAmount: true,
+      _count: { select: { favorites: true } }
+    },
+    orderBy: { favorites: { _count: 'desc' } },
+    take: 5
+  })
+
+  return {
+    summary: {
+      totalUsers,
+      totalProperties,
+      totalInquiries,
+      totalViews,
+      totalFavorites
+    },
+    userGrowth: Object.entries(growthData).map(([date, data]) => ({
+      date,
+      count: data.users
+    })),
+    propertyGrowth: Object.entries(growthData).map(([date, data]) => ({
+      date,
+      count: data.properties
+    })),
+    areaStats: Object.entries(areaStats).map(([area, count]) => ({ area, count })),
+    typeDistribution,
+    topOwners: topOwners.map(owner => ({
+      id: owner.id,
+      name: `${owner.firstName} ${owner.lastName}`,
+      email: owner.email,
+      phone: owner.phone || '',
+      propertyCount: owner._count.properties
+    })),
+    mostViewed: mostViewed.map(prop => ({
+      id: prop.id,
+      title: prop.title,
+      address: prop.address,
+      rentAmount: prop.rentAmount?.toString() || '0',
+      viewCount: prop._count.propertyViews
+    })),
+    mostFavorited: mostFavorited.map(prop => ({
+      id: prop.id,
+      title: prop.title,
+      address: prop.address,
+      rentAmount: prop.rentAmount?.toString() || '0',
+      favoriteCount: prop._count.favorites
+    }))
+  }
 }
 
 export async function getMonthlyTrends() {
