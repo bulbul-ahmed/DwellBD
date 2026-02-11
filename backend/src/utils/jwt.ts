@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'your-refresh-secret-key'
-const JWT_EXPIRES_IN = '15m' // Short-lived access token (was 7d - security risk!)
-const JWT_REFRESH_EXPIRES_IN = '7d' // Longer-lived refresh token (was 30d)
+const JWT_EXPIRES_IN = '24h' // Development: 24 hours (Use 15m in production!)
+const JWT_REFRESH_EXPIRES_IN = '30d' // Development: 30 days (Use 7d in production!)
 
 export interface JWTPayload {
   userId: string
