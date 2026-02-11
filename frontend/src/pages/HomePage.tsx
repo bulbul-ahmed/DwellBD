@@ -22,126 +22,216 @@ const HomePage = () => {
     searchProperties({ limit: 6 })
   }, [])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      setIsLoading(true)
-      setTimeout(() => {
-        setIsLoading(false)
-        navigate(`/properties?q=${encodeURIComponent(searchQuery)}`)
-      }, 500)
-    }
+  const handleFilterSearch = () => {
+    const params = new URLSearchParams()
+    if (selectedArea) params.append('area', selectedArea)
+    if (selectedType) params.append('propertyType', selectedType)
+    if (priceRange) params.append('priceRange', priceRange)
+    navigate(`/properties?${params.toString()}`)
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section - Minimal */}
-      <div className="relative">
-        {/* Background Image */}
-        <div className="h-[240px] bg-gradient-to-br from-primary-50 to-secondary-50">
-          <img
-            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=500&fit=crop"
-            alt="Property background"
-            className="h-full w-full object-cover opacity-20"
-          />
-        </div>
-
-        {/* Content */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="mx-auto max-w-4xl px-4 text-center">
-            <h1 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-              Find Your Home in Bangladesh
-            </h1>
-
-            {/* Search Form */}
-            <form onSubmit={handleSearch} className="mx-auto w-full max-w-2xl">
-              <div className="relative rounded-lg bg-white p-2 shadow-lg">
-                <div className="flex items-center">
-                  <div className="flex-1 px-4">
-                    <input
-                      type="text"
-                      placeholder="Search by location, property type, or keyword..."
-                      className="w-full py-3 text-gray-700 focus:outline-none disabled:opacity-50"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    size="md"
-                    className="bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
-                    loading={isLoading}
-                  >
-                    <Search className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-white">
       {/* Airbnb-Style Filter Bar */}
-      <div className="border-b border-gray-200 bg-white py-4 shadow-sm">
+      <div className="border-b border-gray-200 bg-white py-6 shadow-sm sticky top-16 z-40">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           {/* Desktop Filter Bar */}
-          <div className="hidden md:flex items-center justify-center">
+          <div className="relative hidden md:flex items-center justify-center">
             <div className="flex items-center rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
               {/* Where - Location Filter */}
-              <button
-                onClick={() => {
-                  setShowLocationDropdown(!showLocationDropdown)
-                  setShowTypeDropdown(false)
-                  setShowPriceDropdown(false)
-                }}
-                className="px-6 py-3 rounded-l-full hover:bg-gray-50 transition-colors border-r border-gray-200"
-              >
-                <div className="text-left">
-                  <div className="text-xs font-semibold text-gray-900">Where</div>
-                  <div className="text-sm text-gray-500">
-                    {selectedArea || 'Search locations'}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowLocationDropdown(!showLocationDropdown)
+                    setShowTypeDropdown(false)
+                    setShowPriceDropdown(false)
+                  }}
+                  className="px-6 py-3 rounded-l-full hover:bg-gray-50 transition-colors border-r border-gray-200"
+                >
+                  <div className="text-left">
+                    <div className="text-xs font-semibold text-gray-900">Where</div>
+                    <input
+                      type="text"
+                      value={selectedArea}
+                      onChange={(e) => setSelectedArea(e.target.value)}
+                      placeholder="Search locations"
+                      className="text-sm text-gray-700 placeholder-gray-400 bg-transparent border-none focus:outline-none w-32"
+                      onClick={(e) => e.stopPropagation()}
+                    />
                   </div>
-                </div>
-              </button>
+                </button>
+                {showLocationDropdown && (
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        setSelectedArea('Dhanmondi')
+                        setShowLocationDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Dhanmondi
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArea('Gulshan')
+                        setShowLocationDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Gulshan
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArea('Uttara')
+                        setShowLocationDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Uttara
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArea('Banani')
+                        setShowLocationDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Banani
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedArea('Mirpur')
+                        setShowLocationDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Mirpur
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Property Type Filter */}
-              <button
-                onClick={() => {
-                  setShowTypeDropdown(!showTypeDropdown)
-                  setShowLocationDropdown(false)
-                  setShowPriceDropdown(false)
-                }}
-                className="px-6 py-3 hover:bg-gray-50 transition-colors border-r border-gray-200"
-              >
-                <div className="text-left">
-                  <div className="text-xs font-semibold text-gray-900">Type</div>
-                  <div className="text-sm text-gray-500">
-                    {selectedType || 'Any type'}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowTypeDropdown(!showTypeDropdown)
+                    setShowLocationDropdown(false)
+                    setShowPriceDropdown(false)
+                  }}
+                  className="px-6 py-3 hover:bg-gray-50 transition-colors border-r border-gray-200"
+                >
+                  <div className="text-left">
+                    <div className="text-xs font-semibold text-gray-900">Type</div>
+                    <div className="text-sm text-gray-500">
+                      {selectedType || 'Any type'}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+                {showTypeDropdown && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        setSelectedType('FAMILY')
+                        setShowTypeDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Family
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedType('BACHELOR')
+                        setShowTypeDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Bachelor
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedType('OFFICE')
+                        setShowTypeDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Office
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedType('SUBLET')
+                        setShowTypeDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Sublet
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Price Range Filter */}
-              <button
-                onClick={() => {
-                  setShowPriceDropdown(!showPriceDropdown)
-                  setShowLocationDropdown(false)
-                  setShowTypeDropdown(false)
-                }}
-                className="px-6 py-3 hover:bg-gray-50 transition-colors"
-              >
-                <div className="text-left">
-                  <div className="text-xs font-semibold text-gray-900">Price</div>
-                  <div className="text-sm text-gray-500">
-                    {priceRange || 'Any price'}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowPriceDropdown(!showPriceDropdown)
+                    setShowLocationDropdown(false)
+                    setShowTypeDropdown(false)
+                  }}
+                  className="px-6 py-3 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="text-left">
+                    <div className="text-xs font-semibold text-gray-900">Price</div>
+                    <div className="text-sm text-gray-500">
+                      {priceRange || 'Any price'}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+                {showPriceDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        setPriceRange('0-15000')
+                        setShowPriceDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      Under 15,000 BDT
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPriceRange('15000-30000')
+                        setShowPriceDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      15,000 - 30,000 BDT
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPriceRange('30000-50000')
+                        setShowPriceDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      30,000 - 50,000 BDT
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPriceRange('50000+')
+                        setShowPriceDropdown(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                    >
+                      50,000+ BDT
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Search Button */}
               <button
-                onClick={() => navigate('/properties')}
+                onClick={handleFilterSearch}
                 className="px-4 py-3 rounded-r-full bg-primary-600 hover:bg-primary-700 transition-colors"
               >
                 <Search className="h-5 w-5 text-white" />
@@ -190,10 +280,37 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="bg-gray-50 py-8">
+      {/* Featured Properties */}
+      <div className="py-12 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 text-center">
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h2 className="mb-2 text-3xl font-bold text-gray-900">Featured Properties</h2>
+              <p className="text-gray-600">Discover the most popular properties in Dhaka</p>
+            </div>
+            <Button variant="secondary" onClick={() => navigate('/properties')}>View All Properties</Button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {isLoadingProperties ? (
+              <PropertyListSkeleton />
+            ) : properties.length > 0 ? (
+              properties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-600">
+                No properties available at the moment
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="bg-gray-50 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
             <h2 className="text-2xl font-bold text-gray-900">Why BDFlatHub?</h2>
           </div>
 
@@ -261,33 +378,6 @@ const HomePage = () => {
                 Your data and transactions are protected with enterprise security
               </p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Featured Properties */}
-      <div className="py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h2 className="mb-2 text-3xl font-bold text-gray-900">Featured Properties</h2>
-              <p className="text-gray-600">Discover the most popular properties in Dhaka</p>
-            </div>
-            <Button variant="secondary" onClick={() => navigate('/properties')}>View All Properties</Button>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {isLoadingProperties ? (
-              <PropertyListSkeleton />
-            ) : properties.length > 0 ? (
-              properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-gray-600">
-                No properties available at the moment
-              </div>
-            )}
           </div>
         </div>
       </div>
