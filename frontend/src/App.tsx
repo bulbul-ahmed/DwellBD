@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -34,21 +34,14 @@ import AdminAnalytics from './pages/admin/AdminAnalytics'
 
 function App() {
   const { fetchCurrentUser, logout } = useAuthStore()
-  const location = useLocation()
 
-  // Fetch user on mount and whenever route changes
+  // Fetch user only on initial mount (not on every route change)
   useEffect(() => {
-    // Check if token exists in localStorage
     const token = localStorage.getItem('token')
     if (token) {
-      // Fetch current user to sync state
       fetchCurrentUser()
     }
-  }, [location.pathname, fetchCurrentUser])
-
-  useEffect(() => {
-    // Also fetch on initial mount
-    fetchCurrentUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
