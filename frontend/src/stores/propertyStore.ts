@@ -71,6 +71,13 @@ export const usePropertyStore = create<PropertyState>((set, get) => ({
     set({ isLoading: true, error: null })
     try {
       const response = await getProperty(id)
+      console.log('🖼️ Property loaded:', {
+        id: response.property.id,
+        title: response.property.title,
+        coverImage: response.property.coverImage,
+        imagesCount: response.property.images?.length || 0,
+        images: response.property.images
+      })
       set({
         currentProperty: response.property,
         isLoading: false,
