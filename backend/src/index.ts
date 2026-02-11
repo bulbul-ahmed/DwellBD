@@ -101,8 +101,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // Request ID middleware for tracing (before routes)
 app.use(requestIdMiddleware)
 
-// Serve uploaded files statically (for local file storage)
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+// Serve uploaded files statically with CORS headers (for local file storage)
+app.use('/uploads', (req, res, next) => {
+  // Add CORS headers for uploaded files
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET')
+  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  next()
+}, express.static(path.join(process.cwd(), 'uploads')))
 
 // Apply general API rate limiter to all API routes
 app.use('/api/', apiLimiter)
