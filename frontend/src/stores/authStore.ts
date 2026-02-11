@@ -161,20 +161,25 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        // After rehydration, validate tokens
+        // After rehydration, sync tokens between Zustand and localStorage
         if (state) {
-          if (state.token) {
-            // Check if tokens exist in localStorage (they might have been cleared by axios interceptor)
+          if (state.token && state.refreshToken) {
+            // Check if tokens exist in localStorage
             const storageToken = localStorage.getItem('token')
             const storageRefreshToken = localStorage.getItem('refreshToken')
 
-            // If localStorage was cleared but Zustand still has tokens, clear Zustand too
-            if (!storageToken || !storageRefreshToken) {
-              state.user = null
-              state.token = null
-              state.refreshToken = null
-              state.isAuthenticated = false
+            // If Zustand has tokens but localStorage doesn't, RESTORE them
+            // This fixes the issue where axios interceptor clears localStorage but not Zustand
+            if (!storageToken) {
+              localStorage.setItem('token', state.token)
             }
+            if (!storageRefreshToken) {
+              localStorage.setItem('refreshToken', state.refreshToken)
+            }
+          } else {
+            // If Zustand has no tokens, ensure localStorage is also clear
+            localStorage.removeItem('token')
+            localStorage.removeItem('refreshToken')
           }
           // Mark as hydrated
           state._hasHydrated = true

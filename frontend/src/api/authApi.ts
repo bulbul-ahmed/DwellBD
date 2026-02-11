@@ -82,7 +82,7 @@ api.interceptors.request.use(
           // Let the auth store and ProtectedRoute handle navigation
           localStorage.removeItem('token')
           localStorage.removeItem('refreshToken')
-          localStorage.removeItem('auth-storage') // Clear Zustand persist cache
+          // DO NOT clear 'auth-storage' - let authStore handle its own state cleanup
           return Promise.reject(new Error('Session expired. Please login again.'))
         }
       } else {
@@ -138,7 +138,7 @@ api.interceptors.response.use(
         // Clear all auth data but let React Router handle navigation
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
-        localStorage.removeItem('auth-storage') // Clear Zustand persist cache
+        // DO NOT clear 'auth-storage' - let authStore handle its own state cleanup
 
         return Promise.reject(new Error('Session expired. Please login again.'))
       }
