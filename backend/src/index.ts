@@ -37,7 +37,7 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
+        imgSrc: ["'self'", 'data:', 'https:', 'http://localhost:3001', 'http://localhost:3002'],
         connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
       },
     },
