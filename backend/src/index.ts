@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
+import path from 'path'
 import { prisma } from './models'
 import authRoutes from './routes/authRoutes'
 import adminRoutes from './routes/adminRoutes'
@@ -99,6 +100,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Request ID middleware for tracing (before routes)
 app.use(requestIdMiddleware)
+
+// Serve uploaded files statically (for local file storage)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 // Apply general API rate limiter to all API routes
 app.use('/api/', apiLimiter)
