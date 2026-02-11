@@ -16,6 +16,7 @@ interface PropertyFormModalProps {
   mode: 'create' | 'edit'
   property?: Property
   onSuccess: () => void
+  propertyId?: string  // For debugging - show the ID being edited
 }
 
 interface FormData extends Omit<PropertyData, 'amenities'> {
@@ -66,7 +67,8 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
   onClose,
   mode,
   property,
-  onSuccess
+  onSuccess,
+  propertyId
 }) => {
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -180,12 +182,15 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       // Upload new images first if any
       let uploadedImageUrls: string[] = []
       if (files.length > 0) {
+        console.log('Uploading files:', files.length)
         const uploadResponse = await propertyApi.uploadPropertyImages(files)
         uploadedImageUrls = uploadResponse.urls
+        console.log('Uploaded URLs:', uploadedImageUrls)
       }
 
       // Merge existing images with newly uploaded ones
       const allImages = [...existingImages, ...uploadedImageUrls]
+      console.log('All images to save:', allImages)
 
       // Add images to property data
       propertyData.images = allImages
@@ -195,6 +200,7 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
         await propertyApi.createProperty(propertyData)
         toast.success('Property created successfully')
       } else if (mode === 'edit' && property) {
+        console.log('Updating property:', property.id, propertyData)
         await propertyApi.updateProperty(property.id, propertyData)
         toast.success('Property updated successfully')
       }
@@ -203,7 +209,11 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       onClose()
     } catch (error: any) {
       console.error('Submit error:', error)
-      const message = error.response?.data?.error || 'Failed to save property'
+      console.error('Error response:', error.response)
+      console.error('Error data:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to save property'
       toast.error(message)
     } finally {
       setLoading(false)
@@ -220,7 +230,12 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     <Modal
       open={isOpen}
       onClose={handleClose}
-      title={mode === 'create' ? 'Add New Property' : 'Edit Property'}
+      title={
+        <div className="flex items-center justify-between">
+          <span>{mode === 'create' ? 'Add New Property' : 'Edit Property'}</span>
+          {propertyId && <span className="ml-2 text-sm font-normal text-gray-500">(ID: {propertyId})</span>}
+        </div>
+      }
       size="lg"
     >
       <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">

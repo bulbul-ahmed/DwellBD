@@ -128,12 +128,17 @@ export const useAuthStore = create<AuthState>()(
             refreshToken: currentRefreshToken,
             isAuthenticated: true,
           })
-        } catch (error) {
-          // Token is invalid or expired - clear everything
-          console.error('Failed to fetch current user:', error)
-
-          // Use the logout function to ensure proper cleanup
-          await get().logout()
+        } catch (error: any) {
+          // Only logout on 401 Unauthorized or 403 Forbidden errors
+          // For other errors (network, server 500, etc.), keep user logged in
+          if (error?.response?.status === 401 || error?.response?.status === 403) {
+            console.error('Authentication failed:', error)
+            // Use the logout function to ensure proper cleanup
+            await get().logout()
+          } else {
+            // For temporary errors, just log and keep state
+            console.warn('Temporary error fetching user, keeping session:', error?.message || error)
+          }
         }
       },
 

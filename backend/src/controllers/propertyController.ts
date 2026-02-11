@@ -283,7 +283,7 @@ export async function getPropertyStatsHandler(req: Request, res: Response): Prom
 
     const stats = await getPropertyStatsService(id)
 
-    res.status(200).json({ stats })
+    res.status(200).json(stats)
   } catch (error) {
     console.error('Get stats error:', error)
     res.status(500).json({

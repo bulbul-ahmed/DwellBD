@@ -262,6 +262,7 @@ const MyPropertiesPage: React.FC = () => {
         onClose={() => setModalOpen(false)}
         mode={editProperty ? 'edit' : 'create'}
         property={editProperty}
+        propertyId={editProperty?.id}
         onSuccess={() => {
           loadProperties()
         }}

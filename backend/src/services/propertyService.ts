@@ -308,5 +308,16 @@ export async function getPropertyStats(propertyId: string) {
     throw new Error('Property not found')
   }
 
-  return property._count
+  // Calculate average rating for this property
+  const avgRating = await prisma.review.aggregate({
+    where: { propertyId },
+    _avg: { rating: true }
+  })
+
+  return {
+    viewCount: property._count.propertyViews,
+    favoriteCount: property._count.favorites,
+    reviewCount: property._count.reviews,
+    averageRating: avgRating._avg.rating || 0
+  }
 }

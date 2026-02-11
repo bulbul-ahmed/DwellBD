@@ -129,3 +129,6 @@ coverage/
 junit.xml
 screenshots/
 videos/
+# Uploaded files
+backend/uploads/profile-photos/
+backend/uploads/properties/
