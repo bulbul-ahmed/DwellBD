@@ -9,9 +9,19 @@ import {
   updateProfile,
   uploadProfilePhoto,
   logout,
+  refreshTokenEndpoint,
 } from '../controllers/authController'
 import { authenticateToken } from '../middleware/auth'
 import { authLimiter, passwordLimiter } from '../middleware/rateLimiter'
+import { validate } from '../middleware/validation'
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  passwordResetRequestSchema,
+  passwordResetSchema,
+  updateProfileSchema
+} from '../schemas/auth.schema'
 
 // Configure multer for profile photo uploads
 const profilePhotoUpload = multer({
@@ -31,15 +41,16 @@ const profilePhotoUpload = multer({
 
 const router = express.Router()
 
-// Public routes with rate limiting
-router.post('/register', authLimiter, register)
-router.post('/login', authLimiter, login)
-router.post('/forgot-password', passwordLimiter, requestPasswordReset)
-router.post('/reset-password', passwordLimiter, resetPassword)
+// Public routes with rate limiting + validation
+router.post('/register', authLimiter, validate(registerSchema), register)
+router.post('/login', authLimiter, validate(loginSchema), login)
+router.post('/refresh', authLimiter, validate(refreshTokenSchema), refreshTokenEndpoint)
+router.post('/forgot-password', passwordLimiter, validate(passwordResetRequestSchema), requestPasswordReset)
+router.post('/reset-password', passwordLimiter, validate(passwordResetSchema), resetPassword)
 
-// Protected routes
+// Protected routes with validation
 router.get('/me', authenticateToken, getProfile)
-router.put('/me', authenticateToken, updateProfile)
+router.put('/me', authenticateToken, validate(updateProfileSchema), updateProfile)
 router.post('/upload-photo', authenticateToken, profilePhotoUpload.single('photo'), uploadProfilePhoto)
 router.post('/logout', authenticateToken, logout)
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '../models'
 import { comparePassword, hashPassword } from '../utils/auth'
-import { generateToken, JWTPayload } from '../utils/jwt'
+import { generateToken, generateRefreshToken, verifyRefreshToken, JWTPayload } from '../utils/jwt'
 import { uploadFileToS3 } from '../utils/s3'
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -33,8 +33,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       }
     })
 
-    // Generate token
+    // Generate tokens
     const token = generateToken({ userId: user.id, email: user.email, role: user.role })
+    const refreshToken = generateRefreshToken({ userId: user.id, email: user.email, role: user.role })
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
@@ -42,6 +43,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({
       message: 'User registered successfully',
       token,
+      refreshToken,
       user: userWithoutPassword
     })
   } catch (error) {
@@ -72,8 +74,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Generate token
+    // Generate tokens
     const token = generateToken({ userId: user.id, email: user.email, role: user.role })
+    const refreshToken = generateRefreshToken({ userId: user.id, email: user.email, role: user.role })
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
@@ -81,6 +84,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.json({
       message: 'Login successful',
       token,
+      refreshToken,
       user: userWithoutPassword
     })
   } catch (error) {
@@ -207,6 +211,56 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     res.json({ message: 'Logout successful' })
   } catch (error) {
     console.error('Logout error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
+export const refreshTokenEndpoint = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      res.status(401).json({ error: 'Refresh token required' })
+      return
+    }
+
+    // Verify refresh token
+    const decoded = verifyRefreshToken(refreshToken)
+
+    if (!decoded) {
+      res.status(401).json({ error: 'Invalid or expired refresh token' })
+      return
+    }
+
+    // Verify user still exists
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    })
+
+    if (!user) {
+      res.status(401).json({ error: 'User not found' })
+      return
+    }
+
+    // Generate new tokens
+    const newAccessToken = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    })
+    const newRefreshToken = generateRefreshToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    })
+
+    res.json({
+      message: 'Token refreshed successfully',
+      token: newAccessToken,
+      refreshToken: newRefreshToken
+    })
+  } catch (error) {
+    console.error('Refresh token error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
