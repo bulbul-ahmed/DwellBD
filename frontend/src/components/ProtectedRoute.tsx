@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 
@@ -8,25 +7,10 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuthStore()
-  const [isHydrated, setIsHydrated] = useState(false)
-
-  useEffect(() => {
-    // Wait for Zustand persist to hydrate from localStorage
-    const unsubscribe = useAuthStore.persist.onFinishHydration(() => {
-      setIsHydrated(true)
-    })
-
-    // Check if already hydrated (in case hydration happened before component mounted)
-    if (useAuthStore.persist.hasHydrated()) {
-      setIsHydrated(true)
-    }
-
-    return unsubscribe
-  }, [])
+  const { isAuthenticated, user, _hasHydrated } = useAuthStore()
 
   // Show loading state while hydrating to prevent false redirects
-  if (!isHydrated) {
+  if (!_hasHydrated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

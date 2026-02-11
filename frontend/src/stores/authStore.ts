@@ -17,6 +17,7 @@ interface AuthState {
   isLoading: boolean
   error: string | null
   isAuthenticated: boolean
+  _hasHydrated: boolean
 
   // Actions
   register: (data: RegisterRequest) => Promise<void>
@@ -26,6 +27,7 @@ interface AuthState {
   clearError: () => void
   setUser: (user: User | null) => void
   setToken: (token: string | null) => void
+  setHasHydrated: (hydrated: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -37,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
       isAuthenticated: false,
+      _hasHydrated: false,
 
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null })
@@ -146,6 +149,8 @@ export const useAuthStore = create<AuthState>()(
           localStorage.removeItem('token')
         }
       },
+
+      setHasHydrated: (hydrated: boolean) => set({ _hasHydrated: hydrated }),
     }),
     {
       name: 'auth-storage',
@@ -157,18 +162,22 @@ export const useAuthStore = create<AuthState>()(
       }),
       onRehydrateStorage: () => (state) => {
         // After rehydration, validate tokens
-        if (state && state.token) {
-          // Check if tokens exist in localStorage (they might have been cleared by axios interceptor)
-          const storageToken = localStorage.getItem('token')
-          const storageRefreshToken = localStorage.getItem('refreshToken')
+        if (state) {
+          if (state.token) {
+            // Check if tokens exist in localStorage (they might have been cleared by axios interceptor)
+            const storageToken = localStorage.getItem('token')
+            const storageRefreshToken = localStorage.getItem('refreshToken')
 
-          // If localStorage was cleared but Zustand still has tokens, clear Zustand too
-          if (!storageToken || !storageRefreshToken) {
-            state.user = null
-            state.token = null
-            state.refreshToken = null
-            state.isAuthenticated = false
+            // If localStorage was cleared but Zustand still has tokens, clear Zustand too
+            if (!storageToken || !storageRefreshToken) {
+              state.user = null
+              state.token = null
+              state.refreshToken = null
+              state.isAuthenticated = false
+            }
           }
+          // Mark as hydrated
+          state._hasHydrated = true
         }
       },
     }
