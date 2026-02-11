@@ -171,8 +171,18 @@ export async function updatePropertyData(req: Request, res: Response): Promise<v
     }
 
     const { id } = req.params as { id: string }
-    const { title, description, address, area, rentAmount, bedrooms, bathrooms, amenities } =
-      req.body
+    const {
+      title,
+      description,
+      address,
+      area,
+      rentAmount,
+      bedrooms,
+      bathrooms,
+      amenities,
+      images,
+      coverImage
+    } = req.body
 
     const updateData: any = {}
     if (title) updateData.title = title
@@ -183,6 +193,8 @@ export async function updatePropertyData(req: Request, res: Response): Promise<v
     if (bedrooms) updateData.bedrooms = parseInt(bedrooms)
     if (bathrooms) updateData.bathrooms = parseInt(bathrooms)
     if (amenities) updateData.amenities = amenities
+    if (images) updateData.images = images
+    if (coverImage) updateData.coverImage = coverImage
 
     const property = await updateProperty(id, req.user.userId, updateData)
 

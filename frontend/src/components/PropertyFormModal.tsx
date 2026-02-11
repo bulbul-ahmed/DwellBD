@@ -177,23 +177,25 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       // Transform propertyType to type for API
       delete propertyData.propertyType
 
+      // Upload new images first if any
+      let uploadedImageUrls: string[] = []
+      if (files.length > 0) {
+        const uploadResponse = await propertyApi.uploadPropertyImages(files)
+        uploadedImageUrls = uploadResponse.urls
+      }
+
+      // Merge existing images with newly uploaded ones
+      const allImages = [...existingImages, ...uploadedImageUrls]
+
+      // Add images to property data
+      propertyData.images = allImages
+      propertyData.coverImage = allImages.length > 0 ? allImages[0] : null
+
       if (mode === 'create') {
         await propertyApi.createProperty(propertyData)
-
-        // Upload images if any
-        if (files.length > 0) {
-          await propertyApi.uploadPropertyImages(files)
-        }
-
         toast.success('Property created successfully')
       } else if (mode === 'edit' && property) {
         await propertyApi.updateProperty(property.id, propertyData)
-
-        // Upload new images if any
-        if (files.length > 0) {
-          await propertyApi.uploadPropertyImages(files)
-        }
-
         toast.success('Property updated successfully')
       }
 
