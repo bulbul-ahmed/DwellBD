@@ -19,6 +19,7 @@ import {
   strictLimiter,
   passwordLimiter,
 } from './middleware/rateLimiter'
+import { requestIdMiddleware } from './middleware/requestId'
 
 // Load environment variables
 dotenv.config()
@@ -95,6 +96,9 @@ app.use(
 // Body parsing middleware with size limits
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// Request ID middleware for tracing (before routes)
+app.use(requestIdMiddleware)
 
 // Apply general API rate limiter to all API routes
 app.use('/api/', apiLimiter)

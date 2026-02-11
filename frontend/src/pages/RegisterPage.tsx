@@ -4,6 +4,7 @@ import { Eye, EyeOff, Mail, Phone, Lock, User } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
+import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../stores/authStore'
 import { isValidEmail, isValidBdPhone, isValidPassword } from '../utils/validation'
@@ -261,9 +262,13 @@ const RegisterPage = () => {
                   )}
                 </button>
               </div>
-              <p className={`mt-1 text-xs ${errors.password ? 'text-red-600' : 'text-gray-500'}`}>
-                {errors.password || 'Password must be at least 8 characters'}
-              </p>
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+              )}
+              {/* Password Strength Meter */}
+              <div className="mt-2">
+                <PasswordStrengthMeter password={formData.password} />
+              </div>
             </div>
 
             <div>

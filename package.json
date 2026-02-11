@@ -30,8 +30,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "concurrently": "^8.2.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.7.2"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0"
   }
 }

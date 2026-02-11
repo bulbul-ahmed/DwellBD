@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './components/AdminLayout'
+import SessionTimeoutWarning from './components/SessionTimeoutWarning'
 import { useAuthStore } from './stores/authStore'
 import HomePage from './pages/HomePage'
 import PropertyListingsPage from './pages/PropertyListingsPage'
@@ -62,6 +63,9 @@ function App() {
 
   return (
     <ErrorBoundary>
+      {/* Session Timeout Warning - shows when token about to expire */}
+      <SessionTimeoutWarning warningTime={120} />
+
       <div className="flex min-h-screen flex-col bg-white">
         <Header />
         <main className="flex-1">
