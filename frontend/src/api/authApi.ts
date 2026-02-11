@@ -78,11 +78,12 @@ api.interceptors.request.use(
           const { token: newToken } = await refreshTokens()
           config.headers.Authorization = `Bearer ${newToken}`
         } catch (error) {
-          // If refresh fails, clear tokens and redirect to login
+          // If refresh fails, clear tokens but don't force redirect
+          // Let the auth store and ProtectedRoute handle navigation
           localStorage.removeItem('token')
           localStorage.removeItem('refreshToken')
-          window.location.href = '/login'
-          return Promise.reject(error)
+          localStorage.removeItem('auth-storage') // Clear Zustand persist cache
+          return Promise.reject(new Error('Session expired. Please login again.'))
         }
       } else {
         config.headers.Authorization = `Bearer ${token}`
@@ -134,11 +135,12 @@ api.interceptors.response.use(
         processQueue(refreshError, null)
         isRefreshing = false
 
+        // Clear all auth data but let React Router handle navigation
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
-        window.location.href = '/login'
+        localStorage.removeItem('auth-storage') // Clear Zustand persist cache
 
-        return Promise.reject(refreshError)
+        return Promise.reject(new Error('Session expired. Please login again.'))
       }
     }
 

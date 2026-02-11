@@ -92,16 +92,20 @@ export const useAuthStore = create<AuthState>()(
             refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
+            error: null,
           })
+          // Clear all auth-related localStorage items
           localStorage.removeItem('token')
           localStorage.removeItem('refreshToken')
           localStorage.removeItem('user')
+          localStorage.removeItem('auth-storage') // Clear Zustand persist cache
         }
       },
 
       fetchCurrentUser: async () => {
         const token = get().token || localStorage.getItem('token')
         if (!token) {
+          // No token - ensure clean state
           set({
             user: null,
             token: null,
@@ -113,22 +117,20 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           const response = await getCurrentUser()
+          // Update both state and localStorage to ensure sync
+          const currentRefreshToken = get().refreshToken || localStorage.getItem('refreshToken')
           set({
             user: response.user,
-            token: token, // Ensure token is set in state
+            token: token,
+            refreshToken: currentRefreshToken,
             isAuthenticated: true,
           })
         } catch (error) {
           // Token is invalid or expired - clear everything
           console.error('Failed to fetch current user:', error)
-          set({
-            user: null,
-            token: null,
-            refreshToken: null,
-            isAuthenticated: false,
-          })
-          localStorage.removeItem('token')
-          localStorage.removeItem('refreshToken')
+
+          // Use the logout function to ensure proper cleanup
+          await get().logout()
         }
       },
 
@@ -153,6 +155,22 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // After rehydration, validate tokens
+        if (state && state.token) {
+          // Check if tokens exist in localStorage (they might have been cleared by axios interceptor)
+          const storageToken = localStorage.getItem('token')
+          const storageRefreshToken = localStorage.getItem('refreshToken')
+
+          // If localStorage was cleared but Zustand still has tokens, clear Zustand too
+          if (!storageToken || !storageRefreshToken) {
+            state.user = null
+            state.token = null
+            state.refreshToken = null
+            state.isAuthenticated = false
+          }
+        }
+      },
     }
   )
 )
