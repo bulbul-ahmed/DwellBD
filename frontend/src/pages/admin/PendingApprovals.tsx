@@ -54,10 +54,13 @@ const PendingApprovals: React.FC = () => {
     try {
       setLoading(true)
       const response = await getAdminProperties(1, 100, { status: 'PENDING' })
-      setProperties(response.data)
+      // Handle different API response formats
+      const data = response.properties || response.data || []
+      setProperties(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching pending properties:', error)
       toast.error('Failed to load pending properties')
+      setProperties([]) // Set empty array on error
     } finally {
       setLoading(false)
     }
