@@ -37,8 +37,8 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:', 'http://localhost:3001', 'http://localhost:3002'],
-        connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
+        imgSrc: ["'self'", 'data:', 'https:', 'http:', 'http://localhost:*'],
+        connectSrc: ["'self'", 'http://localhost:*', process.env.FRONTEND_URL || 'http://localhost:3000'],
       },
     },
     // Disable X-Powered-By header
@@ -104,9 +104,11 @@ app.use(requestIdMiddleware)
 // Serve uploaded files statically with CORS headers (for local file storage)
 app.use('/uploads', (req, res, next) => {
   // Add CORS headers for uploaded files
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'GET')
-  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range')
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none')
   next()
 }, express.static(path.join(process.cwd(), 'uploads')))
 
