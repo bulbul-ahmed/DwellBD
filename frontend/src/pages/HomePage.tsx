@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, Users, Bed } from 'lucide-react'
+import { Search, MapPin, Users, Bed, Home, Building, Key, TrendingDown, ArrowUpDown, TrendingUp, ArrowUp } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import PropertyCard from '../components/ui/PropertyCard'
 import Button from '../components/ui/Button'
 import { PropertyListSkeleton } from '../components/ui/Skeleton'
@@ -34,19 +35,19 @@ const HomePage = () => {
     <div className="min-h-screen bg-white">
       {/* Airbnb-Style Filter Bar */}
       <div className="border-b border-gray-200 bg-white py-6 shadow-sm sticky top-16 z-40">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           {/* Desktop Filter Bar */}
           <div className="relative hidden md:flex items-center justify-center">
-            <div className="flex items-center rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center w-full max-w-4xl rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
               {/* Where - Location Filter */}
-              <div className="relative">
+              <div className="relative flex-1">
                 <button
                   onClick={() => {
                     setShowLocationDropdown(!showLocationDropdown)
                     setShowTypeDropdown(false)
                     setShowPriceDropdown(false)
                   }}
-                  className="px-6 py-3 rounded-l-full hover:bg-gray-50 transition-colors border-r border-gray-200"
+                  className="w-full px-8 py-4 rounded-l-full hover:bg-gray-50 transition-colors border-r border-gray-200"
                 >
                   <div className="text-left">
                     <div className="text-xs font-semibold text-gray-900">Where</div>
@@ -54,72 +55,105 @@ const HomePage = () => {
                       type="text"
                       value={selectedArea}
                       onChange={(e) => setSelectedArea(e.target.value)}
-                      placeholder="Search locations"
-                      className="text-sm text-gray-700 placeholder-gray-400 bg-transparent border-none focus:outline-none w-32"
+                      placeholder="Search destinations"
+                      className="text-base text-gray-900 placeholder-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 w-full"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
                 </button>
-                {showLocationDropdown && (
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setSelectedArea('Dhanmondi')
-                        setShowLocationDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                <AnimatePresence>
+                  {showLocationDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute top-full left-0 mt-3 w-96 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
                     >
-                      Dhanmondi
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedArea('Gulshan')
-                        setShowLocationDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Gulshan
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedArea('Uttara')
-                        setShowLocationDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Uttara
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedArea('Banani')
-                        setShowLocationDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Banani
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedArea('Mirpur')
-                        setShowLocationDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Mirpur
-                    </button>
-                  </div>
-                )}
+                      <div className="px-6 py-4 border-b border-gray-100">
+                        <h3 className="text-sm font-semibold text-gray-900">Popular Areas</h3>
+                      </div>
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            setSelectedArea('Dhanmondi')
+                            setShowLocationDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Dhanmondi</div>
+                            <div className="text-xs text-gray-500">Residential area</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedArea('Gulshan')
+                            setShowLocationDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Gulshan</div>
+                            <div className="text-xs text-gray-500">Diplomatic zone</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedArea('Uttara')
+                            setShowLocationDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Uttara</div>
+                            <div className="text-xs text-gray-500">Modern suburb</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedArea('Banani')
+                            setShowLocationDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Banani</div>
+                            <div className="text-xs text-gray-500">Business district</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedArea('Mirpur')
+                            setShowLocationDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Mirpur</div>
+                            <div className="text-xs text-gray-500">Residential area</div>
+                          </div>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Property Type Filter */}
-              <div className="relative">
+              <div className="relative flex-1">
                 <button
                   onClick={() => {
                     setShowTypeDropdown(!showTypeDropdown)
                     setShowLocationDropdown(false)
                     setShowPriceDropdown(false)
                   }}
-                  className="px-6 py-3 hover:bg-gray-50 transition-colors border-r border-gray-200"
+                  className="w-full px-8 py-4 hover:bg-gray-50 transition-colors border-r border-gray-200"
                 >
                   <div className="text-left">
                     <div className="text-xs font-semibold text-gray-900">Type</div>
@@ -128,57 +162,86 @@ const HomePage = () => {
                     </div>
                   </div>
                 </button>
-                {showTypeDropdown && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setSelectedType('FAMILY')
-                        setShowTypeDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                <AnimatePresence>
+                  {showTypeDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute top-full left-0 mt-3 w-80 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
                     >
-                      Family
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedType('BACHELOR')
-                        setShowTypeDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Bachelor
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedType('OFFICE')
-                        setShowTypeDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Office
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedType('SUBLET')
-                        setShowTypeDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      Sublet
-                    </button>
-                  </div>
-                )}
+                      <div className="px-6 py-4 border-b border-gray-100">
+                        <h3 className="text-sm font-semibold text-gray-900">Property Types</h3>
+                      </div>
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            setSelectedType('FAMILY')
+                            setShowTypeDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <Home className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Family</div>
+                            <div className="text-xs text-gray-500">Whole apartment for families</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedType('BACHELOR')
+                            setShowTypeDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <Users className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Bachelor</div>
+                            <div className="text-xs text-gray-500">Shared or single occupancy</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedType('OFFICE')
+                            setShowTypeDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <Building className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Office</div>
+                            <div className="text-xs text-gray-500">Commercial space</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedType('SUBLET')
+                            setShowTypeDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <Key className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Sublet</div>
+                            <div className="text-xs text-gray-500">Short-term rental</div>
+                          </div>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Price Range Filter */}
-              <div className="relative">
+              <div className="relative flex-1">
                 <button
                   onClick={() => {
                     setShowPriceDropdown(!showPriceDropdown)
                     setShowLocationDropdown(false)
                     setShowTypeDropdown(false)
                   }}
-                  className="px-6 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full px-8 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="text-left">
                     <div className="text-xs font-semibold text-gray-900">Price</div>
@@ -187,52 +250,81 @@ const HomePage = () => {
                     </div>
                   </div>
                 </button>
-                {showPriceDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setPriceRange('0-15000')
-                        setShowPriceDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                <AnimatePresence>
+                  {showPriceDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute top-full right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl overflow-hidden z-50"
                     >
-                      Under 15,000 BDT
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPriceRange('15000-30000')
-                        setShowPriceDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      15,000 - 30,000 BDT
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPriceRange('30000-50000')
-                        setShowPriceDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      30,000 - 50,000 BDT
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPriceRange('50000+')
-                        setShowPriceDropdown(false)
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                    >
-                      50,000+ BDT
-                    </button>
-                  </div>
-                )}
+                      <div className="px-6 py-4 border-b border-gray-100">
+                        <h3 className="text-sm font-semibold text-gray-900">Price Range</h3>
+                      </div>
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            setPriceRange('0-15000')
+                            setShowPriceDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <TrendingDown className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Under 15,000 BDT</div>
+                            <div className="text-xs text-gray-500">Budget friendly</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPriceRange('15000-30000')
+                            setShowPriceDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <ArrowUpDown className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">15,000 - 30,000 BDT</div>
+                            <div className="text-xs text-gray-500">Mid-range</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPriceRange('30000-50000')
+                            setShowPriceDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <TrendingUp className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">30,000 - 50,000 BDT</div>
+                            <div className="text-xs text-gray-500">Premium</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPriceRange('50000+')
+                            setShowPriceDropdown(false)
+                          }}
+                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <ArrowUp className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">50,000+ BDT</div>
+                            <div className="text-xs text-gray-500">Luxury</div>
+                          </div>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Search Button */}
               <button
                 onClick={handleFilterSearch}
-                className="px-4 py-3 rounded-r-full bg-primary-600 hover:bg-primary-700 transition-colors"
+                className="m-2 p-4 rounded-full bg-primary-600 hover:bg-primary-700 transition-colors flex items-center justify-center flex-shrink-0"
               >
                 <Search className="h-5 w-5 text-white" />
               </button>
