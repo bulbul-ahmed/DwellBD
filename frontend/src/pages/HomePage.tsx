@@ -47,7 +47,7 @@ const HomePage = () => {
                     setShowTypeDropdown(false)
                     setShowPriceDropdown(false)
                   }}
-                  className="w-full px-8 py-4 rounded-l-full hover:bg-gray-50 transition-colors border-r border-gray-200"
+                  className="w-full px-8 py-4 rounded-l-full hover:bg-gray-50 transition-colors"
                 >
                   <div className="text-left">
                     <div className="text-xs font-semibold text-gray-900">Where</div>
@@ -145,6 +145,11 @@ const HomePage = () => {
                 </AnimatePresence>
               </div>
 
+              {/* Separator */}
+              <div className="flex items-center self-stretch py-4">
+                <div className="h-8 w-px bg-gray-300"></div>
+              </div>
+
               {/* Property Type Filter */}
               <div className="relative flex-1">
                 <button
@@ -153,7 +158,7 @@ const HomePage = () => {
                     setShowLocationDropdown(false)
                     setShowPriceDropdown(false)
                   }}
-                  className="w-full px-8 py-4 hover:bg-gray-50 transition-colors border-r border-gray-200"
+                  className="w-full px-8 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="text-left">
                     <div className="text-xs font-semibold text-gray-900">Type</div>
@@ -231,6 +236,11 @@ const HomePage = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+
+              {/* Separator */}
+              <div className="flex items-center self-stretch py-4">
+                <div className="h-8 w-px bg-gray-300"></div>
               </div>
 
               {/* Price Range Filter */}
