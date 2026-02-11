@@ -6,7 +6,7 @@ interface StatsCardProps {
   value: number | string
   icon: LucideIcon
   trend?: string
-  variant?: 'default' | 'success' | 'warning' | 'danger'
+  variant?: 'pink' | 'yellow' | 'purple' | 'mint' | 'blue' | 'coral'
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({
@@ -14,32 +14,41 @@ const StatsCard: React.FC<StatsCardProps> = ({
   value,
   icon: Icon,
   trend,
-  variant = 'default',
+  variant = 'blue',
 }) => {
+  // Soft pastel color schemes inspired by the reference design
   const colorClasses = {
-    default: 'bg-blue-50 text-blue-600',
-    success: 'bg-green-50 text-green-600',
-    warning: 'bg-yellow-50 text-yellow-600',
-    danger: 'bg-red-50 text-red-600',
+    pink: 'bg-[#FFE5E5]',
+    yellow: 'bg-[#FFF4D6]',
+    purple: 'bg-[#E5E0FF]',
+    mint: 'bg-[#D6F5E5]',
+    blue: 'bg-[#E0F2FE]',
+    coral: 'bg-[#FFE4E1]',
   }
 
-  const trendColorClasses = {
-    default: 'text-blue-600',
-    success: 'text-green-600',
-    warning: 'text-yellow-600',
-    danger: 'text-red-600',
+  const iconColorClasses = {
+    pink: 'text-[#FF6B9D]',
+    yellow: 'text-[#FFB84D]',
+    purple: 'text-[#9B87F5]',
+    mint: 'text-[#4ADE80]',
+    blue: 'text-[#38BDF8]',
+    coral: 'text-[#FF8C7A]',
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-          {trend && <p className={`text-sm mt-1 ${trendColorClasses[variant]}`}>{trend}</p>}
-        </div>
-        <div className={`p-3 rounded-lg ${colorClasses[variant]}`}>
-          <Icon className="h-6 w-6" />
+    <div className={`${colorClasses[variant]} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 border border-white/50`}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className={`inline-flex items-center justify-center p-3 rounded-xl bg-white/70 mb-4 ${iconColorClasses[variant]}`}>
+            <Icon className="h-6 w-6" strokeWidth={2.5} />
+          </div>
+          <p className="text-gray-700 text-sm font-medium mb-1">{title}</p>
+          <p className="text-4xl font-bold text-gray-900">{value}</p>
+          {trend && (
+            <p className={`text-sm mt-2 font-medium ${iconColorClasses[variant]}`}>
+              {trend}
+            </p>
+          )}
         </div>
       </div>
     </div>
