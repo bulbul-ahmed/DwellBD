@@ -9,7 +9,7 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const { isAuthenticated, user, logout, _hasHydrated } = useAuthStore()
 
   const handleLogout = useCallback(async () => {
     try {
@@ -42,6 +42,12 @@ const Header = () => {
 
   const isActive = (href: string) => {
     return location.pathname === href || location.pathname.startsWith(href + '/')
+  }
+
+  // Don't render auth state until Zustand has rehydrated from localStorage
+  // This prevents showing stale auth state during app load
+  if (!_hasHydrated) {
+    return null
   }
 
   return (

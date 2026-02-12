@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
+import { useAuthStore } from '../stores/authStore'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -39,8 +40,9 @@ const isTokenExpired = (token: string): boolean => {
   try {
     const decoded = jwtDecode<{ exp: number }>(token)
     const now = Date.now() / 1000
-    // Consider token expired if it expires in less than 60 seconds
-    return decoded.exp < now + 60
+    // Consider token expired if it expires in less than 5 minutes (300 seconds)
+    // This reduces aggressive proactive refreshing during normal navigation
+    return decoded.exp < now + 300
   } catch {
     return true
   }
@@ -78,11 +80,14 @@ api.interceptors.request.use(
           const { token: newToken } = await refreshTokens()
           config.headers.Authorization = `Bearer ${newToken}`
         } catch (error) {
-          // If refresh fails, clear tokens but don't force redirect
-          // Let the auth store and ProtectedRoute handle navigation
-          localStorage.removeItem('token')
-          localStorage.removeItem('refreshToken')
-          // DO NOT clear 'auth-storage' - let authStore handle its own state cleanup
+          // If refresh fails, sync state by calling authStore.logout()
+          // This ensures both localStorage AND Zustand state are cleared
+          try {
+            await useAuthStore.getState().logout()
+          } catch (logoutError) {
+            // Even if logout API fails, state is cleared
+            console.error('Logout during token refresh failed:', logoutError)
+          }
           return Promise.reject(new Error('Session expired. Please login again.'))
         }
       } else {
@@ -131,14 +136,17 @@ api.interceptors.response.use(
         // Retry original request
         return api(originalRequest)
       } catch (refreshError) {
-        // Refresh failed - logout user
+        // Refresh failed - sync state by calling authStore.logout()
         processQueue(refreshError, null)
         isRefreshing = false
 
-        // Clear all auth data but let React Router handle navigation
-        localStorage.removeItem('token')
-        localStorage.removeItem('refreshToken')
-        // DO NOT clear 'auth-storage' - let authStore handle its own state cleanup
+        // Logout properly to sync both localStorage AND Zustand state
+        try {
+          await useAuthStore.getState().logout()
+        } catch (logoutError) {
+          // Even if logout API fails, state is cleared
+          console.error('Logout during 401 refresh failed:', logoutError)
+        }
 
         return Promise.reject(new Error('Session expired. Please login again.'))
       }
