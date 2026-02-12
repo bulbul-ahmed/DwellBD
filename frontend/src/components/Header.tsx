@@ -37,17 +37,10 @@ const Header = () => {
   const navigation = [
     { name: 'Buy', href: '/properties?listingType=SELL' },
     { name: 'Rent', href: '/properties?listingType=RENT' },
-    { name: 'Sell', href: '/properties?listingType=SELL' },
   ]
 
   const isActive = (href: string) => {
     return location.pathname === href || location.pathname.startsWith(href + '/')
-  }
-
-  // Don't render auth state until Zustand has rehydrated from localStorage
-  // This prevents showing stale auth state during app load
-  if (!_hasHydrated) {
-    return null
   }
 
   return (
@@ -101,7 +94,13 @@ const Header = () => {
 
             {/* User Actions */}
             <div className="hidden items-center space-x-4 md:flex">
-              {isAuthenticated && user ? (
+              {!_hasHydrated ? (
+                // Show loading skeleton while Zustand is rehydrating
+                <div className="flex items-center space-x-4">
+                  <div className="h-4 w-16 animate-pulse rounded bg-gray-200"></div>
+                  <div className="h-10 w-24 animate-pulse rounded-lg bg-gray-200"></div>
+                </div>
+              ) : isAuthenticated && user ? (
                 <div className="relative" data-user-menu>
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -234,7 +233,12 @@ const Header = () => {
                 </Link>
               ))}
               <div className="border-t border-gray-200 pt-4">
-                {isAuthenticated && user ? (
+                {!_hasHydrated ? (
+                  // Show loading skeleton while Zustand is rehydrating
+                  <div className="px-4 py-2">
+                    <div className="h-4 w-32 animate-pulse rounded bg-gray-200"></div>
+                  </div>
+                ) : isAuthenticated && user ? (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2 px-4 py-2">
                       {user.avatar ? (

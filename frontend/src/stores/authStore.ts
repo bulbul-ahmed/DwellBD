@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
       isAuthenticated: false,
-      _hasHydrated: false,
+      _hasHydrated: true,
 
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null })
@@ -96,7 +96,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
-            _hasHydrated: false,
+            // DO NOT set _hasHydrated to false - it indicates whether Zustand has loaded from storage, not auth status
           })
           // Clear all auth-related localStorage items
           localStorage.removeItem('token')
@@ -187,9 +187,10 @@ export const useAuthStore = create<AuthState>()(
             localStorage.removeItem('token')
             localStorage.removeItem('refreshToken')
           }
-          // Mark as hydrated
-          state._hasHydrated = true
         }
+        // ALWAYS mark as hydrated, regardless of whether state exists or not
+        // This ensures the UI doesn't stay in a loading state indefinitely
+        useAuthStore.setState({ _hasHydrated: true })
       },
     }
   )

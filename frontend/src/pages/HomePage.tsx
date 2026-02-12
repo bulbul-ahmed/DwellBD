@@ -19,9 +19,22 @@ const HomePage = () => {
   const navigate = useNavigate()
   const { properties, isLoading: isLoadingProperties, searchProperties } = usePropertyStore()
 
+  // Dynamically update featured properties when filters change
   useEffect(() => {
-    searchProperties({ limit: 6 })
-  }, [])
+    const filters: any = { limit: 6 }
+
+    // Add filters if they are selected
+    if (selectedArea) filters.area = selectedArea
+    if (selectedType) filters.propertyType = selectedType
+    if (priceRange) {
+      // Parse price range like "0-20000" into minPrice and maxPrice
+      const [min, max] = priceRange.split('-').map(Number)
+      if (!isNaN(min)) filters.minPrice = min
+      if (!isNaN(max)) filters.maxPrice = max
+    }
+
+    searchProperties(filters)
+  }, [selectedArea, selectedType, priceRange, searchProperties])
 
   const handleFilterSearch = () => {
     const params = new URLSearchParams()
@@ -387,8 +400,38 @@ const HomePage = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h2 className="mb-2 text-3xl font-bold text-gray-900">Featured Properties</h2>
-              <p className="text-gray-600">Discover the most popular properties in Dhaka</p>
+              <h2 className="mb-2 text-3xl font-bold text-gray-900">
+                {selectedArea || selectedType ? (
+                  <>
+                    Properties
+                    {selectedArea && ` in ${selectedArea}`}
+                    {selectedType && ` (${selectedType})`}
+                  </>
+                ) : (
+                  'Featured Properties'
+                )}
+              </h2>
+              <p className="text-gray-600">
+                {selectedArea || selectedType ? (
+                  <span>
+                    Showing filtered results
+                    {selectedArea || selectedType ? (
+                      <button
+                        onClick={() => {
+                          setSelectedArea('')
+                          setSelectedType('')
+                          setPriceRange('')
+                        }}
+                        className="ml-2 text-primary-600 hover:text-primary-700 underline"
+                      >
+                        Clear filters
+                      </button>
+                    ) : null}
+                  </span>
+                ) : (
+                  'Discover the most popular properties in Dhaka'
+                )}
+              </p>
             </div>
             <Button variant="secondary" onClick={() => navigate('/properties')}>View All Properties</Button>
           </div>
@@ -401,8 +444,24 @@ const HomePage = () => {
                 <PropertyCard key={property.id} property={property} />
               ))
             ) : (
-              <div className="col-span-full text-center py-8 text-gray-600">
-                No properties available at the moment
+              <div className="col-span-full text-center py-8">
+                <p className="text-gray-600 mb-2">
+                  {selectedArea || selectedType
+                    ? `No properties found matching your filters`
+                    : 'No properties available at the moment'}
+                </p>
+                {(selectedArea || selectedType) && (
+                  <button
+                    onClick={() => {
+                      setSelectedArea('')
+                      setSelectedType('')
+                      setPriceRange('')
+                    }}
+                    className="text-primary-600 hover:text-primary-700 underline"
+                  >
+                    Clear filters and view all properties
+                  </button>
+                )}
               </div>
             )}
           </div>
