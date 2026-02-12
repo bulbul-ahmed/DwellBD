@@ -96,6 +96,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            _hasHydrated: false,
           })
           // Clear all auth-related localStorage items
           localStorage.removeItem('token')

@@ -222,8 +222,7 @@ export async function refreshToken(): Promise<{ message: string; token: string; 
 
 export async function logoutUser(): Promise<any> {
   const response = await api.post('/auth/logout')
-  localStorage.removeItem('token')
-  localStorage.removeItem('refreshToken')
+  // Token cleanup is handled by authStore.logout() to avoid race conditions
   return response.data
 }
 
