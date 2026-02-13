@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { getAnalytics } from '../../api/adminApi'
 import StatsCard from '../../components/admin/StatsCard'
 import Button from '../../components/ui/Button'
-import { Users, Building, Eye, Heart, TrendingUp, Star, MapPin, Award } from 'lucide-react'
+import { Users, Building, Eye, Heart, TrendingUp, MapPin, Award } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface AnalyticsData {

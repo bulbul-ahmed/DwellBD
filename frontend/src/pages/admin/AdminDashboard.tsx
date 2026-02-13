@@ -14,7 +14,6 @@ import {
 } from 'lucide-react'
 import { getDashboardStats } from '../../api/adminApi'
 import StatsCard from '../../components/admin/StatsCard'
-import Button from '../../components/ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 
 interface DashboardStats {
@@ -230,7 +229,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {dashboardStats.recentProperties.slice(0, 5).map((prop, index) => (
+                {dashboardStats.recentProperties.slice(0, 5).map((prop) => (
                   <div
                     key={prop.id}
                     className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200 cursor-pointer group"
@@ -274,7 +273,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {dashboardStats.recentUsers.slice(0, 5).map((user, index) => (
+                {dashboardStats.recentUsers.slice(0, 5).map((user) => (
                   <div
                     key={user.id}
                     className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200"
@@ -314,7 +313,6 @@ const AdminDashboard: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {Object.entries(dashboardStats.usersByRole).length > 0 ? (
               Object.entries(dashboardStats.usersByRole).map(([role, count], index) => {
-                const colors = ['purple', 'pink', 'blue']
                 const bgColors = ['bg-purple-50', 'bg-pink-50', 'bg-blue-50']
                 const textColors = ['text-purple-600', 'text-pink-600', 'text-blue-600']
                 const borderColors = ['border-purple-200', 'border-pink-200', 'border-blue-200']

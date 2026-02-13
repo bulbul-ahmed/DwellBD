@@ -1,16 +1,17 @@
-import { forwardRef, HTMLAttributes } from 'react'
+import { forwardRef } from 'react'
 import { X } from 'lucide-react'
 
-export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
+export interface ModalProps {
   open: boolean
   onClose: () => void
-  title?: string
+  title?: React.ReactNode
   size?: 'sm' | 'md' | 'lg'
   children: React.ReactNode
+  className?: string
 }
 
 const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  ({ open, onClose, title, size = 'md', children, className = '', ...props }, ref) => {
+  ({ open, onClose, title, size = 'md', children, className = '' }, ref) => {
     if (!open) return null
 
     const sizeClasses = {
@@ -32,7 +33,6 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
           <div
             ref={ref}
             className={`${sizeClasses[size]} flex max-h-[90vh] w-full transform flex-col overflow-hidden rounded-lg bg-white shadow-xl transition-all ${className}`}
-            {...props}
           >
             {/* Header */}
             {(title || true) && (

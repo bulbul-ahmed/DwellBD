@@ -8,8 +8,6 @@ import { PropertyListSkeleton } from '../components/ui/Skeleton'
 import { usePropertyStore } from '../stores/propertyStore'
 
 const HomePage = () => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [showLocationDropdown, setShowLocationDropdown] = useState(false)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const [showPriceDropdown, setShowPriceDropdown] = useState(false)
