@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, MapPin, Users, Bed, Home, Building, Key, TrendingDown, ArrowUpDown, TrendingUp, ArrowUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PropertyCard from '../components/ui/PropertyCard'
@@ -17,11 +17,20 @@ const HomePage = () => {
   const [selectedType, setSelectedType] = useState('')
   const [priceRange, setPriceRange] = useState('')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { properties, isLoading: isLoadingProperties, searchProperties } = usePropertyStore()
+
+  // Get city from URL parameter
+  const selectedCity = searchParams.get('city') || ''
 
   // Dynamically update featured properties when filters change
   useEffect(() => {
     const filters: any = { limit: 6 }
+
+    // Add city filter from URL (set by header dropdown)
+    if (selectedCity && selectedCity !== 'Dhaka') {
+      filters.city = selectedCity
+    }
 
     // Add filters if they are selected
     if (selectedArea) filters.area = selectedArea
@@ -34,7 +43,7 @@ const HomePage = () => {
     }
 
     searchProperties(filters)
-  }, [selectedArea, selectedType, priceRange, searchProperties])
+  }, [selectedCity, selectedArea, selectedType, priceRange, searchProperties])
 
   const handleFilterSearch = () => {
     const params = new URLSearchParams()
@@ -401,10 +410,11 @@ const HomePage = () => {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h2 className="mb-2 text-3xl font-bold text-gray-900">
-                {selectedArea || selectedType ? (
+                {selectedCity || selectedArea || selectedType ? (
                   <>
                     Properties
-                    {selectedArea && ` in ${selectedArea}`}
+                    {selectedCity && ` in ${selectedCity}`}
+                    {selectedArea && ` - ${selectedArea}`}
                     {selectedType && ` (${selectedType})`}
                   </>
                 ) : (
@@ -412,24 +422,26 @@ const HomePage = () => {
                 )}
               </h2>
               <p className="text-gray-600">
-                {selectedArea || selectedType ? (
+                {selectedCity || selectedArea || selectedType ? (
                   <span>
                     Showing filtered results
-                    {selectedArea || selectedType ? (
+                    {(selectedCity || selectedArea || selectedType) && (
                       <button
                         onClick={() => {
                           setSelectedArea('')
                           setSelectedType('')
                           setPriceRange('')
+                          // Clear city by navigating to homepage without city param
+                          navigate('/')
                         }}
                         className="ml-2 text-primary-600 hover:text-primary-700 underline"
                       >
                         Clear filters
                       </button>
-                    ) : null}
+                    )}
                   </span>
                 ) : (
-                  'Discover the most popular properties in Dhaka'
+                  `Discover the most popular properties in ${selectedCity || 'Dhaka'}`
                 )}
               </p>
             </div>
@@ -446,16 +458,17 @@ const HomePage = () => {
             ) : (
               <div className="col-span-full text-center py-8">
                 <p className="text-gray-600 mb-2">
-                  {selectedArea || selectedType
+                  {selectedCity || selectedArea || selectedType
                     ? `No properties found matching your filters`
                     : 'No properties available at the moment'}
                 </p>
-                {(selectedArea || selectedType) && (
+                {(selectedCity || selectedArea || selectedType) && (
                   <button
                     onClick={() => {
                       setSelectedArea('')
                       setSelectedType('')
                       setPriceRange('')
+                      navigate('/')
                     }}
                     className="text-primary-600 hover:text-primary-700 underline"
                   >

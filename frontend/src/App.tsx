@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import { toast } from 'react-hot-toast'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -36,10 +38,28 @@ function App() {
   const { fetchCurrentUser, logout } = useAuthStore()
 
   // Fetch user only on initial mount (not on every route change)
+  // Validate token before making API call to prevent unnecessary requests
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
-      fetchCurrentUser()
+      // Validate token expiry before calling API
+      try {
+        const decoded = jwtDecode<{ exp: number }>(token)
+        const now = Date.now() / 1000
+        if (decoded.exp > now) {
+          // Token is valid and not expired - fetch user
+          fetchCurrentUser()
+        } else {
+          // Token expired - clear immediately without API call
+          console.warn('Token expired on app mount, clearing auth state')
+          toast.error('Your session has expired. Please login again.')
+          logout()
+        }
+      } catch (error) {
+        // Invalid token format - clear
+        console.error('Invalid token format on app mount:', error)
+        logout()
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

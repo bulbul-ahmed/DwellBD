@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { jwtDecode } from 'jwt-decode'
+import { toast } from 'react-hot-toast'
 import {
   registerUser,
   loginUser,
@@ -9,6 +11,17 @@ import {
   RegisterRequest,
   LoginRequest,
 } from '../api/authApi'
+
+// Helper function to validate JWT token expiry
+const isTokenValid = (token: string): boolean => {
+  try {
+    const decoded = jwtDecode<{ exp: number }>(token)
+    const now = Date.now() / 1000
+    return decoded.exp > now // Not expired
+  } catch {
+    return false // Invalid token format
+  }
+}
 
 interface AuthState {
   user: User | null
@@ -130,16 +143,10 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
           })
         } catch (error: any) {
-          // Only logout on 401 Unauthorized or 403 Forbidden errors
-          // For other errors (network, server 500, etc.), keep user logged in
-          if (error?.response?.status === 401 || error?.response?.status === 403) {
-            console.error('Authentication failed:', error)
-            // Use the logout function to ensure proper cleanup
-            await get().logout()
-          } else {
-            // For temporary errors, just log and keep state
-            console.warn('Temporary error fetching user, keeping session:', error?.message || error)
-          }
+          // Clear state on ANY error - if we can't validate user, session is unreliable
+          console.error('Failed to fetch current user:', error?.message || error)
+          toast.error('Session validation failed. Please login again.')
+          await get().logout()
         }
       },
 
@@ -167,20 +174,40 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        // After rehydration, sync tokens between Zustand and localStorage
+        // After rehydration, validate tokens before syncing
         if (state) {
           if (state.token && state.refreshToken) {
-            // Check if tokens exist in localStorage
-            const storageToken = localStorage.getItem('token')
-            const storageRefreshToken = localStorage.getItem('refreshToken')
+            // Validate token before restoring
+            if (isTokenValid(state.token)) {
+              // Token is valid - sync with localStorage
+              const storageToken = localStorage.getItem('token')
+              const storageRefreshToken = localStorage.getItem('refreshToken')
 
-            // If Zustand has tokens but localStorage doesn't, RESTORE them
-            // This fixes the issue where axios interceptor clears localStorage but not Zustand
-            if (!storageToken) {
-              localStorage.setItem('token', state.token)
-            }
-            if (!storageRefreshToken) {
-              localStorage.setItem('refreshToken', state.refreshToken)
+              // If Zustand has tokens but localStorage doesn't, RESTORE them
+              if (!storageToken) {
+                localStorage.setItem('token', state.token)
+              }
+              if (!storageRefreshToken) {
+                localStorage.setItem('refreshToken', state.refreshToken)
+              }
+            } else {
+              // Token is expired or invalid - clear everything
+              console.warn('Token expired during rehydration, clearing auth state')
+              toast.error('Your session has expired. Please login again.')
+
+              // Clear Zustand state
+              useAuthStore.setState({
+                user: null,
+                token: null,
+                refreshToken: null,
+                isAuthenticated: false,
+              })
+
+              // Clear localStorage
+              localStorage.removeItem('token')
+              localStorage.removeItem('refreshToken')
+              localStorage.removeItem('user')
+              localStorage.removeItem('auth-storage')
             }
           } else {
             // If Zustand has no tokens, ensure localStorage is also clear

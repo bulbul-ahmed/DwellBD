@@ -11,6 +11,30 @@ const Header = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout, _hasHydrated } = useAuthStore()
 
+  // Get city from URL or default to Dhaka
+  const searchParams = new URLSearchParams(location.search)
+  const currentCity = searchParams.get('city') || 'Dhaka'
+
+  const handleCityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCity = event.target.value
+    const params = new URLSearchParams(location.search)
+
+    if (newCity === 'Dhaka') {
+      params.delete('city') // Default city, no need to show in URL
+    } else {
+      params.set('city', newCity)
+    }
+
+    // Navigate to homepage with city parameter if not already on homepage
+    if (location.pathname === '/') {
+      // Just update the URL params
+      navigate(`/?${params.toString()}`, { replace: true })
+    } else {
+      // Navigate to homepage with the city filter
+      navigate(`/?${params.toString()}`)
+    }
+  }
+
   const handleLogout = useCallback(async () => {
     try {
       await logout()
@@ -75,12 +99,16 @@ const Header = () => {
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <MapPin className="h-4 w-4 text-gray-400" />
               </div>
-              <select className="rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-primary-600">
-                <option>Dhaka</option>
-                <option>Chittagong</option>
-                <option>Sylhet</option>
-                <option>Rajshahi</option>
-                <option>Khulna</option>
+              <select
+                value={currentCity}
+                onChange={handleCityChange}
+                className="rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-primary-600"
+              >
+                <option value="Dhaka">Dhaka</option>
+                <option value="Chittagong">Chittagong</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Khulna">Khulna</option>
               </select>
             </div>
           </div>
@@ -101,6 +129,7 @@ const Header = () => {
                   <div className="h-10 w-24 animate-pulse rounded-lg bg-gray-200"></div>
                 </div>
               ) : isAuthenticated && user ? (
+                // Show user dropdown only if BOTH authenticated AND user exists
                 <div className="relative" data-user-menu>
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -187,6 +216,8 @@ const Header = () => {
                   )}
                 </div>
               ) : (
+                // Default fallback: Show login/signup for any other case
+                // This handles edge cases like isAuthenticated=true but user=null
                 <>
                   <Link
                     to="/login"

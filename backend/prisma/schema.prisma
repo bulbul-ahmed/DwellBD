@@ -23,6 +23,12 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Owner-specific fields
+  serviceAreas        String[] @default([])
+  businessName        String?  @db.VarChar(100)
+  businessLocation    String?  @db.VarChar(200)
+  verificationAddress String?  @db.Text // For KYC only, never shown publicly
+
   // Relations
   properties  Property[]
   favorites   Favorite[]
@@ -35,6 +41,8 @@ model User {
   ratingsReceived UserRating[] @relation("RatingsReceived")
   tenantVisits    VisitRequest[] @relation("TenantVisits")
   ownerVisits     VisitRequest[] @relation("OwnerVisits")
+  ownerRequests    OwnerRequest[] @relation("OwnerRequests")
+  reviewedRequests OwnerRequest[] @relation("ReviewedRequests")
 
   @@index([email])
   @@index([role])
@@ -212,6 +220,7 @@ enum TenantPreference {
 
 enum PropertyStatus {
   PENDING
+  PENDING_APPROVAL      // Awaiting admin approval for new properties
   ACTIVE
   INACTIVE
   RENTED
@@ -340,6 +349,56 @@ model VisitRequest {
   @@index([requestedDate])
   @@index([confirmedDate])
   @@map("visit_requests")
+}
+
+model OwnerRequest {
+  id              String        @id @default(cuid())
+
+  // Owner who submitted the request
+  userId          String
+  user            User          @relation("OwnerRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Request details
+  requestType     RequestType
+  status          RequestStatus @default(PENDING)
+
+  // Request data (stores the requested changes as JSON)
+  requestData     Json          // New values being requested
+  currentData     Json?         // Current values (for comparison)
+  reason          String        @db.Text // Why the change is needed
+
+  // Admin review
+  reviewedBy      String?
+  reviewer        User?         @relation("ReviewedRequests", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewNotes     String?       @db.Text
+  rejectionReason String?       @db.Text
+
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  reviewedAt      DateTime?
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([requestType])
+  @@map("owner_requests")
+}
+
+enum RequestType {
+  BUSINESS_INFO_CHANGE      // Change business name/location
+  SERVICE_AREA_CHANGE       // Add/remove service areas
+  PROPERTY_APPROVAL         // New property needs approval
+  PROPERTY_EDIT_APPROVAL    // Major property edits
+  VERIFICATION_REQUEST      // Request business verification
+  CONTACT_INFO_CHANGE       // Change phone/email (sensitive)
+}
+
+enum RequestStatus {
+  PENDING       // Awaiting admin review
+  IN_REVIEW     // Admin is reviewing
+  APPROVED      // Admin approved, changes applied
+  REJECTED      // Admin rejected the request
+  CANCELLED     // Owner cancelled the request
 }
 
 enum RatingType {

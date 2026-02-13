@@ -5,8 +5,10 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
-import { Edit2, ChevronLeft, ChevronRight } from 'lucide-react'
+import MultiSelect from '../../components/ui/MultiSelect'
+import { Edit2, ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { DHAKA_AREAS } from '../../constants/areas'
 
 interface User {
   id: string
@@ -18,6 +20,9 @@ interface User {
   isActive: boolean
   isVerified: boolean
   createdAt: string
+  serviceAreas?: string[]
+  businessName?: string
+  businessLocation?: string
   _count: {
     properties: number
   }
@@ -41,6 +46,9 @@ const AdminUsers: React.FC = () => {
     role: '',
     isActive: false,
     isVerified: false,
+    serviceAreas: [] as string[],
+    businessName: '',
+    businessLocation: '',
   })
 
   const fetchUsers = async () => {
@@ -88,6 +96,9 @@ const AdminUsers: React.FC = () => {
       role: user.role,
       isActive: user.isActive,
       isVerified: user.isVerified,
+      serviceAreas: user.serviceAreas || [],
+      businessName: user.businessName || '',
+      businessLocation: user.businessLocation || '',
     })
     setIsModalOpen(true)
   }
@@ -98,17 +109,27 @@ const AdminUsers: React.FC = () => {
     if (!window.confirm(`Are you sure you want to update ${selectedUser.firstName} ${selectedUser.lastName}?`)) return
 
     try {
-      await updateAdminUser(selectedUser.id, {
+      // Prepare data to send
+      const dataToSend: any = {
         role: updateData.role,
         isActive: updateData.isActive,
         isVerified: updateData.isVerified,
-      })
+      }
+
+      // Only include owner fields if role is OWNER
+      if (updateData.role === 'OWNER') {
+        dataToSend.serviceAreas = updateData.serviceAreas
+        dataToSend.businessName = updateData.businessName || null
+        dataToSend.businessLocation = updateData.businessLocation || null
+      }
+
+      await updateAdminUser(selectedUser.id, dataToSend)
       toast.success('User updated successfully')
       setIsModalOpen(false)
       fetchUsers()
     } catch (error: any) {
       console.error('Error updating user:', error)
-      const errorMessage = error?.response?.data?.error || 'Failed to update user'
+      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || 'Failed to update user'
       toast.error(errorMessage)
     }
   }
@@ -206,7 +227,20 @@ const AdminUsers: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">{user.email}</td>
                 <td className="px-6 py-4">
-                  <StatusBadge status={user.role} variant="role" />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={user.role} variant="role" />
+                    {user.role === 'OWNER' && user.businessName && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        <Building2 className="h-3 w-3 mr-1" />
+                        Business
+                      </span>
+                    )}
+                    {user.role === 'OWNER' && user.serviceAreas && user.serviceAreas.length > 0 && (
+                      <span className="text-xs text-gray-500">
+                        📍 {user.serviceAreas.length}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <span
@@ -351,6 +385,56 @@ const AdminUsers: React.FC = () => {
               <span className="ml-2 block text-sm text-gray-700">Verified User</span>
             </label>
           </div>
+
+          {/* Owner-specific fields */}
+          {updateData.role === 'OWNER' && (
+            <div className="space-y-4 border-t pt-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <h3 className="text-sm font-medium text-blue-900 mb-1">Owner-Specific Information</h3>
+                <p className="text-xs text-blue-700">These fields are only available for users with OWNER role</p>
+              </div>
+
+              <MultiSelect
+                label="Service Areas"
+                options={[...DHAKA_AREAS]}
+                selected={updateData.serviceAreas}
+                onChange={(areas) => setUpdateData({ ...updateData, serviceAreas: areas })}
+                placeholder="Select service areas..."
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Name (Optional)
+                </label>
+                <Input
+                  type="text"
+                  value={updateData.businessName}
+                  onChange={(e) => setUpdateData({ ...updateData, businessName: e.target.value })}
+                  placeholder="e.g., Ahmed Property Management"
+                  maxLength={100}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {updateData.businessName.length}/100 characters
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Office Location (Optional)
+                </label>
+                <Input
+                  type="text"
+                  value={updateData.businessLocation}
+                  onChange={(e) => setUpdateData({ ...updateData, businessLocation: e.target.value })}
+                  placeholder="e.g., Dhanmondi, Road 27"
+                  maxLength={200}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {updateData.businessLocation.length}/200 characters
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>

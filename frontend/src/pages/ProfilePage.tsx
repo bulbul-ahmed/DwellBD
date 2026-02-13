@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload, MapPin, Building2, Home, MessageCircle, CalendarCheck, TrendingUp, Plus, ArrowRight, Shield, Star, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import RatingSection from '../components/RatingSection'
 import { useAuthStore } from '../stores/authStore'
 import { getProfile, updateProfile, logout, uploadProfilePhoto } from '../api/userApi'
+import { getOwnerStats, getRecentActivity, OwnerStats, Activity } from '../api/ownerApi'
 
 interface UserData {
   id: string
@@ -18,6 +19,9 @@ interface UserData {
   role: 'TENANT' | 'OWNER' | 'ADMIN'
   isVerified: boolean
   createdAt: string
+  serviceAreas?: string[]
+  businessName?: string
+  businessLocation?: string
 }
 
 const ProfilePage = () => {
@@ -29,6 +33,11 @@ const ProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+
+  // Owner-specific state
+  const [ownerStats, setOwnerStats] = useState<OwnerStats | null>(null)
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [isLoadingStats, setIsLoadingStats] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -60,6 +69,30 @@ const ProfilePage = () => {
 
     loadProfile()
   }, [navigate])
+
+  // Load owner stats and activity
+  useEffect(() => {
+    const loadOwnerData = async () => {
+      if (!userData || userData.role !== 'OWNER') return
+
+      setIsLoadingStats(true)
+      try {
+        const [stats, activity] = await Promise.all([
+          getOwnerStats(),
+          getRecentActivity(5),
+        ])
+        setOwnerStats(stats)
+        setRecentActivity(activity)
+      } catch (error) {
+        console.error('Error loading owner data:', error)
+        // Don't show error toast, stats are optional
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+
+    loadOwnerData()
+  }, [userData])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -221,16 +254,120 @@ const ProfilePage = () => {
                 {userData.role === 'OWNER' && 'Property Owner'}
                 {userData.role === 'ADMIN' && 'Administrator'}
               </p>
-              {userData.isVerified && (
-                <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                  ✓ Verified
-                </span>
+
+              {/* Trust & Verification Badges */}
+              {userData.role === 'OWNER' ? (
+                <div className="mt-4 space-y-2">
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {/* Verification Badge */}
+                    {userData.isVerified && (
+                      <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 text-sm font-medium rounded-full border-2 border-green-200">
+                        <Shield className="w-4 h-4 mr-1.5" />
+                        ✓ Verified Owner
+                      </div>
+                    )}
+
+                    {/* Rating Badge */}
+                    {ownerStats && ownerStats.totalReviews > 0 && (
+                      <div className="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full border-2 border-yellow-200">
+                        <Star className="w-4 h-4 mr-1.5 fill-current" />
+                        {ownerStats.averageRating.toFixed(1)} ({ownerStats.totalReviews}{' '}
+                        {ownerStats.totalReviews === 1 ? 'review' : 'reviews'})
+                      </div>
+                    )}
+
+                    {/* Response Rate Badge */}
+                    {ownerStats && ownerStats.responseRate >= 80 && (
+                      <div className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-sm font-medium rounded-full border-2 border-blue-200">
+                        <Clock className="w-4 h-4 mr-1.5" />
+                        Responsive Owner ({ownerStats.responseRate}%)
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Member Since */}
+                  <p className="text-xs text-gray-500">
+                    Member since{' '}
+                    {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                    })}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {userData.isVerified && (
+                    <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                      ✓ Verified
+                    </span>
+                  )}
+                </>
               )}
+
               {isEditing && (
                 <p className="text-sm text-gray-500 mt-2">Click on your photo to upload a new one</p>
               )}
             </div>
           </div>
+
+          {/* Owner Quick Actions */}
+          {userData.role === 'OWNER' && (
+            <div className="border-t border-gray-200 pt-6 pb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <button
+                  onClick={() => navigate('/my-properties')}
+                  className="flex items-center justify-between p-4 bg-white border-2 border-primary-200 rounded-lg hover:bg-primary-50 hover:border-primary-400 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                      <Home className="w-5 h-5 text-primary-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">My Properties</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/owner/inquiries')}
+                  className="flex items-center justify-between p-4 bg-white border-2 border-purple-200 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                      <MessageCircle className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">Inquiries</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/owner/visit-requests')}
+                  className="flex items-center justify-between p-4 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                      <CalendarCheck className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">Visit Requests</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/my-properties?action=add')}
+                  className="flex items-center justify-between p-4 bg-gradient-to-br from-green-500 to-green-600 border-2 border-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center group-hover:bg-opacity-30 transition-colors">
+                      <Plus className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-medium text-white">Add Property</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-white text-opacity-80 group-hover:text-opacity-100 transition-all" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Profile Information */}
           <div className="border-t border-gray-200 pt-8">
@@ -338,6 +475,199 @@ const ProfilePage = () => {
               )}
             </div>
           </div>
+
+          {/* Owner-Specific Sections */}
+          {userData.role === 'OWNER' && (
+            <>
+              {/* Owner Stats Dashboard */}
+              <div className="border-t border-gray-200 pt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary-600" />
+                  Dashboard Overview
+                </h3>
+
+                {isLoadingStats ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                  </div>
+                ) : ownerStats ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Total Properties */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <Home className="w-8 h-8 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-700 uppercase">Total</span>
+                      </div>
+                      <p className="text-3xl font-bold text-blue-900">{ownerStats.totalProperties}</p>
+                      <p className="text-sm text-blue-700 mt-1">Properties</p>
+                    </div>
+
+                    {/* Active Listings */}
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <Building2 className="w-8 h-8 text-green-600" />
+                        <span className="text-xs font-medium text-green-700 uppercase">Active</span>
+                      </div>
+                      <p className="text-3xl font-bold text-green-900">{ownerStats.activeListings}</p>
+                      <p className="text-sm text-green-700 mt-1">Listings</p>
+                    </div>
+
+                    {/* Total Inquiries */}
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5 border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <MessageCircle className="w-8 h-8 text-purple-600" />
+                        <span className="text-xs font-medium text-purple-700 uppercase">All Time</span>
+                      </div>
+                      <p className="text-3xl font-bold text-purple-900">{ownerStats.totalInquiries}</p>
+                      <p className="text-sm text-purple-700 mt-1">Inquiries</p>
+                    </div>
+
+                    {/* Pending Visits */}
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <CalendarCheck className="w-8 h-8 text-orange-600" />
+                        <span className="text-xs font-medium text-orange-700 uppercase">Pending</span>
+                      </div>
+                      <p className="text-3xl font-bold text-orange-900">{ownerStats.pendingVisits}</p>
+                      <p className="text-sm text-orange-700 mt-1">Visits</p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Recent Activity Feed */}
+              {recentActivity.length > 0 && (
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <div className="space-y-3">
+                    {recentActivity.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`
+                            w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                            ${activity.type === 'INQUIRY'
+                              ? 'bg-purple-100'
+                              : 'bg-orange-100'
+                            }
+                          `}>
+                            {activity.type === 'INQUIRY' ? (
+                              <MessageCircle className="w-5 h-5 text-purple-600" />
+                            ) : (
+                              <CalendarCheck className="w-5 h-5 text-orange-600" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {activity.type === 'INQUIRY' ? 'New Inquiry' : 'Visit Request'}
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {activity.propertyTitle} • {activity.propertyArea}
+                                </p>
+                                {activity.tenantName && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    From: {activity.tenantName}
+                                  </p>
+                                )}
+                              </div>
+                              <span className={`
+                                px-2 py-1 rounded-full text-xs font-medium flex-shrink-0
+                                ${activity.status === 'PENDING'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : activity.status === 'RESPONDED'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                                }
+                              `}>
+                                {activity.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                              {new Date(activity.createdAt).toLocaleString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Service Areas Section */}
+              {userData.serviceAreas && userData.serviceAreas.length > 0 && (
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary-600" />
+                    Service Areas
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {userData.serviceAreas.map((area) => (
+                      <span
+                        key={area}
+                        className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200"
+                      >
+                        📍 {area}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    You manage properties in {userData.serviceAreas.length}{' '}
+                    {userData.serviceAreas.length === 1 ? 'area' : 'areas'}
+                  </p>
+                </div>
+              )}
+
+              {/* Business Information Section */}
+              {userData.businessName && (
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-primary-600" />
+                    Business Information
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Business Name</p>
+                      <p className="text-lg font-medium text-gray-900">{userData.businessName}</p>
+                    </div>
+                    {userData.businessLocation && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          Office Location
+                        </p>
+                        <p className="text-gray-900">{userData.businessLocation}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State for Owners without Service Areas/Business Info */}
+              {(!userData.serviceAreas || userData.serviceAreas.length === 0) && !userData.businessName && (
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                    <Building2 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                      Complete Your Owner Profile
+                    </h3>
+                    <p className="text-sm text-blue-700 mb-4">
+                      Add your service areas and business information to help tenants find you.
+                      Contact an administrator to update your owner profile.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           {/* Rating Section */}
           <div className="border-t border-gray-200 pt-8">

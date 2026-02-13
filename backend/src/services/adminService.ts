@@ -1,4 +1,5 @@
 import { prisma, PropertyStatus } from '../models'
+import { validateServiceAreas } from '../constants/areas'
 
 export async function getDashboardStatistics() {
   const totalProperties = await prisma.property.count()
@@ -116,22 +117,74 @@ export async function getUsersForAdmin(page = 1, limit = 10, search = '') {
 }
 
 export async function updateUserByAdmin(id: string, data: any) {
+  // Validate owner-specific fields if present
+  if (data.serviceAreas !== undefined) {
+    const validation = validateServiceAreas(data.serviceAreas)
+    if (!validation.valid) {
+      throw new Error(`Invalid service areas: ${validation.invalidAreas?.join(', ')}`)
+    }
+  }
+
+  // Validate businessName length
+  if (data.businessName && data.businessName.length > 100) {
+    throw new Error('Business name must be 100 characters or less')
+  }
+
+  // Validate businessLocation length
+  if (data.businessLocation && data.businessLocation.length > 200) {
+    throw new Error('Business location must be 200 characters or less')
+  }
+
+  // Prepare update data
+  const updateData: any = { ...data }
+
+  // If role is being changed to non-OWNER, clear owner-specific fields
+  if (data.role && data.role !== 'OWNER') {
+    updateData.serviceAreas = []
+    updateData.businessName = null
+    updateData.businessLocation = null
+  }
+
+  // If role is OWNER and owner fields are provided, validate them
+  if (data.role === 'OWNER' || !data.role) {
+    // Fetch current user to check if they're an owner
+    const currentUser = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true }
+    })
+
+    const isOwner = data.role === 'OWNER' || currentUser?.role === 'OWNER'
+
+    // Only apply owner fields if user is or will be an owner
+    if (!isOwner) {
+      delete updateData.serviceAreas
+      delete updateData.businessName
+      delete updateData.businessLocation
+      delete updateData.verificationAddress
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id },
-    data,
+    data: updateData,
     select: {
       id: true,
       email: true,
+      phone: true,
       firstName: true,
       lastName: true,
       role: true,
       isVerified: true,
       isActive: true,
+      avatar: true,
+      serviceAreas: true,
+      businessName: true,
+      businessLocation: true,
       createdAt: true,
       updatedAt: true
     }
   })
-  
+
   return user
 }
 
