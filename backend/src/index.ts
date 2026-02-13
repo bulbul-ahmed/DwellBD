@@ -13,6 +13,7 @@ import reviewRoutes from './routes/reviewRoutes'
 import inquiryRoutes from './routes/inquiryRoutes'
 import ratingRoutes from './routes/ratingRoutes'
 import visitRoutes from './routes/visitRoutes'
+import requestRoutes from './routes/requestRoutes'
 import {
   apiLimiter,
   authLimiter,
@@ -134,6 +135,7 @@ app.use('/api/reviews', reviewRoutes)
 app.use('/api/inquiries', inquiryRoutes)
 app.use('/api/ratings', ratingRoutes)
 app.use('/api/visits', visitRoutes)
+app.use('/api', requestRoutes) // Handles both /api/owner/requests and /api/admin/requests
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

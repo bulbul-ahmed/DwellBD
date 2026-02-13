@@ -24,6 +24,7 @@ import VisitsPage from './pages/VisitsPage'
 import OwnerVisitRequestsPage from './pages/OwnerVisitRequestsPage'
 import MyPropertiesPage from './pages/MyPropertiesPage'
 import OwnerInquiriesPage from './pages/OwnerInquiriesPage'
+import OwnerRequestsPage from './pages/OwnerRequestsPage'
 import FAQPage from './pages/FAQPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
@@ -109,6 +110,7 @@ function App() {
             <Route path="/owner/visit-requests" element={<ProtectedRoute requiredRole="OWNER"><OwnerVisitRequestsPage /></ProtectedRoute>} />
             <Route path="/my-properties" element={<ProtectedRoute requiredRole="OWNER"><MyPropertiesPage /></ProtectedRoute>} />
             <Route path="/owner/inquiries" element={<ProtectedRoute requiredRole="OWNER"><OwnerInquiriesPage /></ProtectedRoute>} />
+            <Route path="/owner/requests" element={<ProtectedRoute requiredRole="OWNER"><OwnerRequestsPage /></ProtectedRoute>} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />

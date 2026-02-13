@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload, MapPin, Building2, Home, MessageCircle, CalendarCheck, TrendingUp, Plus, ArrowRight, Shield, Star, Clock } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload, MapPin, Building2, Home, MessageCircle, CalendarCheck, TrendingUp, Plus, ArrowRight, Shield, Star, Clock, FileEdit } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import RatingSection from '../components/RatingSection'
+import RequestChangeModal from '../components/RequestChangeModal'
 import { useAuthStore } from '../stores/authStore'
 import { getProfile, updateProfile, logout, uploadProfilePhoto } from '../api/userApi'
 import { getOwnerStats, getRecentActivity, OwnerStats, Activity } from '../api/ownerApi'
+import { RequestType } from '../api/requestApi'
 
 interface UserData {
   id: string
@@ -38,6 +40,10 @@ const ProfilePage = () => {
   const [ownerStats, setOwnerStats] = useState<OwnerStats | null>(null)
   const [recentActivity, setRecentActivity] = useState<Activity[]>([])
   const [isLoadingStats, setIsLoadingStats] = useState(false)
+
+  // Request modal state
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false)
+  const [requestType, setRequestType] = useState<RequestType>('BUSINESS_INFO_CHANGE')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -605,10 +611,22 @@ const ProfilePage = () => {
               {/* Service Areas Section */}
               {userData.serviceAreas && userData.serviceAreas.length > 0 && (
                 <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-primary-600" />
-                    Service Areas
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-primary-600" />
+                      Service Areas
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setRequestType('SERVICE_AREA_CHANGE')
+                        setIsRequestModalOpen(true)
+                      }}
+                      className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                    >
+                      <FileEdit className="w-4 h-4" />
+                      Request Change
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {userData.serviceAreas.map((area) => (
                       <span
@@ -629,10 +647,22 @@ const ProfilePage = () => {
               {/* Business Information Section */}
               {userData.businessName && (
                 <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-primary-600" />
-                    Business Information
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-primary-600" />
+                      Business Information
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setRequestType('BUSINESS_INFO_CHANGE')
+                        setIsRequestModalOpen(true)
+                      }}
+                      className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                    >
+                      <FileEdit className="w-4 h-4" />
+                      Request Change
+                    </button>
+                  </div>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-3">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Business Name</p>
@@ -691,6 +721,25 @@ const ProfilePage = () => {
             </Button>
           </div>
         </div>
+
+        {/* Request Change Modal */}
+        {userData && userData.role === 'OWNER' && (
+          <RequestChangeModal
+            isOpen={isRequestModalOpen}
+            onClose={() => setIsRequestModalOpen(false)}
+            requestType={requestType}
+            currentData={userData}
+            onSuccess={async () => {
+              // Refresh profile data after request submission
+              try {
+                const profile = await getProfile()
+                setUserData(profile)
+              } catch (error) {
+                console.error('Error refreshing profile:', error)
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   )
