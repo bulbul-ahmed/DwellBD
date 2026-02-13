@@ -9,11 +9,12 @@ import {
   Heart,
   Star,
   TrendingUp,
-  Eye,
-  ArrowRight,
 } from 'lucide-react'
 import { getDashboardStats } from '../../api/adminApi'
-import StatsCard from '../../components/admin/StatsCard'
+import { StatCard } from '../../components/shared/StatCard'
+import { PageHeader } from '../../components/shared/PageHeader'
+import { SectionHeader } from '../../components/shared/SectionHeader'
+import { QuickActionCard } from '../../components/shared/QuickActionCard'
 import { useAuthStore } from '../../stores/authStore'
 
 interface DashboardStats {
@@ -59,9 +60,9 @@ const AdminDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <Building className="h-6 w-6 text-purple-600" />
+            <Building className="h-6 w-6 text-blue-600" />
           </div>
         </div>
       </div>
@@ -92,123 +93,90 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Welcome back, {user?.firstName}! 👋
-            </h1>
-            <p className="text-gray-600 text-lg">Here's what's happening with your platform today</p>
-          </div>
-        </div>
+        <PageHeader
+          title={`Welcome back, ${user?.firstName}!`}
+          subtitle="Here's what's happening with your platform today"
+        />
 
-        {/* Main Stats Grid - Soft Pastel Colors */}
+        {/* Main Stats Grid - Blue Cohesive Palette */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <StatCard
             title="Total Users"
             value={dashboardStats.totalUsers}
             icon={Users}
-            variant="purple"
-            trend={`+${Math.floor(dashboardStats.totalUsers * 0.12)} this month`}
+            variant="light"
+            subtitle={`+${Math.floor(dashboardStats.totalUsers * 0.12)} this month`}
           />
-          <StatsCard
+          <StatCard
             title="Total Properties"
             value={dashboardStats.totalProperties}
             icon={Building}
-            variant="pink"
-            trend={`${dashboardStats.activeProperties} active`}
+            variant="sky"
+            subtitle={`${dashboardStats.activeProperties} active`}
           />
-          <StatsCard
+          <StatCard
             title="Pending Approvals"
             value={dashboardStats.pendingApprovals}
             icon={Clock}
-            variant="yellow"
-            trend="Needs attention"
+            variant="indigo"
+            subtitle="Needs attention"
           />
-          <StatsCard
+          <StatCard
             title="Active Properties"
             value={dashboardStats.activeProperties}
             icon={CheckCircle}
-            variant="mint"
-            trend="Live on platform"
+            variant="cyan"
+            subtitle="Live on platform"
           />
         </div>
 
         {/* Secondary Stats */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <StatsCard
+          <StatCard
             title="Total Inquiries"
             value={dashboardStats.totalInquiries}
             icon={MessageSquare}
-            variant="blue"
+            variant="light"
           />
-          <StatsCard
+          <StatCard
             title="Total Favorites"
             value={dashboardStats.totalFavorites}
             icon={Heart}
-            variant="coral"
+            variant="sky"
           />
-          <StatsCard
+          <StatCard
             title="Total Reviews"
             value={dashboardStats.totalReviews}
             icon={Star}
-            variant="yellow"
+            variant="indigo"
           />
         </div>
 
-        {/* Quick Actions - Improved Design */}
+        {/* Quick Actions */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
-            <TrendingUp className="h-6 w-6 text-purple-500" />
-          </div>
+          <SectionHeader title="Quick Actions" icon={TrendingUp} />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button
+            <QuickActionCard
+              title="Pending Approvals"
+              icon={Clock}
               onClick={() => navigate('/admin/properties/pending')}
-              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 border border-purple-200"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-3 bg-white rounded-xl shadow-sm">
-                  <Clock className="h-6 w-6 text-purple-600" />
-                </div>
-                <span className="text-2xl font-bold text-purple-600">{dashboardStats.pendingApprovals}</span>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1">Pending Approvals</h3>
-              <p className="text-sm text-gray-600">Review and approve properties</p>
-              <ArrowRight className="absolute bottom-4 right-4 h-5 w-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            <button
+              variant="light"
+            />
+            <QuickActionCard
+              title="Manage Users"
+              icon={Users}
               onClick={() => navigate('/admin/users')}
-              className="group relative bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 border border-pink-200"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-3 bg-white rounded-xl shadow-sm">
-                  <Users className="h-6 w-6 text-pink-600" />
-                </div>
-                <span className="text-2xl font-bold text-pink-600">{dashboardStats.totalUsers}</span>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1">Manage Users</h3>
-              <p className="text-sm text-gray-600">View and manage all users</p>
-              <ArrowRight className="absolute bottom-4 right-4 h-5 w-5 text-pink-400 group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            <button
+              variant="sky"
+            />
+            <QuickActionCard
+              title="View Analytics"
+              icon={TrendingUp}
               onClick={() => navigate('/admin/analytics')}
-              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 border border-blue-200"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-3 bg-white rounded-xl shadow-sm">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
-                </div>
-                <Eye className="h-8 w-8 text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1">View Analytics</h3>
-              <p className="text-sm text-gray-600">Detailed platform insights</p>
-              <ArrowRight className="absolute bottom-4 right-4 h-5 w-5 text-blue-400 group-hover:translate-x-1 transition-transform" />
-            </button>
+              variant="indigo"
+            />
           </div>
         </div>
 
@@ -218,7 +186,7 @@ const AdminDashboard: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">Recent Properties</h2>
-              <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                 {dashboardStats.recentProperties.length}
               </span>
             </div>
@@ -236,7 +204,7 @@ const AdminDashboard: React.FC = () => {
                     onClick={() => navigate(`/properties/${prop.id}`)}
                   >
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                      <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                         {prop.title}
                       </p>
                       <p className="text-gray-600 text-sm mt-1">{prop.address}</p>
@@ -262,7 +230,7 @@ const AdminDashboard: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">Recent Users</h2>
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm font-medium">
                 {dashboardStats.recentUsers.length}
               </span>
             </div>
@@ -279,7 +247,7 @@ const AdminDashboard: React.FC = () => {
                     className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex items-center space-x-3 flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full text-white font-bold text-sm">
+                      <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full text-white font-bold text-sm">
                         {user.firstName[0]}{user.lastName[0]}
                       </div>
                       <div>
@@ -307,15 +275,15 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* User Role Breakdown - Enhanced Design */}
+        {/* User Role Breakdown */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">User Breakdown by Role</h2>
+          <SectionHeader title="User Breakdown by Role" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {Object.entries(dashboardStats.usersByRole).length > 0 ? (
               Object.entries(dashboardStats.usersByRole).map(([role, count], index) => {
-                const bgColors = ['bg-purple-50', 'bg-pink-50', 'bg-blue-50']
-                const textColors = ['text-purple-600', 'text-pink-600', 'text-blue-600']
-                const borderColors = ['border-purple-200', 'border-pink-200', 'border-blue-200']
+                const bgColors = ['bg-blue-50', 'bg-sky-50', 'bg-indigo-50']
+                const textColors = ['text-blue-600', 'text-sky-600', 'text-indigo-600']
+                const borderColors = ['border-blue-200', 'border-sky-200', 'border-indigo-200']
 
                 return (
                   <div
@@ -328,10 +296,10 @@ const AdminDashboard: React.FC = () => {
                       <div
                         className={`h-full bg-gradient-to-r ${
                           index % 3 === 0
-                            ? 'from-purple-400 to-purple-600'
+                            ? 'from-blue-400 to-blue-600'
                             : index % 3 === 1
-                            ? 'from-pink-400 to-pink-600'
-                            : 'from-blue-400 to-blue-600'
+                            ? 'from-sky-400 to-sky-600'
+                            : 'from-indigo-400 to-indigo-600'
                         }`}
                         style={{ width: `${(count / dashboardStats.totalUsers) * 100}%` }}
                       ></div>

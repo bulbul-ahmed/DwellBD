@@ -6,7 +6,10 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
 import CreatePropertyModal from '../../components/admin/CreatePropertyModal'
-import { Edit2, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { PageHeader } from '../../components/shared/PageHeader'
+import { SectionHeader } from '../../components/shared/SectionHeader'
+import { StatCard } from '../../components/shared/StatCard'
+import { Edit2, ChevronLeft, ChevronRight, Plus, Building, FileText, Filter } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Property {
@@ -142,49 +145,73 @@ const AdminProperties: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Properties Management</h1>
-          <p className="text-gray-600 mt-1">Total properties: {total}</p>
-        </div>
-        <Button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Create Property
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Header */}
+        <PageHeader
+          title="Properties Management"
+          subtitle={`Managing ${total} total properties`}
+          action={
+            <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center">
+              <Plus className="h-5 w-5 mr-2" />
+              Create Property
+            </Button>
+          }
+        />
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Input
-            type="text"
-            label="Search"
-            placeholder="Search by title or address..."
-            value={filters.search}
-            onChange={e => setFilters({ ...filters, search: e.target.value })}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StatCard
+            title="Total Properties"
+            value={total}
+            icon={Building}
+            variant="light"
+            subtitle="All properties"
           />
-          <Select
-            options={statusOptions}
-            value={filters.status}
-            onChange={value => setFilters({ ...filters, status: value })}
-            label="Status"
+          <StatCard
+            title="Results Shown"
+            value={properties.length}
+            icon={FileText}
+            variant="sky"
+            subtitle={`Page ${page} of ${pages}`}
           />
-          <Select
-            options={verificationOptions}
-            value={filters.isVerified}
-            onChange={value => setFilters({ ...filters, isVerified: value })}
-            label="Verification"
+          <StatCard
+            title="Filtered Results"
+            value={filters.status || filters.isVerified || filters.search ? 'Active' : 'None'}
+            icon={Filter}
+            variant="indigo"
+            subtitle={filters.status || filters.isVerified || filters.search ? 'Filters applied' : 'No filters'}
           />
         </div>
-      </div>
 
-      {/* Properties Table - Desktop view */}
-      <div className="bg-white rounded-lg shadow overflow-hidden hidden md:block">
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <SectionHeader title="Filters" icon={Filter} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Input
+              type="text"
+              label="Search"
+              placeholder="Search by title or address..."
+              value={filters.search}
+              onChange={e => setFilters({ ...filters, search: e.target.value })}
+            />
+            <Select
+              options={statusOptions}
+              value={filters.status}
+              onChange={value => setFilters({ ...filters, status: value })}
+              label="Status"
+            />
+            <Select
+              options={verificationOptions}
+              value={filters.isVerified}
+              onChange={value => setFilters({ ...filters, isVerified: value })}
+              label="Verification"
+            />
+          </div>
+        </div>
+
+        {/* Properties Table - Desktop view */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden md:block">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -229,12 +256,12 @@ const AdminProperties: React.FC = () => {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
 
-      {/* Properties Cards - Mobile view */}
-      <div className="md:hidden space-y-4">
-        {properties.map(property => (
-          <div key={property.id} className="bg-white rounded-lg shadow p-4">
+        {/* Properties Cards - Mobile view */}
+        <div className="md:hidden space-y-4">
+          {properties.map(property => (
+            <div key={property.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <h3 className="font-semibold text-gray-900">{property.title}</h3>
             <p className="text-sm text-gray-600 mt-1">{property.address}</p>
             <div className="mt-3 flex items-center justify-between">
@@ -253,14 +280,14 @@ const AdminProperties: React.FC = () => {
               >
                 Edit
               </Button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Pagination */}
-      {pages > 1 && (
-        <div className="flex items-center justify-between bg-white rounded-lg shadow p-4">
+        {/* Pagination */}
+        {pages > 1 && (
+          <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
@@ -278,43 +305,44 @@ const AdminProperties: React.FC = () => {
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
           >
             Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </button>
-        </div>
-      )}
-
-      {/* Update Modal */}
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title="Update Property">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-900">Status</label>
-            <Select
-              options={[
-                { value: 'PENDING', label: 'Pending' },
-                { value: 'ACTIVE', label: 'Active' },
-                { value: 'INACTIVE', label: 'Inactive' },
-                { value: 'RENTED', label: 'Rented' },
-                { value: 'SOLD', label: 'Sold' },
-              ]}
-              value={updateData.status}
-              onChange={value => setUpdateData({ ...updateData, status: value })}
-            />
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </button>
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateProperty}>Update</Button>
-          </div>
-        </div>
-      </Modal>
+        )}
 
-      {/* Create Property Modal */}
-      <CreatePropertyModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={fetchProperties}
-      />
+          {/* Update Modal */}
+        <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title="Update Property">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-900">Status</label>
+              <Select
+                options={[
+                  { value: 'PENDING', label: 'Pending' },
+                  { value: 'ACTIVE', label: 'Active' },
+                  { value: 'INACTIVE', label: 'Inactive' },
+                  { value: 'RENTED', label: 'Rented' },
+                  { value: 'SOLD', label: 'Sold' },
+                ]}
+                value={updateData.status}
+                onChange={value => setUpdateData({ ...updateData, status: value })}
+              />
+            </div>
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateProperty}>Update</Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Create Property Modal */}
+        <CreatePropertyModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={fetchProperties}
+        />
+      </div>
     </div>
   )
 }

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Eye, Clock, FileText, Filter } from 'lucide-react'
+import { Eye, Clock, FileText, Filter, ListChecks } from 'lucide-react'
 import Button from '../../components/ui/Button'
 import Select from '../../components/ui/Select'
 import Input from '../../components/ui/Input'
 import RequestReviewModal from '../../components/admin/RequestReviewModal'
+import { PageHeader } from '../../components/shared/PageHeader'
+import { SectionHeader } from '../../components/shared/SectionHeader'
+import { StatCard } from '../../components/shared/StatCard'
 import {
   getAllRequests,
   OwnerRequest,
@@ -122,76 +125,66 @@ const AdminRequests: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Owner Requests</h1>
-        <p className="text-gray-600 mt-1">Review and manage owner change requests</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Header */}
+        <PageHeader
+          title="Owner Requests"
+          subtitle="Review and manage owner change requests"
+        />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <Clock className="w-8 h-8 text-yellow-600" />
-            <div>
-              <p className="text-2xl font-bold text-yellow-900">{pendingCount}</p>
-              <p className="text-sm text-yellow-700">Pending Review</p>
-            </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <StatCard
+            title="Pending Review"
+            value={pendingCount}
+            icon={Clock}
+            variant="light"
+            subtitle="Needs attention"
+          />
+          <StatCard
+            title="In Review"
+            value={inReviewCount}
+            icon={Eye}
+            variant="sky"
+            subtitle="Being processed"
+          />
+          <StatCard
+            title="Total Requests"
+            value={total}
+            icon={ListChecks}
+            variant="indigo"
+            subtitle="All requests"
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <SectionHeader title="Filters" icon={Filter} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Select
+              label="Status"
+              options={statusOptions}
+              value={filters.status}
+              onChange={(value) => setFilters({ ...filters, status: value as RequestStatus | '' })}
+            />
+            <Select
+              label="Request Type"
+              options={typeOptions}
+              value={filters.requestType}
+              onChange={(value) => setFilters({ ...filters, requestType: value as RequestType | '' })}
+            />
+            <Input
+              label="Search Owner"
+              placeholder="Search by name or email..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            />
           </div>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <Eye className="w-8 h-8 text-blue-600" />
-            <div>
-              <p className="text-2xl font-bold text-blue-900">{inReviewCount}</p>
-              <p className="text-sm text-blue-700">In Review</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <FileText className="w-8 h-8 text-gray-600" />
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-sm text-gray-700">Total Requests</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-5 h-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Select
-            label="Status"
-            options={statusOptions}
-            value={filters.status}
-            onChange={(value) => setFilters({ ...filters, status: value as RequestStatus | '' })}
-          />
-          <Select
-            label="Request Type"
-            options={typeOptions}
-            value={filters.requestType}
-            onChange={(value) => setFilters({ ...filters, requestType: value as RequestType | '' })}
-          />
-          <Input
-            label="Search Owner"
-            placeholder="Search by name or email..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          />
-        </div>
-      </div>
-
-      {/* Requests Table - Desktop */}
-      <div className="bg-white rounded-lg shadow overflow-hidden hidden md:block">
+        {/* Requests Table - Desktop */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden md:block">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -261,18 +254,18 @@ const AdminRequests: React.FC = () => {
             )}
           </tbody>
         </table>
-      </div>
+        </div>
 
-      {/* Requests Cards - Mobile */}
-      <div className="md:hidden space-y-4">
-        {requests.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">No requests found</p>
-          </div>
-        ) : (
-          requests.map((request) => (
-            <div key={request.id} className="bg-white rounded-lg shadow p-4 space-y-3">
+        {/* Requests Cards - Mobile */}
+        <div className="md:hidden space-y-4">
+          {requests.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600">No requests found</p>
+            </div>
+          ) : (
+            requests.map((request) => (
+              <div key={request.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-semibold text-gray-900">
@@ -303,15 +296,15 @@ const AdminRequests: React.FC = () => {
                 className="w-full"
               >
                 Review Request
-              </Button>
-            </div>
-          ))
-        )}
-      </div>
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white rounded-lg shadow p-4">
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
@@ -327,20 +320,21 @@ const AdminRequests: React.FC = () => {
             disabled={page === totalPages}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
           >
-            Next
-          </button>
-        </div>
-      )}
+              Next
+            </button>
+          </div>
+        )}
 
-      {/* Review Modal */}
-      {selectedRequest && (
-        <RequestReviewModal
-          isOpen={isReviewModalOpen}
-          onClose={() => setIsReviewModalOpen(false)}
-          request={selectedRequest}
-          onReviewComplete={handleReviewComplete}
-        />
-      )}
+        {/* Review Modal */}
+        {selectedRequest && (
+          <RequestReviewModal
+            isOpen={isReviewModalOpen}
+            onClose={() => setIsReviewModalOpen(false)}
+            request={selectedRequest}
+            onReviewComplete={handleReviewComplete}
+          />
+        )}
+      </div>
     </div>
   )
 }

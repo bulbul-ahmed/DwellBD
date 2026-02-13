@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload, MapPin, Building2, Home, MessageCircle, CalendarCheck, TrendingUp, Plus, ArrowRight, Shield, Star, Clock, FileEdit } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Edit2, LogOut, Upload, MapPin, Building2, Home, MessageCircle, CalendarCheck, Plus, Shield, Star, Clock, FileEdit } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import RatingSection from '../components/RatingSection'
 import RequestChangeModal from '../components/RequestChangeModal'
+import { StatCard } from '../components/shared/StatCard'
+import { SectionHeader } from '../components/shared/SectionHeader'
+import { QuickActionCard } from '../components/shared/QuickActionCard'
 import { useAuthStore } from '../stores/authStore'
 import { getProfile, updateProfile, logout, uploadProfilePhoto } from '../api/userApi'
 import { getOwnerStats, getRecentActivity, OwnerStats, Activity } from '../api/ownerApi'
@@ -208,53 +211,51 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="mt-2 text-gray-600">View and manage your account information</p>
-        </div>
-
-        {/* Main Card */}
-        <div className="bg-white rounded-lg shadow-md p-8">
-          {/* Avatar Section */}
-          <div className="mb-8 text-center">
-            <div className="mx-auto w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4 relative group cursor-pointer">
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="Preview"
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : userData.avatar ? (
-                <img
-                  src={userData.avatar}
-                  alt={userData.firstName}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-12 h-12 text-primary-600" />
-              )}
-              {isEditing && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-white" />
-                </div>
-              )}
-              {isEditing && (
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoSelect}
-                  disabled={isUploadingPhoto}
-                  className="absolute inset-0 rounded-full opacity-0 cursor-pointer"
-                />
-              )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Compact Profile Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-start gap-6">
+            {/* Compact Avatar */}
+            <div className="relative group cursor-pointer flex-shrink-0">
+              <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center relative">
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : userData.avatar ? (
+                  <img
+                    src={userData.avatar}
+                    alt={userData.firstName}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-10 h-10 text-blue-600" />
+                )}
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Upload className="w-5 h-5 text-white" />
+                  </div>
+                )}
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    disabled={isUploadingPhoto}
+                    className="absolute inset-0 rounded-full opacity-0 cursor-pointer"
+                  />
+                )}
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+
+            {/* Profile Info */}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {userData.firstName} {userData.lastName}
-              </h2>
+              </h1>
               <p className="text-gray-600 mt-1">
                 {userData.role === 'TENANT' && 'Property Tenant'}
                 {userData.role === 'OWNER' && 'Property Owner'}
@@ -262,309 +263,255 @@ const ProfilePage = () => {
               </p>
 
               {/* Trust & Verification Badges */}
-              {userData.role === 'OWNER' ? (
-                <div className="mt-4 space-y-2">
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    {/* Verification Badge */}
-                    {userData.isVerified && (
-                      <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 text-sm font-medium rounded-full border-2 border-green-200">
-                        <Shield className="w-4 h-4 mr-1.5" />
-                        ✓ Verified Owner
-                      </div>
-                    )}
-
-                    {/* Rating Badge */}
-                    {ownerStats && ownerStats.totalReviews > 0 && (
-                      <div className="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full border-2 border-yellow-200">
-                        <Star className="w-4 h-4 mr-1.5 fill-current" />
-                        {ownerStats.averageRating.toFixed(1)} ({ownerStats.totalReviews}{' '}
-                        {ownerStats.totalReviews === 1 ? 'review' : 'reviews'})
-                      </div>
-                    )}
-
-                    {/* Response Rate Badge */}
-                    {ownerStats && ownerStats.responseRate >= 80 && (
-                      <div className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-sm font-medium rounded-full border-2 border-blue-200">
-                        <Clock className="w-4 h-4 mr-1.5" />
-                        Responsive Owner ({ownerStats.responseRate}%)
-                      </div>
-                    )}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {userData.isVerified && (
+                  <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full border border-green-200">
+                    <Shield className="w-4 h-4 mr-1.5" />
+                    Verified {userData.role === 'OWNER' ? 'Owner' : 'User'}
                   </div>
+                )}
 
-                  {/* Member Since */}
-                  <p className="text-xs text-gray-500">
-                    Member since{' '}
-                    {new Date(userData.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                    })}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {userData.isVerified && (
-                    <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                      ✓ Verified
-                    </span>
-                  )}
-                </>
-              )}
+                {userData.role === 'OWNER' && ownerStats && ownerStats.totalReviews > 0 && (
+                  <div className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full border border-yellow-200">
+                    <Star className="w-4 h-4 mr-1.5 fill-current" />
+                    {ownerStats.averageRating.toFixed(1)} ({ownerStats.totalReviews}{' '}
+                    {ownerStats.totalReviews === 1 ? 'review' : 'reviews'})
+                  </div>
+                )}
+
+                {userData.role === 'OWNER' && ownerStats && ownerStats.responseRate >= 80 && (
+                  <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full border border-blue-200">
+                    <Clock className="w-4 h-4 mr-1.5" />
+                    Responsive ({ownerStats.responseRate}%)
+                  </div>
+                )}
+
+                <span className="text-sm text-gray-500">
+                  Member since{' '}
+                  {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                  })}
+                </span>
+              </div>
 
               {isEditing && (
                 <p className="text-sm text-gray-500 mt-2">Click on your photo to upload a new one</p>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Owner Quick Actions */}
-          {userData.role === 'OWNER' && (
-            <div className="border-t border-gray-200 pt-6 pb-2">
+        {/* Owner Stats Dashboard - Moved to top */}
+        {userData.role === 'OWNER' && (
+          <>
+            {isLoadingStats ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : ownerStats ? (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Total Properties"
+                  value={ownerStats.totalProperties}
+                  icon={Home}
+                  variant="light"
+                  subtitle="Total listings"
+                />
+                <StatCard
+                  title="Active Listings"
+                  value={ownerStats.activeListings}
+                  icon={Building2}
+                  variant="sky"
+                  subtitle="Currently active"
+                />
+                <StatCard
+                  title="Total Inquiries"
+                  value={ownerStats.totalInquiries}
+                  icon={MessageCircle}
+                  variant="indigo"
+                  subtitle="All time"
+                />
+                <StatCard
+                  title="Pending Visits"
+                  value={ownerStats.pendingVisits}
+                  icon={CalendarCheck}
+                  variant="cyan"
+                  subtitle="Awaiting response"
+                />
+              </div>
+            ) : null}
+
+            {/* Owner Quick Actions */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <SectionHeader title="Quick Actions" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <button
+                <QuickActionCard
+                  title="My Properties"
+                  icon={Home}
                   onClick={() => navigate('/my-properties')}
-                  className="flex items-center justify-between p-4 bg-white border-2 border-primary-200 rounded-lg hover:bg-primary-50 hover:border-primary-400 transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center group-hover:bg-primary-200 transition-colors">
-                      <Home className="w-5 h-5 text-primary-600" />
-                    </div>
-                    <span className="font-medium text-gray-900">My Properties</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
-                </button>
-
-                <button
+                  variant="light"
+                />
+                <QuickActionCard
+                  title="Inquiries"
+                  icon={MessageCircle}
                   onClick={() => navigate('/owner/inquiries')}
-                  className="flex items-center justify-between p-4 bg-white border-2 border-purple-200 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                      <MessageCircle className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <span className="font-medium text-gray-900">Inquiries</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                </button>
-
-                <button
+                  variant="sky"
+                />
+                <QuickActionCard
+                  title="Visit Requests"
+                  icon={CalendarCheck}
                   onClick={() => navigate('/owner/visit-requests')}
-                  className="flex items-center justify-between p-4 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                      <CalendarCheck className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <span className="font-medium text-gray-900">Visit Requests</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors" />
-                </button>
-
+                  variant="indigo"
+                />
                 <button
                   onClick={() => navigate('/my-properties?action=add')}
                   className="flex items-center justify-between p-4 bg-gradient-to-br from-green-500 to-green-600 border-2 border-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center group-hover:bg-opacity-30 transition-colors">
+                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                       <Plus className="w-5 h-5 text-white" />
                     </div>
                     <span className="font-medium text-white">Add Property</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-white text-opacity-80 group-hover:text-opacity-100 transition-all" />
                 </button>
               </div>
             </div>
-          )}
+          </>
+        )}
 
-          {/* Profile Information */}
-          <div className="border-t border-gray-200 pt-8">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                {isEditing ? <Edit2 className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                Profile Information
-              </h3>
+        {/* Profile Information */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <SectionHeader
+            title="Profile Information"
+            icon={isEditing ? Edit2 : User}
+          />
 
-              {isEditing ? (
-                <div className="space-y-4">
-                  <Input
-                    label="First Name"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter first name"
-                  />
-                  <Input
-                    label="Last Name"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Enter last name"
-                  />
-                  <Input
-                    label="Phone Number"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="Enter phone number"
-                  />
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      onClick={handleSaveProfile}
-                      disabled={isSaving}
-                      className="flex-1 bg-primary-600 hover:bg-primary-700"
-                    >
-                      {isSaving ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setIsEditing(false)
-                        setFormData({
-                          firstName: userData.firstName,
-                          lastName: userData.lastName,
-                          phone: userData.phone || '',
-                        })
-                      }}
-                      variant="secondary"
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600">First Name</span>
-                    <span className="font-medium text-gray-900">{userData.firstName}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600">Last Name</span>
-                    <span className="font-medium text-gray-900">{userData.lastName}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600 flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      Email
-                    </span>
-                    <span className="font-medium text-gray-900">{userData.email}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600 flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Phone
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {userData.phone || 'Not provided'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-3">
-                    <span className="text-gray-600 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Member Since
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {new Date(userData.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  </div>
-                  <Button
-                    onClick={() => setIsEditing(true)}
-                    variant="secondary"
-                    className="w-full mt-4"
-                  >
-                    <Edit2 className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Owner-Specific Sections */}
-          {userData.role === 'OWNER' && (
-            <>
-              {/* Owner Stats Dashboard */}
-              <div className="border-t border-gray-200 pt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary-600" />
-                  Dashboard Overview
-                </h3>
-
-                {isLoadingStats ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                  </div>
-                ) : ownerStats ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Total Properties */}
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <Home className="w-8 h-8 text-blue-600" />
-                        <span className="text-xs font-medium text-blue-700 uppercase">Total</span>
-                      </div>
-                      <p className="text-3xl font-bold text-blue-900">{ownerStats.totalProperties}</p>
-                      <p className="text-sm text-blue-700 mt-1">Properties</p>
-                    </div>
-
-                    {/* Active Listings */}
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-green-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <Building2 className="w-8 h-8 text-green-600" />
-                        <span className="text-xs font-medium text-green-700 uppercase">Active</span>
-                      </div>
-                      <p className="text-3xl font-bold text-green-900">{ownerStats.activeListings}</p>
-                      <p className="text-sm text-green-700 mt-1">Listings</p>
-                    </div>
-
-                    {/* Total Inquiries */}
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5 border border-purple-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <MessageCircle className="w-8 h-8 text-purple-600" />
-                        <span className="text-xs font-medium text-purple-700 uppercase">All Time</span>
-                      </div>
-                      <p className="text-3xl font-bold text-purple-900">{ownerStats.totalInquiries}</p>
-                      <p className="text-sm text-purple-700 mt-1">Inquiries</p>
-                    </div>
-
-                    {/* Pending Visits */}
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border border-orange-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <CalendarCheck className="w-8 h-8 text-orange-600" />
-                        <span className="text-xs font-medium text-orange-700 uppercase">Pending</span>
-                      </div>
-                      <p className="text-3xl font-bold text-orange-900">{ownerStats.pendingVisits}</p>
-                      <p className="text-sm text-orange-700 mt-1">Visits</p>
-                    </div>
-                  </div>
-                ) : null}
+          {isEditing ? (
+            <div className="space-y-4">
+              <Input
+                label="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                placeholder="Enter first name"
+              />
+              <Input
+                label="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                placeholder="Enter last name"
+              />
+              <Input
+                label="Phone Number"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Enter phone number"
+              />
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsEditing(false)
+                    setFormData({
+                      firstName: userData.firstName,
+                      lastName: userData.lastName,
+                      phone: userData.phone || '',
+                    })
+                  }}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
               </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-gray-600">First Name</span>
+                <span className="font-medium text-gray-900">{userData.firstName}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-gray-600">Last Name</span>
+                <span className="font-medium text-gray-900">{userData.lastName}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-gray-600 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Email
+                </span>
+                <span className="font-medium text-gray-900">{userData.email}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-gray-600 flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  Phone
+                </span>
+                <span className="font-medium text-gray-900">
+                  {userData.phone || 'Not provided'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-3">
+                <span className="text-gray-600 flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Member Since
+                </span>
+                <span className="font-medium text-gray-900">
+                  {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              </div>
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="secondary"
+                className="w-full mt-4"
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
+            </div>
+          )}
+        </div>
 
-              {/* Recent Activity Feed */}
-              {recentActivity.length > 0 && (
-                <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                  <div className="space-y-3">
-                    {recentActivity.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`
-                            w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                            ${activity.type === 'INQUIRY'
-                              ? 'bg-purple-100'
-                              : 'bg-orange-100'
-                            }
-                          `}>
-                            {activity.type === 'INQUIRY' ? (
-                              <MessageCircle className="w-5 h-5 text-purple-600" />
-                            ) : (
-                              <CalendarCheck className="w-5 h-5 text-orange-600" />
-                            )}
-                          </div>
+        {/* Owner-Specific Sections */}
+        {userData.role === 'OWNER' && (
+          <>
+            {/* Recent Activity Feed */}
+            {recentActivity.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <SectionHeader title="Recent Activity" />
+                <div className="space-y-3">
+                  {recentActivity.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`
+                          w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                          ${activity.type === 'INQUIRY'
+                            ? 'bg-blue-100'
+                            : 'bg-sky-100'
+                          }
+                        `}>
+                          {activity.type === 'INQUIRY' ? (
+                            <MessageCircle className="w-5 h-5 text-blue-600" />
+                          ) : (
+                            <CalendarCheck className="w-5 h-5 text-sky-600" />
+                          )}
+                        </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1">
@@ -600,69 +547,63 @@ const ProfilePage = () => {
                                 minute: '2-digit',
                               })}
                             </p>
-                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Service Areas Section */}
-              {userData.serviceAreas && userData.serviceAreas.length > 0 && (
-                <div className="border-t border-gray-200 pt-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-primary-600" />
-                      Service Areas
-                    </h3>
-                    <button
-                      onClick={() => {
-                        setRequestType('SERVICE_AREA_CHANGE')
-                        setIsRequestModalOpen(true)
-                      }}
-                      className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
-                    >
-                      <FileEdit className="w-4 h-4" />
-                      Request Change
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {userData.serviceAreas.map((area) => (
-                      <span
-                        key={area}
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200"
-                      >
-                        📍 {area}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-500 mt-3">
-                    You manage properties in {userData.serviceAreas.length}{' '}
-                    {userData.serviceAreas.length === 1 ? 'area' : 'areas'}
-                  </p>
+            {/* Service Areas Section */}
+            {userData.serviceAreas && userData.serviceAreas.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <SectionHeader title="Service Areas" icon={MapPin} />
+                  <button
+                    onClick={() => {
+                      setRequestType('SERVICE_AREA_CHANGE')
+                      setIsRequestModalOpen(true)
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  >
+                    <FileEdit className="w-4 h-4" />
+                    Request Change
+                  </button>
                 </div>
-              )}
-
-              {/* Business Information Section */}
-              {userData.businessName && (
-                <div className="border-t border-gray-200 pt-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Building2 className="w-5 h-5 text-primary-600" />
-                      Business Information
-                    </h3>
-                    <button
-                      onClick={() => {
-                        setRequestType('BUSINESS_INFO_CHANGE')
-                        setIsRequestModalOpen(true)
-                      }}
-                      className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                <div className="flex flex-wrap gap-2">
+                  {userData.serviceAreas.map((area) => (
+                    <span
+                      key={area}
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200"
                     >
-                      <FileEdit className="w-4 h-4" />
-                      Request Change
-                    </button>
-                  </div>
+                      📍 {area}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-3">
+                  You manage properties in {userData.serviceAreas.length}{' '}
+                  {userData.serviceAreas.length === 1 ? 'area' : 'areas'}
+                </p>
+              </div>
+            )}
+
+            {/* Business Information Section */}
+            {userData.businessName && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <SectionHeader title="Business Information" icon={Building2} />
+                  <button
+                    onClick={() => {
+                      setRequestType('BUSINESS_INFO_CHANGE')
+                      setIsRequestModalOpen(true)
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  >
+                    <FileEdit className="w-4 h-4" />
+                    Request Change
+                  </button>
+                </div>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-3">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Business Name</p>
@@ -699,27 +640,26 @@ const ProfilePage = () => {
             </>
           )}
 
-          {/* Rating Section */}
-          <div className="border-t border-gray-200 pt-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Ratings</h3>
-            <RatingSection
-              userId={userData.id}
-              userName={`${userData.firstName} ${userData.lastName}`}
-              canRate={false}
-            />
-          </div>
+        {/* Rating Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <SectionHeader title="Your Ratings" icon={Star} />
+          <RatingSection
+            userId={userData.id}
+            userName={`${userData.firstName} ${userData.lastName}`}
+            canRate={false}
+          />
+        </div>
 
-          {/* Logout Section */}
-          <div className="border-t border-gray-200 pt-8">
-            <Button
-              onClick={handleLogout}
-              variant="secondary"
-              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+        {/* Logout Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <Button
+            onClick={handleLogout}
+            variant="secondary"
+            className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
 
         {/* Request Change Modal */}
