@@ -8,6 +8,7 @@ import Select from './ui/Select'
 import FileUpload from './ui/FileUpload'
 import * as propertyApi from '../api/propertyApi'
 import { Property, PropertyData } from '../api/propertyApi'
+import { submitRequest } from '../api/requestApi'
 import { amenities } from '../constants/amenities'
 
 interface PropertyFormModalProps {
@@ -197,8 +198,38 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       propertyData.coverImage = allImages.length > 0 ? allImages[0] : null
 
       if (mode === 'create') {
-        await propertyApi.createProperty(propertyData)
-        toast.success('Property created successfully')
+        // Create property (backend will set status to PENDING)
+        const response = await propertyApi.createProperty(propertyData)
+
+        // Submit property approval request to admin
+        try {
+          await submitRequest({
+            requestType: 'PROPERTY_APPROVAL',
+            requestData: {
+              propertyId: response.property.id,
+              title: propertyData.title,
+              address: propertyData.address,
+              area: propertyData.area,
+              price: propertyData.rentAmount,
+              bedrooms: propertyData.bedrooms,
+              bathrooms: propertyData.bathrooms,
+              propertyType: propertyData.type,
+              listingType: propertyData.listingType
+            },
+            reason: 'New property listing submission for admin review'
+          })
+
+          toast.success('Property submitted for admin approval! You will be notified once reviewed.', {
+            duration: 5000,
+            icon: '📝'
+          })
+        } catch (requestError) {
+          console.error('Failed to create approval request:', requestError)
+          // Property was created successfully, just the request failed
+          toast.success('Property created! Please contact admin for approval.', {
+            duration: 5000
+          })
+        }
       } else if (mode === 'edit' && property) {
         console.log('Updating property:', property.id, propertyData)
         await propertyApi.updateProperty(property.id, propertyData)
@@ -239,6 +270,24 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       size="lg"
     >
       <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
+        {/* Admin Approval Notice (Create Mode Only) */}
+        {mode === 'create' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
+                ℹ
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-blue-900 mb-1">Admin Approval Required</h4>
+                <p className="text-sm text-blue-800">
+                  New property listings require admin approval before they become publicly visible.
+                  You'll be notified once your property has been reviewed.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Section 1: Basic Information */}
         <div className="bg-gray-50 p-4 rounded-lg space-y-4">
           <h3 className="font-semibold text-gray-900">Basic Information</h3>

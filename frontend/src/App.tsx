@@ -34,6 +34,7 @@ import AdminProperties from './pages/admin/AdminProperties'
 import PendingApprovals from './pages/admin/PendingApprovals'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminAnalytics from './pages/admin/AdminAnalytics'
+import AdminRequests from './pages/admin/AdminRequests'
 
 function App() {
   const { fetchCurrentUser, logout } = useAuthStore()
@@ -124,6 +125,7 @@ function App() {
                       <Route path="/properties" element={<AdminProperties />} />
                       <Route path="/properties/pending" element={<PendingApprovals />} />
                       <Route path="/users" element={<AdminUsers />} />
+                      <Route path="/requests" element={<AdminRequests />} />
                       <Route path="/analytics" element={<AdminAnalytics />} />
                     </Routes>
                   </AdminLayout>

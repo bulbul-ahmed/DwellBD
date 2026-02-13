@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Home,
   Sparkles,
+  FileText,
 } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
@@ -49,6 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       ],
     },
     { path: '/admin/users', label: 'Users', icon: Users, color: 'blue' },
+    { path: '/admin/requests', label: 'Owner Requests', icon: FileText, color: 'orange' },
     { path: '/admin/analytics', label: 'Analytics', icon: BarChart3, color: 'mint' },
   ]
 
@@ -141,6 +143,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   text: 'text-green-600',
                   border: 'border-green-200',
                   gradient: 'from-green-500 to-green-600',
+                },
+                orange: {
+                  bg: 'bg-orange-50',
+                  text: 'text-orange-600',
+                  border: 'border-orange-200',
+                  gradient: 'from-orange-500 to-orange-600',
                 },
               }
 

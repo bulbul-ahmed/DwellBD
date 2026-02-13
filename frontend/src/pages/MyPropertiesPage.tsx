@@ -185,6 +185,12 @@ const MyPropertiesPage: React.FC = () => {
                   <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(property.status)}`}>
                     {getStatusLabel(property.status)}
                   </div>
+                  {/* Pending Approval Notice */}
+                  {property.status === 'PENDING' && (
+                    <div className="absolute bottom-3 left-3 right-3 bg-yellow-50 border border-yellow-200 rounded-lg px-2 py-1.5 text-xs text-yellow-800">
+                      ⏳ Awaiting admin approval
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
