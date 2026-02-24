@@ -6,6 +6,7 @@ import Button from './Button'
 import LazyImage from './LazyImage'
 import { useAuthStore } from '../../stores/authStore'
 import { addFavorite, removeFavorite, checkIsFavorited } from '../../api/favoriteApi'
+import { propertyTypeLabels, propertyTypes } from '../../constants/propertyTypes'
 
 export interface Property {
   id: string
@@ -68,7 +69,7 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
   }
 
   const formatPrice = (amount: number) => {
-    const formatter = new Intl.NumberFormat('bn-BD', {
+    const formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'BDT',
       maximumFractionDigits: 0,
@@ -81,13 +82,9 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  const propertyTypeLabel = {
-    BACHELOR: 'Bachelor',
-    FAMILY: 'Family',
-    HOSTEL: 'Hostel',
-    SUBLET: 'Sublet',
-    OFFICE: 'Office',
-  }
+  const normalizedType = property.propertyType?.toUpperCase()
+  const typeOption = propertyTypes.find(t => t.value === normalizedType)
+  const typeLabel = typeOption?.label ?? (normalizedType ? propertyTypeLabels[normalizedType] ?? property.propertyType : null)
 
   return (
     <div
@@ -111,9 +108,11 @@ const PropertyCard = ({ property, className = '' }: PropertyCardProps) => {
               Verified
             </span>
           )}
-          <span className="rounded bg-primary-600 px-2 py-1 text-xs font-medium text-white">
-            {propertyTypeLabel[property.propertyType]}
-          </span>
+          {typeLabel && (
+            <span className={`rounded border px-2 py-1 text-xs font-medium ${typeOption?.color ?? 'bg-gray-100 text-gray-700 border-gray-300'}`}>
+              {typeLabel}
+            </span>
+          )}
         </div>
 
         {/* Favorite Button */}
