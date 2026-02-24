@@ -172,14 +172,7 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     try {
       let propertyData: any = {
         ...formData,
-        title: formData.title,
-        description: formData.description,
-        type: formData.propertyType,
-        propertyType: undefined // Remove this field
       }
-
-      // Transform propertyType to type for API
-      delete propertyData.propertyType
 
       // Upload new images first if any
       let uploadedImageUrls: string[] = []
@@ -214,7 +207,7 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
               price: propertyData.rentAmount,
               bedrooms: propertyData.bedrooms,
               bathrooms: propertyData.bathrooms,
-              propertyType: propertyData.type,
+              propertyType: propertyData.propertyType,
               listingType: propertyData.listingType
             },
             reason: 'New property listing submission for admin review'
