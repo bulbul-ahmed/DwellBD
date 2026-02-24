@@ -6,7 +6,6 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
 import MultiSelect from '../../components/ui/MultiSelect'
-import { PageHeader } from '../../components/shared/PageHeader'
 import { SectionHeader } from '../../components/shared/SectionHeader'
 import { StatCard } from '../../components/shared/StatCard'
 import { Edit2, ChevronLeft, ChevronRight, Building2, Users, UserCheck, Filter } from 'lucide-react'
@@ -166,12 +165,12 @@ const AdminUsers: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Header */}
-        <PageHeader
-          title="User Management"
-          subtitle={`Managing ${total} total users`}
-        />
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Users</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Manage user accounts, roles and verification</p>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -179,27 +178,27 @@ const AdminUsers: React.FC = () => {
             title="Total Users"
             value={total}
             icon={Users}
-            variant="light"
+            variant="shadcn"
             subtitle="All users"
           />
           <StatCard
             title="Results Shown"
             value={users.length}
             icon={UserCheck}
-            variant="sky"
+            variant="shadcn"
             subtitle={`Page ${page} of ${pages}`}
           />
           <StatCard
             title="Filtered Results"
             value={filters.role || filters.isActive || filters.isVerified || filters.search ? 'Active' : 'None'}
             icon={Filter}
-            variant="indigo"
+            variant="shadcn"
             subtitle={filters.role || filters.isActive || filters.isVerified || filters.search ? 'Filters applied' : 'No filters'}
           />
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
           <SectionHeader title="Filters" icon={Filter} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Input
@@ -231,7 +230,7 @@ const AdminUsers: React.FC = () => {
         </div>
 
         {/* Users Table - Desktop view */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden md:block">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hidden md:block">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -244,9 +243,9 @@ const AdminUsers: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-gray-100">
             {users.map(user => (
-              <tr key={user.id} className="hover:bg-gray-50">
+              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
                   <div>
                     <p className="text-sm font-medium text-gray-900">
@@ -273,13 +272,7 @@ const AdminUsers: React.FC = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.isActive
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${user.isActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
                     {user.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
@@ -307,7 +300,7 @@ const AdminUsers: React.FC = () => {
         {/* Users Cards - Mobile view */}
         <div className="md:hidden space-y-4">
           {users.map(user => (
-            <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
+            <div key={user.id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-3">
             <div>
               <h3 className="font-semibold text-gray-900">
                 {user.firstName} {user.lastName}
@@ -317,13 +310,7 @@ const AdminUsers: React.FC = () => {
             </div>
             <div className="flex gap-2 flex-wrap">
               <StatusBadge status={user.role} variant="role" />
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  user.isActive
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}
-              >
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${user.isActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
                 {user.isActive ? 'Active' : 'Inactive'}
               </span>
               <StatusBadge status={user.isVerified ? 'true' : 'false'} variant="verification" />
@@ -345,11 +332,11 @@ const AdminUsers: React.FC = () => {
 
         {/* Pagination */}
         {pages > 1 && (
-          <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg shadow-sm p-4">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Previous
@@ -360,7 +347,7 @@ const AdminUsers: React.FC = () => {
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === pages}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Next
               <ChevronRight className="h-4 w-4 ml-1" />

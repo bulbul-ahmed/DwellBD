@@ -6,7 +6,6 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import Modal from '../../components/ui/Modal'
 import CreatePropertyModal from '../../components/admin/CreatePropertyModal'
-import { PageHeader } from '../../components/shared/PageHeader'
 import { SectionHeader } from '../../components/shared/SectionHeader'
 import { StatCard } from '../../components/shared/StatCard'
 import { Edit2, ChevronLeft, ChevronRight, Plus, Building, FileText, Filter } from 'lucide-react'
@@ -146,18 +145,18 @@ const AdminProperties: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Header */}
-        <PageHeader
-          title="Properties Management"
-          subtitle={`Managing ${total} total properties`}
-          action={
-            <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center">
-              <Plus className="h-5 w-5 mr-2" />
-              Create Property
-            </Button>
-          }
-        />
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Properties</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Manage and moderate all property listings</p>
+          </div>
+          <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center">
+            <Plus className="h-5 w-5 mr-2" />
+            Create Property
+          </Button>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -165,27 +164,27 @@ const AdminProperties: React.FC = () => {
             title="Total Properties"
             value={total}
             icon={Building}
-            variant="light"
+            variant="shadcn"
             subtitle="All properties"
           />
           <StatCard
             title="Results Shown"
             value={properties.length}
             icon={FileText}
-            variant="sky"
+            variant="shadcn"
             subtitle={`Page ${page} of ${pages}`}
           />
           <StatCard
             title="Filtered Results"
             value={filters.status || filters.isVerified || filters.search ? 'Active' : 'None'}
             icon={Filter}
-            variant="indigo"
+            variant="shadcn"
             subtitle={filters.status || filters.isVerified || filters.search ? 'Filters applied' : 'No filters'}
           />
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
           <SectionHeader title="Filters" icon={Filter} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
@@ -211,7 +210,7 @@ const AdminProperties: React.FC = () => {
         </div>
 
         {/* Properties Table - Desktop view */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden md:block">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hidden md:block">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -222,9 +221,9 @@ const AdminProperties: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-gray-100">
             {properties.map(property => (
-              <tr key={property.id} className="hover:bg-gray-50">
+              <tr key={property.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{property.title}</p>
@@ -261,7 +260,7 @@ const AdminProperties: React.FC = () => {
         {/* Properties Cards - Mobile view */}
         <div className="md:hidden space-y-4">
           {properties.map(property => (
-            <div key={property.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div key={property.id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
             <h3 className="font-semibold text-gray-900">{property.title}</h3>
             <p className="text-sm text-gray-600 mt-1">{property.address}</p>
             <div className="mt-3 flex items-center justify-between">
@@ -287,11 +286,11 @@ const AdminProperties: React.FC = () => {
 
         {/* Pagination */}
         {pages > 1 && (
-          <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg shadow-sm p-4">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Previous
@@ -302,7 +301,7 @@ const AdminProperties: React.FC = () => {
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === pages}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Next
               <ChevronRight className="h-4 w-4 ml-1" />

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Eye, Clock, FileText, Filter, ListChecks } from 'lucide-react'
+import { Eye, Clock, FileText, Filter, ListChecks, CheckCircle } from 'lucide-react'
 import Button from '../../components/ui/Button'
 import Select from '../../components/ui/Select'
 import Input from '../../components/ui/Input'
 import RequestReviewModal from '../../components/admin/RequestReviewModal'
-import { PageHeader } from '../../components/shared/PageHeader'
 import { SectionHeader } from '../../components/shared/SectionHeader'
 import { StatCard } from '../../components/shared/StatCard'
 import {
@@ -13,8 +12,6 @@ import {
   RequestStatus,
   RequestType,
   getRequestTypeLabel,
-  getStatusColor,
-  getStatusIcon,
 } from '../../api/requestApi'
 import toast from 'react-hot-toast'
 
@@ -74,24 +71,19 @@ const AdminRequests: React.FC = () => {
     setSelectedRequest(null)
   }
 
-  const getStatusBadge = (status: RequestStatus) => {
-    const color = getStatusColor(status)
-    const icon = getStatusIcon(status)
-
-    const colorClasses: Record<string, string> = {
-      yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      blue: 'bg-blue-100 text-blue-800 border-blue-200',
-      green: 'bg-green-100 text-green-800 border-green-200',
-      red: 'bg-red-100 text-red-800 border-red-200',
-      gray: 'bg-gray-100 text-gray-800 border-gray-200',
-    }
-
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colorClasses[color]}`}>
-        {icon} <span className="ml-1">{status.replace('_', ' ')}</span>
-      </span>
-    )
+  const STATUS_STYLES: Record<string, string> = {
+    PENDING:   'bg-yellow-100 text-yellow-800 border-yellow-200',
+    IN_REVIEW: 'bg-blue-100 text-blue-800 border-blue-200',
+    APPROVED:  'bg-green-100 text-green-800 border-green-200',
+    REJECTED:  'bg-red-100 text-red-800 border-red-200',
+    CANCELLED: 'bg-gray-100 text-gray-800 border-gray-200',
   }
+
+  const getStatusBadge = (status: RequestStatus) => (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_STYLES[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+      {status.replace('_', ' ')}
+    </span>
+  )
 
   const statusOptions = [
     { value: '', label: 'All Statuses' },
@@ -126,12 +118,12 @@ const AdminRequests: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Header */}
-        <PageHeader
-          title="Owner Requests"
-          subtitle="Review and manage owner change requests"
-        />
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Owner Requests</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Review and process owner change requests</p>
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -139,27 +131,27 @@ const AdminRequests: React.FC = () => {
             title="Pending Review"
             value={pendingCount}
             icon={Clock}
-            variant="light"
+            variant="shadcn"
             subtitle="Needs attention"
           />
           <StatCard
             title="In Review"
             value={inReviewCount}
             icon={Eye}
-            variant="sky"
+            variant="shadcn"
             subtitle="Being processed"
           />
           <StatCard
             title="Total Requests"
             value={total}
             icon={ListChecks}
-            variant="indigo"
+            variant="shadcn"
             subtitle="All requests"
           />
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
           <SectionHeader title="Filters" icon={Filter} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Select
@@ -184,7 +176,7 @@ const AdminRequests: React.FC = () => {
         </div>
 
         {/* Requests Table - Desktop */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden md:block">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hidden md:block">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -195,7 +187,7 @@ const AdminRequests: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-gray-100">
             {requests.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center">
@@ -205,7 +197,7 @@ const AdminRequests: React.FC = () => {
               </tr>
             ) : (
               requests.map((request) => (
-                <tr key={request.id} className="hover:bg-gray-50">
+                <tr key={request.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900">
@@ -213,7 +205,9 @@ const AdminRequests: React.FC = () => {
                       </p>
                       <p className="text-xs text-gray-600">{request.user?.email}</p>
                       {request.user?.isVerified && (
-                        <span className="text-xs text-green-600">✓ Verified</span>
+                        <span className="inline-flex items-center gap-0.5 text-xs text-green-600">
+                          <CheckCircle className="h-3 w-3" /> Verified
+                        </span>
                       )}
                     </div>
                   </td>
@@ -259,13 +253,13 @@ const AdminRequests: React.FC = () => {
         {/* Requests Cards - Mobile */}
         <div className="md:hidden space-y-4">
           {requests.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-12 text-center">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-600">No requests found</p>
             </div>
           ) : (
             requests.map((request) => (
-              <div key={request.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
+              <div key={request.id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-semibold text-gray-900">
@@ -304,11 +298,11 @@ const AdminRequests: React.FC = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg shadow-sm p-4">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>
@@ -318,7 +312,7 @@ const AdminRequests: React.FC = () => {
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
               Next
             </button>
