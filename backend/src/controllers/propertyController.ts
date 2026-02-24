@@ -24,6 +24,7 @@ export async function createNewProperty(req: Request, res: Response): Promise<vo
       propertyType,
       address,
       area,
+      subArea,
       rentAmount,
       bedrooms,
       bathrooms,
@@ -46,6 +47,8 @@ export async function createNewProperty(req: Request, res: Response): Promise<vo
       propertyType,
       address,
       area,
+      subArea: subArea || null,
+      city: 'Dhaka',
       rentAmount: parseFloat(rentAmount),
       images: images || [],
       amenities: Array.isArray(amenities) ? amenities : [],
@@ -122,6 +125,7 @@ export async function searchAllProperties(req: Request, res: Response): Promise<
     const {
       q,
       area,
+      subArea,
       minPrice,
       maxPrice,
       propertyType,
@@ -137,6 +141,7 @@ export async function searchAllProperties(req: Request, res: Response): Promise<
     const filters: any = {}
     if (q) filters.q = q as string
     if (area) filters.area = area as string
+    if (subArea) filters.subArea = subArea as string
     if (minPrice) filters.minPrice = parseFloat(minPrice as string)
     if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string)
     if (propertyType) filters.propertyType = propertyType as string
@@ -176,6 +181,7 @@ export async function updatePropertyData(req: Request, res: Response): Promise<v
       description,
       address,
       area,
+      subArea,
       rentAmount,
       bedrooms,
       bathrooms,
@@ -189,6 +195,7 @@ export async function updatePropertyData(req: Request, res: Response): Promise<v
     if (description) updateData.description = description
     if (address) updateData.address = address
     if (area) updateData.area = area
+    if (subArea !== undefined) updateData.subArea = subArea || null
     if (rentAmount) updateData.rentAmount = parseFloat(rentAmount)
     if (bedrooms) updateData.bedrooms = parseInt(bedrooms)
     if (bathrooms) updateData.bathrooms = parseInt(bathrooms)

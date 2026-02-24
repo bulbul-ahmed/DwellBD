@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MapPin, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AREAS } from '../constants/areas'
 
 interface AreaFilterDropdownProps {
   value?: string
@@ -9,20 +10,6 @@ interface AreaFilterDropdownProps {
   placeholder?: string
   showClearButton?: boolean
 }
-
-// Areas data - matches backend schema and SearchBar component
-const areas = [
-  'Dhanmondi',
-  'Gulshan',
-  'Banani',
-  'Uttara',
-  'Mirpur',
-  'Mohammadpur',
-  'Pallabi',
-  'Adabor',
-  'Shyamoli',
-  'Badda',
-]
 
 export default function AreaFilterDropdown({
   value,
@@ -34,7 +21,7 @@ export default function AreaFilterDropdown({
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const filteredAreas = areas.filter(area =>
+  const filteredAreas = AREAS.filter(area =>
     area.toLowerCase().includes(searchTerm.toLowerCase())
   )
 

@@ -5,6 +5,7 @@ import Select from '../ui/Select'
 import Button from '../ui/Button'
 import { getAdminUsers, createPropertyByAdmin } from '../../api/adminApi'
 import { amenities } from '../../constants/amenities'
+import { AREAS, LOCATION_MAP } from '../../constants/areas'
 import toast from 'react-hot-toast'
 
 interface CreatePropertyModalProps {
@@ -21,6 +22,7 @@ interface FormData {
   listingType: string
   address: string
   area: string
+  subArea: string
   city: string
   bedrooms: string
   bathrooms: string
@@ -51,6 +53,7 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
     listingType: 'RENT',
     address: '',
     area: '',
+    subArea: '',
     city: 'Dhaka',
     bedrooms: '',
     bathrooms: '',
@@ -105,6 +108,7 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
       !formData.propertyType ||
       !formData.address ||
       !formData.area ||
+      !formData.subArea ||
       !formData.rentAmount
     ) {
       toast.error('Please fill all required fields')
@@ -119,6 +123,8 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
         propertyType: formData.propertyType,
         address: formData.address,
         area: formData.area,
+        subArea: formData.subArea,
+        city: 'Dhaka',
         rentAmount: parseFloat(formData.rentAmount),
         amenities: formData.selectedAmenities,
       }
@@ -160,6 +166,7 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
       listingType: 'RENT',
       address: '',
       area: '',
+      subArea: '',
       city: 'Dhaka',
       bedrooms: '',
       bathrooms: '',
@@ -273,17 +280,24 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
                 onChange={(e) => handleInputChange('address', e.target.value)}
               />
             </div>
-            <Input
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+              <p className="text-sm text-gray-900 px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">Dhaka</p>
+            </div>
+            <Select
               label="Area *"
-              placeholder="e.g., Gulshan, Dhanmondi"
+              options={[{ value: '', label: 'Select Area' }, ...AREAS.map(a => ({ value: a, label: a }))]}
               value={formData.area}
-              onChange={(e) => handleInputChange('area', e.target.value)}
+              onChange={(value) => {
+                handleInputChange('area', value)
+                handleInputChange('subArea', '')
+              }}
             />
-            <Input
-              label="City"
-              placeholder="e.g., Dhaka"
-              value={formData.city}
-              onChange={(e) => handleInputChange('city', e.target.value)}
+            <Select
+              label="Block *"
+              options={[{ value: '', label: formData.area ? 'Select Block' : 'Select Area first' }, ...(LOCATION_MAP[formData.area] || []).map(b => ({ value: b, label: b }))]}
+              value={formData.subArea}
+              onChange={(value) => handleInputChange('subArea', value)}
             />
           </div>
         </div>

@@ -10,6 +10,7 @@ import * as propertyApi from '../api/propertyApi'
 import { Property, PropertyData } from '../api/propertyApi'
 import { submitRequest } from '../api/requestApi'
 import { amenities } from '../constants/amenities'
+import { AREAS, LOCATION_MAP } from '../constants/areas'
 
 interface PropertyFormModalProps {
   isOpen: boolean
@@ -24,12 +25,8 @@ interface FormData extends Omit<PropertyData, 'amenities'> {
   amenities: string[]
   gasType?: string
   tenantPreference?: string
+  subArea?: string
 }
-
-const DHAKA_AREAS = [
-  'Dhanmondi', 'Gulshan', 'Uttara', 'Banani', 'Mirpur',
-  'Mohammadpur', 'Bashundhara', 'Tejgaon', 'Khilgaon', 'Motijheel'
-]
 
 const PROPERTY_TYPES = [
   { value: 'BACHELOR', label: 'Bachelor' },
@@ -77,7 +74,8 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     propertyType: 'FAMILY',
     listingType: 'RENT',
     address: '',
-    area: 'Dhanmondi',
+    area: '',
+    subArea: '',
     city: 'Dhaka',
     bedrooms: 1,
     bathrooms: 1,
@@ -109,6 +107,7 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
         listingType: property.listingType || 'RENT',
         address: property.address,
         area: property.area,
+        subArea: (property as any).subArea || '',
         city: property.city || 'Dhaka',
         bedrooms: property.bedrooms || 1,
         bathrooms: property.bathrooms || 1,
@@ -153,6 +152,8 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     const newErrors: Record<string, string> = {}
 
     if (!formData.title.trim()) newErrors.title = 'Title is required'
+    if (!formData.area) newErrors.area = 'Area is required'
+    if (!formData.subArea) newErrors.subArea = 'Block is required'
     if (!formData.address.trim()) newErrors.address = 'Address is required'
     if (formData.rentAmount <= 0) newErrors.rentAmount = 'Price must be greater than 0'
     if (formData.bedrooms! <= 0) newErrors.bedrooms = 'Bedrooms must be greater than 0'
@@ -324,11 +325,24 @@ export const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
         {/* Section 2: Location */}
         <div className="bg-gray-50 p-4 rounded-lg space-y-4">
           <h3 className="font-semibold text-gray-900">Location</h3>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <p className="text-sm text-gray-900 px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">Dhaka</p>
+          </div>
           <Select
-            label="Area"
+            label="Area *"
             value={formData.area}
-            onChange={(value) => handleInputChange('area', value)}
-            options={DHAKA_AREAS.map(area => ({ value: area, label: area }))}
+            onChange={(value) => {
+              handleInputChange('area', value)
+              handleInputChange('subArea' as any, '')
+            }}
+            options={[{ value: '', label: 'Select Area' }, ...AREAS.map(a => ({ value: a, label: a }))]}
+          />
+          <Select
+            label="Block *"
+            value={formData.subArea || ''}
+            onChange={(value) => handleInputChange('subArea' as any, value)}
+            options={[{ value: '', label: formData.area ? 'Select Block' : 'Select Area first' }, ...(LOCATION_MAP[formData.area] || []).map(b => ({ value: b, label: b }))]}
           />
           <Input
             label="Full Address"

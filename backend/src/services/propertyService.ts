@@ -3,6 +3,7 @@ import { prisma, CreatePropertyInput, PropertyStatus, PropertyType } from '../mo
 interface SearchFilters {
   q?: string
   area?: string
+  subArea?: string
   minPrice?: number
   maxPrice?: number
   type?: PropertyType
@@ -165,6 +166,13 @@ export async function searchProperties(
   if (filters.area) {
     where.area = {
       contains: filters.area,
+      mode: 'insensitive',
+    }
+  }
+
+  if (filters.subArea) {
+    where.subArea = {
+      contains: filters.subArea,
       mode: 'insensitive',
     }
   }

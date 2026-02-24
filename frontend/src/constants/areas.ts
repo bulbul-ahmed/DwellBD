@@ -1,76 +1,17 @@
-/**
- * Valid areas in Dhaka for property listings and owner service areas
- */
-export const DHAKA_AREAS = [
-  'Dhanmondi',
-  'Gulshan',
-  'Banani',
-  'Uttara',
-  'Mirpur',
-  'Mohammadpur',
-  'Bashundhara',
-  'Baridhara',
-  'Lalmatia',
-  'Tejgaon',
-  'Khilgaon',
-  'Motijheel',
-  'Ramna',
-  'Paltan',
-  'Segunbagicha',
-  'Kakrail',
-  'Shantinagar',
-  'Malibagh',
-  'Mouchak',
-  'Rampura',
-  'Badda',
-  'Niketon',
-  'Eskaton',
-  'Moghbazar',
-  'New Market',
-  'Azimpur',
-  'Jigatola',
-  'Green Road',
-  'Farmgate',
-  'Kawran Bazar',
-  'Panthapath',
-  'Karwan Bazar',
-  'Hatirpool',
-  'Indira Road',
-  'Science Lab',
-  'Shahbag',
-  'New Elephant Road',
-  'Old Dhaka',
-  'Lalbagh',
-  'Chawkbazar',
-  'Sutrapur',
-  'Kamrangirchar',
-  'Hazaribagh',
-  'Sadarghat',
-  'Jatrabari',
-  'Demra',
-  'Shyampur',
-  'Postogola',
-  'Wari',
-  'Armanitola',
-  'Bangshal',
-  'Gendaria',
-  'Nawabganj',
-  'Kotwali',
-  'Gandaria',
-  'Jurain',
-  'Rayerbazar',
-  'Adabar',
-  'Mohakhali',
-  'Baridhara DOHS',
-  'Banani DOHS',
-  'Cantonment',
-  'Nikunja',
-  'Khilkhet',
-  'Airport',
-  'Turag',
-  'Dakshinkhan',
-  'Uttarkhan',
-  'Gazipur',
-] as const
+export const CITIES = ['Dhaka'] as const
+export type City = typeof CITIES[number]
 
-export type DhakaArea = typeof DHAKA_AREAS[number]
+export const LOCATION_MAP: Record<string, string[]> = {
+  'Aftab Nagar': [
+    'Block A', 'Block B', 'Block C', 'Block D', 'Block E',
+    'Block F', 'Block G', 'Block H', 'Block I', 'Block J', 'Block K',
+  ],
+  'Banasree': [
+    'Block A', 'Block B', 'Block C', 'Block D',
+    'Block E', 'Block F', 'Block G', 'Block H',
+  ],
+}
+
+export const AREAS = Object.keys(LOCATION_MAP)
+export const DHAKA_AREAS = AREAS  // backward-compat alias
+export type DhakaArea = keyof typeof LOCATION_MAP

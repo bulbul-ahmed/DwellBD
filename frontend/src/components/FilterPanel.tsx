@@ -6,6 +6,7 @@ import PriceRangeFilter from './PriceRangeFilter'
 import PropertyTypeFilter from './PropertyTypeFilter'
 import AmenitiesFilter from './AmenitiesFilter'
 import { cn } from '@/lib/utils'
+import { AREAS, LOCATION_MAP } from '../constants/areas'
 
 interface FilterPanelProps {
   onFiltersChange: (filters: any) => void
@@ -13,21 +14,6 @@ interface FilterPanelProps {
   onToggle: () => void
   isMobile?: boolean
 }
-
-// Areas data - matches backend schema and SearchBar component
-const areas = [
-  'Dhanmondi',
-  'Gulshan',
-  'Banani',
-  'Uttara',
-  'Mirpur',
-  'Mohammadpur',
-  'Pallabi',
-  'Adabor',
-  'Shyamoli',
-  'Badda',
-]
-
 
 const bedrooms = [
   { value: '1', label: '1 Bedroom' },
@@ -40,6 +26,7 @@ const bedrooms = [
 export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobile = false }: FilterPanelProps) {
   const [filters, setFilters] = useState({
     area: '',
+    subArea: '',
     propertyType: '',
     minPrice: '',
     maxPrice: '',
@@ -73,6 +60,7 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
   const clearFilters = useCallback(() => {
     const clearedFilters = {
       area: '',
+      subArea: '',
       propertyType: '',
       minPrice: '',
       maxPrice: '',
@@ -134,17 +122,28 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
             Area
           </h4>
           <Select
-            options={areas.map(area => ({ value: area, label: area }))}
+            options={[{ value: '', label: 'All Areas' }, ...AREAS.map(area => ({ value: area, label: area }))]}
             value={filters.area}
-            onChange={(value) => handleFilterChange('area', value)}
+            onChange={(value) => {
+              handleFilterChange('area', value)
+              handleFilterChange('subArea', '')
+            }}
             className="w-full"
           />
-          {filters.area && (
-            <p className="mt-1 text-xs text-gray-500">
-              Showing properties in {filters.area}
-            </p>
-          )}
         </div>
+
+        {/* Block Filter */}
+        {filters.area && (
+          <div>
+            <Select
+              label="Block"
+              options={[{ value: '', label: 'All Blocks' }, ...(LOCATION_MAP[filters.area] || []).map(b => ({ value: b, label: b }))]}
+              value={filters.subArea}
+              onChange={(value) => handleFilterChange('subArea', value)}
+              className="w-full"
+            />
+          </div>
+        )}
 
         {/* Property Type */}
         <PropertyTypeFilter

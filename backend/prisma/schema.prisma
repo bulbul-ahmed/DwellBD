@@ -59,6 +59,7 @@ model Property {
   listingType ListingType?
   address     String
   area        String
+  subArea     String?
   city        String?
   latitude    Float?
   longitude   Float?
@@ -97,6 +98,7 @@ model Property {
   @@index([ownerId])
   @@index([status])
   @@index([area])
+  @@index([area, subArea])
   @@index([type])
   @@index([rentAmount])
   @@index([createdAt])
