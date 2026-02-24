@@ -108,9 +108,11 @@ export default function FilterPanel({ onFiltersChange, isOpen, onToggle, isMobil
               Clear All
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onToggle}>
-            <X className="h-4 w-4" />
-          </Button>
+          {isMobile && (
+            <Button variant="ghost" size="sm" onClick={onToggle}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
