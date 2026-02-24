@@ -112,8 +112,8 @@ jspm_packages/
 .yarn/install-state.gz
 .pnp.*
 
-# Prisma
-prisma/migrations/
+# Prisma (migrations must be committed for production deploys)
+# prisma/migrations/
 
 # Vercel
 .vercel
