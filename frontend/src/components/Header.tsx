@@ -9,7 +9,12 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, user, logout, _hasHydrated } = useAuthStore()
+
+  // Use explicit selectors for better reactivity
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const user = useAuthStore((state) => state.user)
+  const _hasHydrated = useAuthStore((state) => state._hasHydrated)
+  const logout = useAuthStore((state) => state.logout)
 
   // Get city from URL or default to Dhaka
   const searchParams = new URLSearchParams(location.search)

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 import { toast } from 'react-hot-toast'
 import Header from './components/Header'
@@ -38,6 +38,8 @@ import AdminRequests from './pages/admin/AdminRequests'
 
 function App() {
   const { fetchCurrentUser, logout } = useAuthStore()
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
 
   // Fetch user only on initial mount (not on every route change)
   // Validate token before making API call to prevent unnecessary requests
@@ -93,7 +95,7 @@ function App() {
       <SessionTimeoutWarning warningTime={120} />
 
       <div className="flex min-h-screen flex-col bg-white">
-        <Header />
+        {!isAdminRoute && <Header />}
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -135,7 +137,7 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
-        <Footer />
+        {!isAdminRoute && <Footer />}
       </div>
     </ErrorBoundary>
   )

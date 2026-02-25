@@ -28,6 +28,12 @@ export const colors = {
       icon: 'text-cyan-600',
       border: 'border-cyan-200',
     },
+    shadcn: {
+      bg: 'bg-white',
+      text: 'text-gray-900',
+      icon: 'text-blue-600',
+      border: 'border-gray-200',
+    },
   },
 
   // Status colors (keep existing for badges)

@@ -150,7 +150,7 @@ const BookingsPage = () => {
   }
 
   const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('bn-BD', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'BDT',
       maximumFractionDigits: 0,

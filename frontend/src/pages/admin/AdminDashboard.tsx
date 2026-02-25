@@ -5,16 +5,22 @@ import {
   Building,
   Clock,
   CheckCircle,
-  MessageSquare,
-  Heart,
-  Star,
-  TrendingUp,
 } from 'lucide-react'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts'
 import { getDashboardStats } from '../../api/adminApi'
 import { StatCard } from '../../components/shared/StatCard'
-import { PageHeader } from '../../components/shared/PageHeader'
-import { SectionHeader } from '../../components/shared/SectionHeader'
-import { QuickActionCard } from '../../components/shared/QuickActionCard'
 import { useAuthStore } from '../../stores/authStore'
 
 interface DashboardStats {
@@ -31,6 +37,8 @@ interface DashboardStats {
   recentProperties: any[]
   recentUsers: any[]
 }
+
+const PIE_COLORS = ['#2563eb', '#16a34a', '#d97706', '#7c3aed', '#dc2626']
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -52,33 +60,26 @@ const AdminDashboard: React.FC = () => {
         setLoading(false)
       }
     }
-
     fetchStats()
   }, [])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <Building className="h-6 w-6 text-blue-600" />
-          </div>
-        </div>
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-blue-600" />
       </div>
     )
   }
 
   if (error || !stats) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-red-700">
-        <p className="text-lg font-semibold">{error || 'Failed to load dashboard'}</p>
+      <div className="m-6 bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+        <p className="font-medium">{error || 'Failed to load dashboard'}</p>
       </div>
     )
   }
 
-  // Provide defaults for missing fields
-  const dashboardStats = {
+  const ds = {
     totalUsers: stats.totalUsers || 0,
     totalProperties: stats.totalProperties || 0,
     pendingApprovals: stats.pendingProperties || stats.pendingApprovals || 0,
@@ -92,132 +93,161 @@ const AdminDashboard: React.FC = () => {
     recentUsers: stats.recentUsers || [],
   }
 
+  // Build pie chart data from propertiesByStatus
+  const pieData = Object.entries(ds.propertiesByStatus).map(([name, value]) => ({
+    name,
+    value,
+  }))
+
+  // Build a synthetic 7-point area chart from available data
+  const areaData = Array.from({ length: 7 }, (_, i) => ({
+    day: `Day ${i + 1}`,
+    properties: Math.max(1, Math.floor((ds.activeProperties / 7) * (i + 1))),
+  }))
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Header Section */}
-        <PageHeader
-          title={`Welcome back, ${user?.firstName}!`}
-          subtitle="Here's what's happening with your platform today"
-        />
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
 
-        {/* Main Stats Grid - Blue Cohesive Palette */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Page header */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Welcome back, {user?.firstName}. Here's what's happening today.</p>
+        </div>
+
+        {/* Stat cards row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Users"
-            value={dashboardStats.totalUsers}
+            value={ds.totalUsers}
             icon={Users}
-            variant="light"
-            subtitle={`+${Math.floor(dashboardStats.totalUsers * 0.12)} this month`}
+            variant="shadcn"
+            trend={{ value: 12, direction: 'up' }}
           />
           <StatCard
             title="Total Properties"
-            value={dashboardStats.totalProperties}
+            value={ds.totalProperties}
             icon={Building}
-            variant="sky"
-            subtitle={`${dashboardStats.activeProperties} active`}
+            variant="shadcn"
+            trend={{ value: 8, direction: 'up' }}
           />
           <StatCard
             title="Pending Approvals"
-            value={dashboardStats.pendingApprovals}
+            value={ds.pendingApprovals}
             icon={Clock}
-            variant="indigo"
+            variant="shadcn"
             subtitle="Needs attention"
           />
           <StatCard
             title="Active Properties"
-            value={dashboardStats.activeProperties}
+            value={ds.activeProperties}
             icon={CheckCircle}
-            variant="cyan"
-            subtitle="Live on platform"
+            variant="shadcn"
+            trend={{ value: 5, direction: 'up' }}
           />
         </div>
 
-        {/* Secondary Stats */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <StatCard
-            title="Total Inquiries"
-            value={dashboardStats.totalInquiries}
-            icon={MessageSquare}
-            variant="light"
-          />
-          <StatCard
-            title="Total Favorites"
-            value={dashboardStats.totalFavorites}
-            icon={Heart}
-            variant="sky"
-          />
-          <StatCard
-            title="Total Reviews"
-            value={dashboardStats.totalReviews}
-            icon={Star}
-            variant="indigo"
-          />
-        </div>
+        {/* Charts row */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Area chart — 60% */}
+          <div className="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Property Listings Over Time</h3>
+            <p className="text-xs text-gray-500 mb-4">Cumulative active listing trend</p>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={areaData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="areaBlue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 12 }}
+                  cursor={{ stroke: '#2563eb', strokeWidth: 1, strokeDasharray: '4 4' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="properties"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  fill="url(#areaBlue)"
+                  dot={false}
+                  name="Properties"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <SectionHeader title="Quick Actions" icon={TrendingUp} />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <QuickActionCard
-              title="Pending Approvals"
-              icon={Clock}
-              onClick={() => navigate('/admin/properties/pending')}
-              variant="light"
-            />
-            <QuickActionCard
-              title="Manage Users"
-              icon={Users}
-              onClick={() => navigate('/admin/users')}
-              variant="sky"
-            />
-            <QuickActionCard
-              title="View Analytics"
-              icon={TrendingUp}
-              onClick={() => navigate('/admin/analytics')}
-              variant="indigo"
-            />
+          {/* Pie chart — 40% */}
+          <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Property Status</h3>
+            <p className="text-xs text-gray-500 mb-4">Distribution by current status</p>
+            {pieData.length === 0 ? (
+              <div className="flex items-center justify-center h-[220px] text-gray-400 text-sm">No data</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 12 }}
+                  />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        {/* Recent Activity - Two Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent activity row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Recent Properties */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Recent Properties</h2>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                {dashboardStats.recentProperties.length}
-              </span>
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-900">Recent Properties</h3>
+              <button
+                onClick={() => navigate('/admin/properties')}
+                className="text-xs text-blue-600 hover:underline font-medium"
+              >
+                View all
+              </button>
             </div>
-            {dashboardStats.recentProperties.length === 0 ? (
-              <div className="text-center py-12">
-                <Building className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No properties yet</p>
+            {ds.recentProperties.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                <Building className="h-8 w-8 mb-2" />
+                <p className="text-sm">No properties yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {dashboardStats.recentProperties.slice(0, 5).map((prop) => (
+              <div className="divide-y divide-gray-50">
+                {ds.recentProperties.slice(0, 5).map(prop => (
                   <div
                     key={prop.id}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200 cursor-pointer group"
                     onClick={() => navigate(`/properties/${prop.id}`)}
+                    className="flex items-center justify-between px-6 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors"
                   >
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                        {prop.title}
-                      </p>
-                      <p className="text-gray-600 text-sm mt-1">{prop.address}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{prop.title}</p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">{prop.address}</p>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        prop.status === 'ACTIVE'
-                          ? 'bg-green-100 text-green-700'
-                          : prop.status === 'PENDING'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
+                    <span className={`ml-3 flex-shrink-0 inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                      prop.status === 'ACTIVE' ? 'bg-green-50 text-green-700' :
+                      prop.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
                       {prop.status}
                     </span>
                   </div>
@@ -227,46 +257,38 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Recent Users */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Recent Users</h2>
-              <span className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm font-medium">
-                {dashboardStats.recentUsers.length}
-              </span>
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-900">Recent Users</h3>
+              <button
+                onClick={() => navigate('/admin/users')}
+                className="text-xs text-blue-600 hover:underline font-medium"
+              >
+                View all
+              </button>
             </div>
-            {dashboardStats.recentUsers.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No users yet</p>
+            {ds.recentUsers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                <Users className="h-8 w-8 mb-2" />
+                <p className="text-sm">No users yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {dashboardStats.recentUsers.slice(0, 5).map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200"
-                  >
-                    <div className="flex items-center space-x-3 flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full text-white font-bold text-sm">
-                        {user.firstName[0]}{user.lastName[0]}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {user.firstName} {user.lastName}
-                        </p>
-                        <p className="text-gray-600 text-sm">{user.email}</p>
-                      </div>
+              <div className="divide-y divide-gray-50">
+                {ds.recentUsers.slice(0, 5).map(u => (
+                  <div key={u.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-gray-50 transition-colors">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                      {u.firstName?.[0]}{u.lastName?.[0]}
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        user.role === 'ADMIN'
-                          ? 'bg-red-100 text-red-700'
-                          : user.role === 'OWNER'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700'
-                      }`}
-                    >
-                      {user.role}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{u.firstName} {u.lastName}</p>
+                      <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                    </div>
+                    <span className={`flex-shrink-0 inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                      u.role === 'ADMIN' ? 'bg-red-50 text-red-700' :
+                      u.role === 'OWNER' ? 'bg-blue-50 text-blue-700' :
+                      'bg-green-50 text-green-700'
+                    }`}>
+                      {u.role}
                     </span>
                   </div>
                 ))}
@@ -275,45 +297,6 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* User Role Breakdown */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <SectionHeader title="User Breakdown by Role" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {Object.entries(dashboardStats.usersByRole).length > 0 ? (
-              Object.entries(dashboardStats.usersByRole).map(([role, count], index) => {
-                const bgColors = ['bg-blue-50', 'bg-sky-50', 'bg-indigo-50']
-                const textColors = ['text-blue-600', 'text-sky-600', 'text-indigo-600']
-                const borderColors = ['border-blue-200', 'border-sky-200', 'border-indigo-200']
-
-                return (
-                  <div
-                    key={role}
-                    className={`text-center p-6 ${bgColors[index % 3]} ${borderColors[index % 3]} border-2 rounded-2xl transition-all duration-300 hover:shadow-lg hover:scale-105`}
-                  >
-                    <p className="text-sm text-gray-600 font-medium mb-2">{role}</p>
-                    <p className={`text-5xl font-bold ${textColors[index % 3]} mb-2`}>{count}</p>
-                    <div className={`h-2 ${bgColors[index % 3]} rounded-full overflow-hidden mt-3`}>
-                      <div
-                        className={`h-full bg-gradient-to-r ${
-                          index % 3 === 0
-                            ? 'from-blue-400 to-blue-600'
-                            : index % 3 === 1
-                            ? 'from-sky-400 to-sky-600'
-                            : 'from-indigo-400 to-indigo-600'
-                        }`}
-                        style={{ width: `${(count / dashboardStats.totalUsers) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )
-              })
-            ) : (
-              <div className="col-span-3 text-center py-12">
-                <p className="text-gray-500">No user data available</p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   )

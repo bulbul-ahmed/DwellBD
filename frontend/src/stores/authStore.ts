@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
       isAuthenticated: false,
-      _hasHydrated: true,
+      _hasHydrated: false,
 
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null })
@@ -173,52 +173,56 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state) => {
-        // After rehydration, validate tokens before syncing
-        if (state) {
-          if (state.token && state.refreshToken) {
-            // Validate token before restoring
-            if (isTokenValid(state.token)) {
-              // Token is valid - sync with localStorage
-              const storageToken = localStorage.getItem('token')
-              const storageRefreshToken = localStorage.getItem('refreshToken')
+      onRehydrateStorage: () => () => {
+        // Sync tokens with localStorage after rehydration
+        const state = useAuthStore.getState()
 
-              // If Zustand has tokens but localStorage doesn't, RESTORE them
-              if (!storageToken) {
-                localStorage.setItem('token', state.token)
-              }
-              if (!storageRefreshToken) {
-                localStorage.setItem('refreshToken', state.refreshToken)
-              }
-            } else {
-              // Token is expired or invalid - clear everything
-              console.warn('Token expired during rehydration, clearing auth state')
-              toast.error('Your session has expired. Please login again.')
-
-              // Clear Zustand state
+        if (state.token && state.refreshToken) {
+          // Validate token after rehydration
+          if (isTokenValid(state.token)) {
+            // Token is valid - ensure localStorage is synced
+            if (!localStorage.getItem('token')) {
+              localStorage.setItem('token', state.token)
+            }
+            if (!localStorage.getItem('refreshToken')) {
+              localStorage.setItem('refreshToken', state.refreshToken)
+            }
+          } else {
+            // Token expired - clear everything
+            console.warn('Token expired, clearing auth state')
+            localStorage.removeItem('token')
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('user')
+            localStorage.removeItem('auth-storage')
+            // Use set function to clear state (this will work properly)
+            setTimeout(() => {
               useAuthStore.setState({
                 user: null,
                 token: null,
                 refreshToken: null,
                 isAuthenticated: false,
               })
-
-              // Clear localStorage
-              localStorage.removeItem('token')
-              localStorage.removeItem('refreshToken')
-              localStorage.removeItem('user')
-              localStorage.removeItem('auth-storage')
-            }
-          } else {
-            // If Zustand has no tokens, ensure localStorage is also clear
-            localStorage.removeItem('token')
-            localStorage.removeItem('refreshToken')
+            }, 0)
           }
         }
-        // ALWAYS mark as hydrated, regardless of whether state exists or not
-        // This ensures the UI doesn't stay in a loading state indefinitely
-        useAuthStore.setState({ _hasHydrated: true })
       },
     }
   )
 )
+
+// Ensure hydration completes: Set _hasHydrated after a brief delay
+// This allows the persist middleware time to rehydrate from localStorage
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    const state = useAuthStore.getState()
+    console.log('📊 Auth state after rehydration:', {
+      isAuthenticated: state.isAuthenticated,
+      hasUser: !!state.user,
+      hasToken: !!state.token,
+      user: state.user?.firstName,
+    })
+    console.log('📦 localStorage token:', !!localStorage.getItem('token'))
+    console.log('📦 localStorage auth-storage:', localStorage.getItem('auth-storage')?.substring(0, 100))
+    useAuthStore.setState({ _hasHydrated: true })
+  }, 50)
+}

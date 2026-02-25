@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { searchProperties, PropertyFilters, Property } from '@/api/propertyApi'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchHistory } from '@/hooks/useSearchHistory'
+import { AREAS } from '../constants/areas'
 
 interface SearchBarProps {
   className?: string
@@ -19,19 +20,6 @@ const popularSearches = [
   'Family apartment in Uttara',
   'Flat for rent in Banani',
   'Bachelor accommodation in Mirpur',
-]
-
-const areas = [
-  'Dhanmondi',
-  'Gulshan',
-  'Banani',
-  'Uttara',
-  'Mirpur',
-  'Mohammadpur',
-  'Pallabi',
-  'Adabor',
-  'Shyamoli',
-  'Badda',
 ]
 
 // Enhanced search query hook
@@ -125,6 +113,9 @@ export default function SearchBar({ className, onSearch }: SearchBarProps) {
                 setQuery('')
                 setSelectedArea('')
                 setShowSuggestions(false)
+                if (onSearch) {
+                  onSearch({ q: '', area: '', page: 1, limit: 20 })
+                }
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
             >
@@ -224,7 +215,7 @@ export default function SearchBar({ className, onSearch }: SearchBarProps) {
                 <h3 className="font-medium text-gray-900">Select Area</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {areas.map((area) => (
+                {AREAS.map((area) => (
                   <button
                     key={area}
                     onClick={() => handleAreaSelect(area)}

@@ -4,16 +4,13 @@ import { Grid, List } from 'lucide-react'
 import PropertyCard from '../components/ui/PropertyCard'
 import Select from '../components/ui/Select'
 import SearchBar from '../components/SearchBar'
-import AreaFilterDropdown from '../components/AreaFilterDropdown'
 import FilterPanel from '../components/FilterPanel'
 import { searchProperties, PropertyFilters } from '../api/propertyApi'
 import { useQuery } from '@tanstack/react-query'
-import { useAreaFilter } from '../hooks/useAreaFilter'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 
 const PropertyListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [sortBy, setSortBy] = useState('newest')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
   const [accumulatedProperties, setAccumulatedProperties] = useState<any[]>([])
@@ -26,9 +23,10 @@ const PropertyListingsPage = () => {
   const initialFilters = useMemo(() => {
     const furnishedValue = searchParams.get('furnished')
     const listingTypeValue = searchParams.get('listingType')
-    return {
+    const initialObj: any = {
       q: searchParams.get('q') || '',
       area: searchParams.get('area') || '',
+      subArea: searchParams.get('subArea') || '',
       propertyType: searchParams.get('propertyType') || '',
       minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
       maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
@@ -40,9 +38,27 @@ const PropertyListingsPage = () => {
       page: parseInt(searchParams.get('page') || '1'),
       limit: 20,
     }
+    // Parse priceRange sent by homepage (e.g. "15000-30000" or "50000+")
+    const priceRange = searchParams.get('priceRange')
+    if (priceRange && !searchParams.get('minPrice')) {
+      if (priceRange.endsWith('+')) {
+        initialObj.minPrice = parseInt(priceRange)
+      } else {
+        const [min, max] = priceRange.split('-').map(Number)
+        if (!isNaN(min)) initialObj.minPrice = min
+        if (!isNaN(max)) initialObj.maxPrice = max
+      }
+    }
+    return initialObj
   }, [searchParams])
 
   const [filters, setFilters] = useState(initialFilters)
+
+  const sortByValue = useMemo(() => {
+    if (filters.sortBy === 'rentAmount' && filters.order === 'asc') return 'price-low'
+    if (filters.sortBy === 'rentAmount' && filters.order === 'desc') return 'price-high'
+    return 'newest'
+  }, [filters.sortBy, filters.order])
 
   // Search query hook
   const { data: searchResult, isLoading, error } = useQuery({
@@ -51,12 +67,6 @@ const PropertyListingsPage = () => {
     placeholderData: (previousData) => previousData,
     staleTime: 5000, // Cache for 5 seconds
     refetchOnWindowFocus: false,
-  })
-
-  // Use area filter hook
-  const { selectedArea, setArea } = useAreaFilter({
-    defaultValue: initialFilters.area,
-    autoSync: true
   })
 
   const handleSearch = useCallback((searchFilters: PropertyFilters) => {
@@ -85,6 +95,7 @@ const PropertyListingsPage = () => {
     if (filters.bedrooms) params.append('bedrooms', filters.bedrooms.toString())
     if (filters.furnished) params.append('furnished', filters.furnished)
     if (filters.listingType) params.append('listingType', filters.listingType)
+    if (filters.subArea) params.append('subArea', filters.subArea)
     if (filters.sortBy) params.append('sortBy', filters.sortBy)
     if (filters.order) params.append('order', filters.order)
     if (filters.page) params.append('page', filters.page.toString())
@@ -155,7 +166,6 @@ const PropertyListingsPage = () => {
         newOrder = 'desc'
     }
 
-    setSortBy(value)
     setFilters(prev => ({ ...prev, sortBy: newSortBy, order: newOrder, page: 1 }))
   }, [])
 
@@ -171,20 +181,10 @@ const PropertyListingsPage = () => {
 
             {/* Controls */}
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              {/* Area Filter */}
-              <div className="w-full md:w-auto">
-                <AreaFilterDropdown
-                  value={selectedArea}
-                  onChange={setArea}
-                  className="w-full"
-                  placeholder="Select area..."
-                />
-              </div>
-
               {/* Sort Dropdown */}
               <div className="w-full md:w-auto">
                 <Select
-                  value={sortBy}
+                  value={sortByValue}
                   onChange={(value) => handleSortChange(value)}
                   options={[
                     { value: 'newest', label: 'Newest' },

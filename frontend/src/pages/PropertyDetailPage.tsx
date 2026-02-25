@@ -11,6 +11,7 @@ import { useAuthStore } from '../stores/authStore'
 import { createInquiry } from '../api/inquiryApi'
 import { addFavorite, removeFavorite, checkIsFavorited } from '../api/favoriteApi'
 import { getPropertyReviews, getPropertyStats, Review, PropertyStats } from '../api/reviewApi'
+import { propertyTypeLabels } from '../constants/propertyTypes'
 
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -177,7 +178,7 @@ const PropertyDetailPage = () => {
   }, [id, property])
 
   const formatPrice = (amount: number) => {
-    const formatter = new Intl.NumberFormat('bn-BD', {
+    const formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'BDT',
       maximumFractionDigits: 0,
@@ -303,7 +304,9 @@ const PropertyDetailPage = () => {
                   <span className="text-2xl font-semibold text-primary-600">
                     {formatPrice(property.rentAmount)}
                   </span>
-                  <span className="text-gray-600">/month</span>
+                  {property.listingType !== 'SELL' && (
+                    <span className="text-gray-600">/month</span>
+                  )}
                 </div>
               </div>
 
@@ -327,7 +330,9 @@ const PropertyDetailPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Type</p>
-                    <p className="font-medium">Family Flat</p>
+                    <p className="font-medium">
+                      {propertyTypeLabels[property.propertyType] ?? propertyTypeLabels[property.propertyType?.toUpperCase()] ?? property.propertyType}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -370,7 +375,9 @@ const PropertyDetailPage = () => {
                   <div>
                     <p className="text-sm text-gray-600">Floor</p>
                     <p className="font-medium">
-                      {property.floorNumber}/{property.totalFloors}
+                      {property.floorNumber != null && property.totalFloors != null
+                        ? `${property.floorNumber}/${property.totalFloors}`
+                        : 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -454,11 +461,17 @@ const PropertyDetailPage = () => {
               <div className="mb-4 flex items-center space-x-3">
                 {property.owner && (
                   <>
-                    <img
-                      src={property.owner.avatar}
-                      alt={`${property.owner.firstName} ${property.owner.lastName}`}
-                      className="h-12 w-12 rounded-full"
-                    />
+                    {property.owner.avatar ? (
+                      <img
+                        src={property.owner.avatar}
+                        alt={`${property.owner.firstName} ${property.owner.lastName}`}
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
+                        <User className="h-6 w-6 text-gray-500" />
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-medium text-gray-900">Contact Owner</h3>
                       <p className="text-sm text-gray-600">{property.owner.firstName} {property.owner.lastName}</p>

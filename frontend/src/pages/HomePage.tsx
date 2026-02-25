@@ -6,6 +6,7 @@ import PropertyCard from '../components/ui/PropertyCard'
 import Button from '../components/ui/Button'
 import { PropertyListSkeleton } from '../components/ui/Skeleton'
 import { usePropertyStore } from '../stores/propertyStore'
+import { AREAS } from '../constants/areas'
 
 const HomePage = () => {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false)
@@ -94,71 +95,22 @@ const HomePage = () => {
                         <h3 className="text-sm font-semibold text-gray-900">Popular Areas</h3>
                       </div>
                       <div className="py-2">
-                        <button
-                          onClick={() => {
-                            setSelectedArea('Dhanmondi')
-                            setShowLocationDropdown(false)
-                          }}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
-                        >
-                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">Dhanmondi</div>
-                            <div className="text-xs text-gray-500">Residential area</div>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedArea('Gulshan')
-                            setShowLocationDropdown(false)
-                          }}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
-                        >
-                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">Gulshan</div>
-                            <div className="text-xs text-gray-500">Diplomatic zone</div>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedArea('Uttara')
-                            setShowLocationDropdown(false)
-                          }}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
-                        >
-                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">Uttara</div>
-                            <div className="text-xs text-gray-500">Modern suburb</div>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedArea('Banani')
-                            setShowLocationDropdown(false)
-                          }}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
-                        >
-                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">Banani</div>
-                            <div className="text-xs text-gray-500">Business district</div>
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedArea('Mirpur')
-                            setShowLocationDropdown(false)
-                          }}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
-                        >
-                          <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">Mirpur</div>
-                            <div className="text-xs text-gray-500">Residential area</div>
-                          </div>
-                        </button>
+                        {AREAS.map((area) => (
+                          <button
+                            key={area}
+                            onClick={() => {
+                              setSelectedArea(area)
+                              setShowLocationDropdown(false)
+                            }}
+                            className="w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-start gap-3"
+                          >
+                            <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">{area}</div>
+                              <div className="text-xs text-gray-500">Residential area</div>
+                            </div>
+                          </button>
+                        ))}
                       </div>
                     </motion.div>
                   )}
@@ -370,20 +322,16 @@ const HomePage = () => {
               <Search className="h-4 w-4" />
               Search
             </button>
-            <button
-              onClick={() => navigate('/properties?area=Dhanmondi')}
-              className="whitespace-nowrap rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-900 transition-colors"
-            >
-              <MapPin className="mr-1 inline h-3 w-3" />
-              Dhanmondi
-            </button>
-            <button
-              onClick={() => navigate('/properties?area=Gulshan')}
-              className="whitespace-nowrap rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-900 transition-colors"
-            >
-              <MapPin className="mr-1 inline h-3 w-3" />
-              Gulshan
-            </button>
+            {AREAS.map((area) => (
+              <button
+                key={area}
+                onClick={() => navigate(`/properties?area=${encodeURIComponent(area)}`)}
+                className="whitespace-nowrap rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-900 transition-colors"
+              >
+                <MapPin className="mr-1 inline h-3 w-3" />
+                {area}
+              </button>
+            ))}
             <button
               onClick={() => navigate('/properties?propertyType=FAMILY')}
               className="whitespace-nowrap rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-900 transition-colors"
