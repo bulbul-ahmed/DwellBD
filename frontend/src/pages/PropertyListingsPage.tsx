@@ -52,7 +52,7 @@ const PropertyListingsPage = () => {
     return initialObj
   }, [searchParams])
 
-  const [filters, setFilters] = useState(initialFilters)
+  const [filters, setFilters] = useState<PropertyFilters>(initialFilters as PropertyFilters)
 
   const sortByValue = useMemo(() => {
     if (filters.sortBy === 'rentAmount' && filters.order === 'asc') return 'price-low'
