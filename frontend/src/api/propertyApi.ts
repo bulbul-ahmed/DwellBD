@@ -3,6 +3,7 @@ import api from './authApi'
 export interface PropertyFilters {
   q?: string
   area?: string
+  subArea?: string
   minPrice?: number
   maxPrice?: number
   propertyType?: string
@@ -11,7 +12,7 @@ export interface PropertyFilters {
   listingType?: string
   sortBy?: 'createdAt' | 'rentAmount' | 'bedrooms'
   order?: 'asc' | 'desc'
-  page?: number
+  page: number
   limit?: number
 }
 
